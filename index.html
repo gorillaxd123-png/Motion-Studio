@@ -3,19 +3,27 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Motion Studio — Grid Zoom Strip</title>
+  <title>Motion Studio — Explore Templates</title>
   <style>
     :root {
-      --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
-      --glass-bg: rgba(255, 255, 255, 0.65);
-      --glass-border: rgba(255, 255, 255, 0.8);
-      --shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+      --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      --glass-bg: rgba(255, 255, 255, 0.75);
+      --glass-border: rgba(255, 255, 255, 0.9);
+      --glass-card: rgba(255, 255, 255, 0.6);
+      --shadow-soft: 0 12px 32px rgba(0, 0, 0, 0.04);
+      --shadow-hover: 0 20px 40px rgba(0, 0, 0, 0.08);
       --accent: #0071e3;
-      --text-main: #1d1d1f;
-      --text-muted: #86868b;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      cursor: none; /* Custom glow cursor active */
+    }
 
     body {
       background: var(--bg-gradient);
@@ -24,349 +32,343 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 40px 20px;
+      padding: 40px 24px;
+      overflow-x: hidden;
     }
 
-    header {
-      text-align: center;
-      margin-bottom: 30px;
+    /* Smooth Glowing Dot Cursor */
+    .glow-cursor {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 18px;
+      height: 18px;
+      background: rgba(0, 113, 227, 0.5);
+      box-shadow: 0 0 15px rgba(0, 113, 227, 0.8), 0 0 30px rgba(0, 113, 227, 0.4);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: width 0.2s, height 0.2s, background 0.2s;
     }
 
-    header h1 {
-      font-size: 2.2rem;
-      font-weight: 600;
-      letter-spacing: -0.5px;
+    .glow-cursor.hovered {
+      width: 30px;
+      height: 30px;
+      background: rgba(0, 113, 227, 0.3);
+      box-shadow: 0 0 25px rgba(0, 113, 227, 0.9);
     }
 
-    header p {
-      color: var(--text-muted);
-      font-size: 0.95rem;
-      margin-top: 4px;
-    }
-
-    .app-container {
+    /* Navigation Bar */
+    nav {
       width: 100%;
-      max-width: 960px;
-      background: var(--glass-bg);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid var(--glass-border);
-      border-radius: 24px;
-      padding: 30px;
-      box-shadow: var(--shadow);
-    }
-
-    /* Upload Grid */
-    .upload-section {
-      margin-bottom: 24px;
-    }
-
-    .section-title {
-      font-size: 0.85rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      color: var(--text-muted);
-      margin-bottom: 12px;
-    }
-
-    .upload-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-      gap: 12px;
-    }
-
-    .upload-slot {
-      aspect-ratio: 1;
-      border: 2px dashed rgba(0, 0, 0, 0.1);
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      overflow: hidden;
-      position: relative;
-      background: rgba(255, 255, 255, 0.4);
-      transition: all 0.2s ease;
-    }
-
-    .upload-slot:hover {
-      border-color: var(--accent);
-      background: rgba(255, 255, 255, 0.8);
-    }
-
-    .upload-slot img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .upload-slot span {
-      font-size: 1.2rem;
-      color: var(--text-muted);
-    }
-
-    /* Stage Canvas */
-    .viewport-stage {
-      width: 100%;
-      height: 340px;
-      background: #ffffff;
-      border-radius: 16px;
-      overflow: hidden;
-      position: relative;
-      box-shadow: inset 0 0 20px rgba(0,0,0,0.03);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .grid-strip-canvas {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-      width: 240px;
-      height: 240px;
-      transition: transform 0.1s linear;
-      transform-origin: center center;
-    }
-
-    .grid-cell {
-      background: #f0f0f2;
-      border-radius: 6px;
-      overflow: hidden;
-    }
-
-    .grid-cell img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    /* Controls Bar */
-    .controls-bar {
+      max-width: 1100px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-top: 24px;
-      padding-top: 20px;
-      border-top: 1px solid rgba(0,0,0,0.06);
+      padding: 16px 28px;
+      background: var(--glass-bg);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      border: 1px solid var(--glass-border);
+      border-radius: 980px;
+      box-shadow: var(--shadow-soft);
+      margin-bottom: 50px;
     }
 
-    .btn-group {
+    .brand {
+      font-size: 1.25rem;
+      font-weight: 600;
+      letter-spacing: -0.5px;
       display: flex;
-      gap: 10px;
       align-items: center;
+      gap: 8px;
     }
 
-    button {
-      padding: 10px 20px;
+    .brand-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--accent);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--accent);
+    }
+
+    /* Shiny Button Effect */
+    .btn-shine {
+      position: relative;
+      padding: 10px 22px;
       border-radius: 980px;
       border: none;
-      font-size: 0.9rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .btn-secondary {
-      background: rgba(0, 0, 0, 0.05);
-      color: var(--text-main);
-    }
-
-    .btn-secondary:hover {
-      background: rgba(0, 0, 0, 0.1);
-    }
-
-    .btn-primary {
       background: var(--accent);
       color: #fff;
+      font-size: 0.9rem;
+      font-weight: 500;
+      overflow: hidden;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
-    .btn-primary:hover {
-      opacity: 0.9;
-      box-shadow: 0 4px 12px rgba(0, 113, 227, 0.3);
+    .btn-shine::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(
+        60deg,
+        transparent 30%,
+        rgba(255, 255, 255, 0.6) 50%,
+        transparent 70%
+      );
+      transform: rotate(25deg) translateX(-100%);
+      transition: transform 0.6s ease;
     }
 
-    select {
-      padding: 10px 14px;
+    .btn-shine:hover::before {
+      transform: rotate(25deg) translateX(100%);
+    }
+
+    .btn-shine:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 113, 227, 0.35);
+    }
+
+    /* Hero Section */
+    .hero {
+      text-align: center;
+      max-width: 720px;
+      width: 100%;
+      margin-bottom: 40px;
+    }
+
+    .hero h1 {
+      font-size: 3rem;
+      font-weight: 700;
+      letter-spacing: -1.2px;
+      margin-bottom: 12px;
+      background: linear-gradient(180deg, #0f172a 0%, #475569 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero p {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      margin-bottom: 30px;
+    }
+
+    /* Search Bar */
+    .search-box {
+      position: relative;
+      width: 100%;
+      max-width: 580px;
+      margin: 0 auto;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 16px 24px;
+      font-size: 1rem;
       border-radius: 980px;
-      border: 1px solid rgba(0, 0, 0, 0.1);
-      background: rgba(255, 255, 255, 0.8);
-      font-size: 0.85rem;
+      border: 1px solid var(--glass-border);
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(15px);
+      box-shadow: var(--shadow-soft);
       outline: none;
-      cursor: pointer;
+      color: var(--text-main);
+      transition: all 0.3s ease;
     }
 
-    /* Progress Overlay */
-    .render-modal {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(255, 255, 255, 0.8);
-      backdrop-filter: blur(10px);
+    .search-input:focus {
+      background: #ffffff;
+      box-shadow: 0 10px 30px rgba(0, 113, 227, 0.15);
+      border-color: var(--accent);
+    }
+
+    /* Category Chips */
+    .categories-bar {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 24px;
+    }
+
+    .chip {
+      padding: 8px 18px;
+      border-radius: 980px;
+      background: rgba(255, 255, 255, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      transition: all 0.25s ease;
+    }
+
+    .chip.active, .chip:hover {
+      background: #ffffff;
+      color: var(--accent);
+      border-color: var(--accent);
+      box-shadow: 0 4px 14px rgba(0, 113, 227, 0.12);
+    }
+
+    /* Grid Template Cards */
+    .template-grid {
+      width: 100%;
+      max-width: 1100px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 24px;
+      margin-top: 20px;
+    }
+
+    .card {
+      background: var(--glass-card);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: var(--shadow-soft);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .card:hover {
+      transform: translateY(-6px);
+      box-shadow: var(--shadow-hover);
+      border-color: rgba(255, 255, 255, 1);
+    }
+
+    .card-preview {
+      width: 100%;
+      height: 180px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #e0e7ff 0%, #f1f5f9 100%);
+      display: flex;
       align-items: center;
       justify-content: center;
-      flex-direction: column;
-      z-index: 100;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      font-weight: 500;
     }
 
-    .progress-bar-wrap {
-      width: 260px;
-      height: 6px;
-      background: rgba(0,0,0,0.1);
-      border-radius: 3px;
-      overflow: hidden;
-      margin-top: 16px;
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 600;
     }
 
-    .progress-bar {
-      width: 0%;
-      height: 100%;
-      background: var(--accent);
-      transition: width 0.1s ease;
+    .card-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.4;
     }
   </style>
 </head>
 <body>
 
-  <header>
-    <h1>Motion Studio</h1>
-    <p>Grid Zoom Strip Template</p>
-  </header>
+  <!-- Custom Glowing Dot Cursor -->
+  <div class="glow-cursor" id="cursor"></div>
 
-  <div class="app-container">
-    <div class="upload-section">
-      <div class="section-title">Media Slots (Up to 9 Images)</div>
-      <div class="upload-grid" id="uploadGrid"></div>
-      <input type="file" id="fileInput" accept="image/*" multiple style="display: none;">
+  <!-- Header Navigation -->
+  <nav>
+    <div class="brand">
+      <div class="brand-dot"></div>
+      Motion Studio
+    </div>
+    <button class="btn-shine interactive">Create New</button>
+  </nav>
+
+  <!-- Hero Section -->
+  <div class="hero">
+    <h1>Motion Graphics & UI</h1>
+    <p>Minimalist templates inspired by Apple & Samsung aesthetics.</p>
+    
+    <!-- Search Bar -->
+    <div class="search-box">
+      <input type="text" class="search-input interactive" id="searchInput" placeholder="Search motion graphics templates...">
     </div>
 
-    <div class="viewport-stage">
-      <div class="grid-strip-canvas" id="canvasGrid"></div>
-    </div>
-
-    <div class="controls-bar">
-      <div class="btn-group">
-        <button class="btn-secondary" id="playBtn">Play Animation</button>
-      </div>
-
-      <div class="btn-group">
-        <select id="resSelect">
-          <option value="1080p">1080p (Full HD)</option>
-          <option value="4K">4K (Ultra HD)</option>
-        </select>
-        <button class="btn-primary" id="renderBtn">Render Video</button>
-      </div>
+    <!-- Category Filters -->
+    <div class="categories-bar">
+      <div class="chip active interactive">All Motion</div>
+      <div class="chip interactive">3D UI Animations</div>
+      <div class="chip interactive">Glassmorphism</div>
+      <div class="chip interactive">Typography</div>
+      <div class="chip interactive">Product Reveal</div>
     </div>
   </div>
 
-  <div class="render-modal" id="renderModal">
-    <h3 id="renderStatus">Rendering 1080p Motion...</h3>
-    <div class="progress-bar-wrap">
-      <div class="progress-bar" id="progressBar"></div>
+  <!-- Template Grid Display -->
+  <div class="template-grid" id="templateGrid">
+    <div class="card interactive">
+      <div class="card-preview">Grid Zoom Strip</div>
+      <div class="card-title">Grid Zoom Strip</div>
+      <div class="card-desc">Multi-image zoom transition with ultra-smooth spring mechanics.</div>
+      <button class="btn-shine interactive">Open Template</button>
+    </div>
+
+    <div class="card interactive">
+      <div class="card-preview">Glass Device Reveal</div>
+      <div class="card-title">Glass Device Reveal</div>
+      <div class="card-desc">Apple-style sleek hardware float showcase with real-time reflections.</div>
+      <button class="btn-shine interactive">Open Template</button>
+    </div>
+
+    <div class="card interactive">
+      <div class="card-preview">Kinetic Dynamic UI</div>
+      <div class="card-title">Kinetic Dynamic UI</div>
+      <div class="card-desc">Interactive responsive interface elements with buttery smooth easing.</div>
+      <button class="btn-shine interactive">Open Template</button>
     </div>
   </div>
 
   <script>
-    const MAX_SLOTS = 9;
-    const uploadGrid = document.getElementById('uploadGrid');
-    const canvasGrid = document.getElementById('canvasGrid');
-    const fileInput = document.getElementById('fileInput');
-    const playBtn = document.getElementById('playBtn');
-    const renderBtn = document.getElementById('renderBtn');
-    const renderModal = document.getElementById('renderModal');
-    const progressBar = document.getElementById('progressBar');
-    const renderStatus = document.getElementById('renderStatus');
+    // Smooth Following Glowing Dot Cursor
+    const cursor = document.getElementById('cursor');
+    let mouseX = 0, mouseY = 0;
+    let cursorX = 0, cursorY = 0;
 
-    let images = new Array(MAX_SLOTS).fill(null);
-    let isPlaying = false;
-    let animFrame = null;
-    let scale = 1;
-    let growing = true;
+    window.addEventListener('mousemove', (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+    });
 
-    // Initialize Slots
-    function initUI() {
-      uploadGrid.innerHTML = '';
-      canvasGrid.innerHTML = '';
+    function renderCursor() {
+      // Smooth interpolation (lerp)
+      cursorX += (mouseX - cursorX) * 0.15;
+      cursorY += (mouseY - cursorY) * 0.15;
+      
+      cursor.style.left = `${cursorX}px`;
+      cursor.style.top = `${cursorY}px`;
 
-      for (let i = 0; i < MAX_SLOTS; i++) {
-        // Upload Slot
-        const slot = document.createElement('div');
-        slot.className = 'upload-slot';
-        slot.innerHTML = images[i] ? `<img src="${images[i]}">` : `<span>+</span>`;
-        slot.addEventListener('click', () => { fileInput.click(); });
-        uploadGrid.appendChild(slot);
-
-        // Canvas Cell
-        const cell = document.createElement('div');
-        cell.className = 'grid-cell';
-        if (images[i]) cell.innerHTML = `<img src="${images[i]}">`;
-        canvasGrid.appendChild(cell);
-      }
+      requestAnimationFrame(renderCursor);
     }
+    renderCursor();
 
-    fileInput.addEventListener('change', (e) => {
-      const files = Array.from(e.target.files).slice(0, MAX_SLOTS);
-      files.forEach((file, idx) => {
-        const reader = new FileReader();
-        reader.onload = (evt) => {
-          images[idx] = evt.target.result;
-          initUI();
-        };
-        reader.readAsDataURL(file);
+    // Hover effect for interactive elements
+    const interactives = document.querySelectorAll('.interactive');
+    interactives.forEach(el => {
+      el.addEventListener('mouseenter', () => cursor.classList.add('hovered'));
+      el.addEventListener('mouseleave', () => cursor.classList.remove('hovered'));
+    });
+
+    // Simple Search Filter Demo
+    const searchInput = document.getElementById('searchInput');
+    const cards = document.querySelectorAll('.card');
+
+    searchInput.addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase();
+      cards.forEach(card => {
+        const title = card.querySelector('.card-title').innerText.toLowerCase();
+        if (title.includes(query)) {
+          card.style.display = 'flex';
+        } else {
+          card.style.display = 'none';
+        }
       });
     });
-
-    // Zoom Animation Logic
-    function animateGrid() {
-      if (!isPlaying) return;
-
-      if (growing) {
-        scale += 0.008;
-        if (scale >= 1.6) growing = false;
-      } else {
-        scale -= 0.008;
-        if (scale <= 1.0) growing = true;
-      }
-
-      canvasGrid.style.transform = `scale(${scale})`;
-      animFrame = requestAnimationFrame(animateGrid);
-    }
-
-    playBtn.addEventListener('click', () => {
-      isPlaying = !isPlaying;
-      if (isPlaying) {
-        playBtn.innerText = 'Pause';
-        animateGrid();
-      } else {
-        playBtn.innerText = 'Play Animation';
-        cancelAnimationFrame(animFrame);
-      }
-    });
-
-    // Mock 4K/1080p Render Simulator
-    renderBtn.addEventListener('click', () => {
-      const res = document.getElementById('resSelect').value;
-      renderStatus.innerText = `Rendering in ${res}...`;
-      renderModal.style.display = 'flex';
-      let progress = 0;
-
-      const interval = setInterval(() => {
-        progress += 4;
-        progressBar.style.width = `${progress}%`;
-
-        if (progress >= 100) {
-          clearInterval(interval);
-          setTimeout(() => {
-            renderModal.style.display = 'none';
-            progressBar.style.width = '0%';
-            alert(`Render Complete! High-quality ${res} output exported.`);
-          }, 300);
-        }
-      }, 50);
-    });
-
-    initUI();
   </script>
 </body>
 </html>
