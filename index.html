@@ -12,8 +12,7 @@
       --glass-card: rgba(255, 255, 255, 0.6);
       --shadow-soft: 0 12px 32px rgba(0, 0, 0, 0.04);
       --shadow-hover: 0 20px 40px rgba(0, 0, 0, 0.08);
-      --accent-blue: #0071e3;
-      --accent-yellow: #ffb703; /* Yellow Glow Color */
+      --accent: #0071e3;
       --text-main: #0f172a;
       --text-muted: #64748b;
     }
@@ -37,15 +36,15 @@
       overflow-x: hidden;
     }
 
-    /* Vibrant Yellow Glowing Dot Cursor */
+    /* Smooth Blue Glowing Dot Cursor */
     .glow-cursor {
       position: fixed;
       top: 0;
       left: 0;
       width: 18px;
       height: 18px;
-      background: rgba(255, 183, 3, 0.85);
-      box-shadow: 0 0 15px rgba(255, 183, 3, 0.9), 0 0 30px rgba(255, 183, 3, 0.6);
+      background: rgba(0, 113, 227, 0.5);
+      box-shadow: 0 0 15px rgba(0, 113, 227, 0.8), 0 0 30px rgba(0, 113, 227, 0.4);
       border-radius: 50%;
       pointer-events: none;
       z-index: 9999;
@@ -54,10 +53,10 @@
     }
 
     .glow-cursor.hovered {
-      width: 32px;
-      height: 32px;
-      background: rgba(255, 183, 3, 0.45);
-      box-shadow: 0 0 25px rgba(255, 183, 3, 1), 0 0 45px rgba(255, 183, 3, 0.7);
+      width: 30px;
+      height: 30px;
+      background: rgba(0, 113, 227, 0.3);
+      box-shadow: 0 0 25px rgba(0, 113, 227, 0.9);
     }
 
     /* Navigation Bar */
@@ -87,11 +86,11 @@
     }
 
     .brand-dot {
-      width: 10px;
-      height: 10px;
-      background: var(--accent-yellow);
+      width: 8px;
+      height: 8px;
+      background: var(--accent);
       border-radius: 50%;
-      box-shadow: 0 0 10px var(--accent-yellow);
+      box-shadow: 0 0 8px var(--accent);
     }
 
     /* Shiny Button Effect */
@@ -100,7 +99,7 @@
       padding: 10px 22px;
       border-radius: 980px;
       border: none;
-      background: var(--accent-blue);
+      background: var(--accent);
       color: #fff;
       font-size: 0.9rem;
       font-weight: 500;
@@ -183,7 +182,7 @@
     .search-input:focus {
       background: #ffffff;
       box-shadow: 0 10px 30px rgba(0, 113, 227, 0.15);
-      border-color: var(--accent-blue);
+      border-color: var(--accent);
     }
 
     /* Category Chips */
@@ -207,9 +206,9 @@
 
     .chip.active, .chip:hover {
       background: #ffffff;
-      color: var(--text-main);
-      border-color: var(--accent-yellow);
-      box-shadow: 0 4px 14px rgba(255, 183, 3, 0.25);
+      color: var(--accent);
+      border-color: var(--accent);
+      box-shadow: 0 4px 14px rgba(0, 113, 227, 0.12);
     }
 
     /* Grid Template Cards */
@@ -246,7 +245,7 @@
       width: 100%;
       height: 180px;
       border-radius: 12px;
-      background: linear-gradient(135deg, #fef08a 0%, #f1f5f9 100%);
+      background: linear-gradient(135deg, #e0e7ff 0%, #f1f5f9 100%);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -269,7 +268,7 @@
 </head>
 <body>
 
-  <!-- Custom Yellow Glowing Dot Cursor -->
+  <!-- Custom Blue Glowing Dot Cursor -->
   <div class="glow-cursor" id="cursor"></div>
 
   <!-- Header Navigation -->
