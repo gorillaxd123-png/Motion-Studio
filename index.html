@@ -1,170 +1,980 @@
-<!-- Background & Media Controls Container -->
-<div class="render-background-section">
-  <!-- Preset Selector -->
-  <div class="control-group">
-    <label for="preset-select">Animation Preset:</label>
-    <select id="preset-select" onchange="handlePresetChange(this.value)">
-      <option value="ken-burns">1. Ken Burns Pan & Zoom (1 Slot)</option>
-      <option value="parallax-3d">2. 3D Parallax Tilt (2 Slots)</option>
-      <option value="diagonal-split">3. Diagonal Split Slide (2 Slots)</option>
-      <option value="tri-panel">4. Tri-Panel Staggered Wave (3 Slots)</option>
-      <option value="carousel-3d">5. Rotating 3D Cube Carousel (4 Slots)</option>
-      <option value="cyber-glitch">6. Cyberpunk Chromatic Glitch (2 Slots)</option>
-      <option value="floating-stack">7. Floating Card Stack (3 Slots)</option>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Motion Studio - 3D Animation & Render Suite</title>
+  <style>
+    :root {
+      --bg-dark: #121316;
+      --bg-panel: #1a1c23;
+      --bg-card: #232633;
+      --bg-input: #151720;
+      --accent: #6366f1;
+      --accent-hover: #4f46e5;
+      --accent-glow: rgba(99, 102, 241, 0.35);
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --border-color: #2e3245;
+      --danger: #ef4444;
+      --radius: 8px;
+    }
 
-      <option value="kinetic-pulse">8. Kinetic Zoom Pulse (1 Slot)</option>
-      <option value="filmstrip-roll">9. Vertical Filmstrip Loop (4 Slots)</option>
-      <option value="radial-portal">10. Circular Portal Expansion (2 Slots)</option>
-      <option value="glass-overlay">11. Glassmorphic Multi-Pane (3 Slots)</option>
-      <option value="vortex-spin">12. Vortex Spiral Focus (3 Slots)</option>
-      <option value="origami-flip">13. Origami 3D Flip (2 Slots)</option>
-      <option value="elastic-grid">14. Elastic Bounce 2x2 Grid (4 Slots)</option>
-      <option value="cinematic-reel">15. Pan Horizontal Reel (5 Slots)</option>
-    </select>
-  </div>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
 
-  <!-- Animated Viewport Display -->
-  <div id="bg-viewport" class="bg-viewport preset-ken-burns">
-    <div id="bg-content-container" class="bg-content-container"></div>
-  </div>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
 
-  <!-- Dynamic Media Section -->
-  <div class="media-section">
-    <div class="media-header">
-      <label>Media Slots (<span id="slot-counter">0 / 1</span>):</label>
-      <small id="slot-info">Select up to 1 image for this preset.</small>
+    /* Header Navigation */
+    header {
+      height: 52px;
+      background-color: var(--bg-panel);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      z-index: 10;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      letter-spacing: 0.5px;
+    }
+
+    .brand-icon {
+      width: 24px;
+      height: 24px;
+      background: linear-gradient(135deg, var(--accent), #a855f7);
+      border-radius: 6px;
+      display: grid;
+      place-items: center;
+      font-size: 12px;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn {
+      background-color: var(--bg-card);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      padding: 6px 14px;
+      border-radius: var(--radius);
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .btn:hover {
+      background-color: #2d3142;
+      border-color: #3e445e;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+      border: none;
+      box-shadow: 0 2px 10px var(--accent-glow);
+    }
+
+    .btn-primary:hover {
+      opacity: 0.9;
+    }
+
+    /* Main Studio Layout */
+    .studio-body {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* Left Panel: Media & Presets */
+    .panel-left {
+      width: 320px;
+      background-color: var(--bg-panel);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    .panel-section {
+      padding: 18px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .panel-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      font-weight: 700;
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    select, input[type="text"] {
+      width: 100%;
+      background-color: var(--bg-input);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 8px 10px;
+      border-radius: var(--radius);
+      font-size: 0.85rem;
+      outline: none;
+    }
+
+    select:focus, input[type="text"]:focus {
+      border-color: var(--accent);
+    }
+
+    /* Render Background Selector */
+    .bg-options {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .bg-opt {
+      height: 36px;
+      border-radius: 6px;
+      border: 2px solid transparent;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      font-size: 10px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .bg-opt.active {
+      border-color: var(--accent);
+    }
+
+    .bg-dark-opt { background: #121316; }
+    .bg-white-opt { background: #f8fafc; color: #111; }
+    .bg-grid-opt { background: repeating-conic-gradient(#202430 0% 25%, #151720 0% 50%) 50% / 12px 12px; }
+    .bg-grad-opt { background: linear-gradient(135deg, #1e1b4b, #311042); }
+
+    /* Media Upload & Manager Section */
+    .media-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .slot-badge {
+      font-size: 0.7rem;
+      background: rgba(99, 102, 241, 0.2);
+      color: #818cf8;
+      padding: 2px 8px;
+      border-radius: 10px;
+      border: 1px solid rgba(99, 102, 241, 0.4);
+    }
+
+    .upload-box {
+      border: 2px dashed var(--border-color);
+      border-radius: var(--radius);
+      padding: 16px;
+      text-align: center;
+      background-color: var(--bg-input);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-bottom: 12px;
+    }
+
+    .upload-box:hover {
+      border-color: var(--accent);
+      background-color: rgba(99, 102, 241, 0.05);
+    }
+
+    .upload-box p {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .media-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .media-thumb {
+      position: relative;
+      aspect-ratio: 16/9;
+      background-color: var(--bg-card);
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+    }
+
+    .media-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .media-thumb .slot-number {
+      position: absolute;
+      bottom: 2px;
+      left: 4px;
+      font-size: 9px;
+      background: rgba(0,0,0,0.7);
+      padding: 1px 4px;
+      border-radius: 3px;
+    }
+
+    /* Close / Remove cross overlay on hover */
+    .media-thumb .remove-btn {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      background: rgba(239, 68, 68, 0.85);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: bold;
+      opacity: 0;
+      cursor: pointer;
+      transition: opacity 0.2s ease;
+    }
+
+    .media-thumb:hover .remove-btn {
+      opacity: 1;
+    }
+
+    /* Center Viewport Canvas */
+    .viewport-container {
+      flex: 1;
+      background-color: #0b0c0e;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      padding: 20px;
+    }
+
+    .canvas-wrapper {
+      position: relative;
+      width: 100%;
+      max-width: 1000px;
+      aspect-ratio: 16/9;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+      background: #000;
+    }
+
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* Timeline & Playback Bar */
+    .timeline-bar {
+      height: 56px;
+      width: 100%;
+      background-color: var(--bg-panel);
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      gap: 16px;
+    }
+
+    .time-code {
+      font-family: monospace;
+      font-size: 0.85rem;
+      color: var(--accent);
+      width: 80px;
+    }
+
+    .scrubber-container {
+      flex: 1;
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .scrubber-container input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    /* Right Panel: 3D Inspector Controls */
+    .panel-right {
+      width: 280px;
+      background-color: var(--bg-panel);
+      border-left: 1px solid var(--border-color);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      overflow-y: auto;
+    }
+
+    .slider-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .slider-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .slider-group input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+    }
+
+    /* Hidden File Input */
+    #mediaFileInput {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="brand">
+      <div class="brand-icon">M</div>
+      <span>Motion Studio</span>
+    </div>
+    <div class="header-actions">
+      <span style="font-size:0.75rem; color:var(--text-muted)">1080p • 60 FPS</span>
+      <button class="btn btn-primary" id="renderBtn">Render Video</button>
+    </div>
+  </header>
+
+  <!-- Studio Body -->
+  <div class="studio-body">
+    
+    <!-- Left Sidebar: Settings, Presets & Media -->
+    <div class="panel-left">
+      
+      <!-- Preset Selection -->
+      <div class="panel-section">
+        <div class="panel-title">Animation Presets</div>
+        <div class="form-group">
+          <label for="presetSelect">Select Preset (15 Styles)</label>
+          <select id="presetSelect"></select>
+        </div>
+        <div id="presetDesc" style="font-size: 0.75rem; color: var(--text-muted); line-height: 1.4;"></div>
+      </div>
+
+      <!-- Render Background -->
+      <div class="panel-section">
+        <div class="panel-title">Render Background</div>
+        <div class="bg-options">
+          <div class="bg-opt bg-dark-opt active" data-bg="dark">Dark</div>
+          <div class="bg-opt bg-white-opt" data-bg="white">White</div>
+          <div class="bg-opt bg-grid-opt" data-bg="grid">Grid</div>
+          <div class="bg-opt bg-grad-opt" data-bg="grad">Glow</div>
+        </div>
+      </div>
+
+      <!-- Media Section -->
+      <div class="panel-section">
+        <div class="media-header">
+          <div class="panel-title" style="margin:0;">Media Slots</div>
+          <div class="slot-badge" id="slotBadge">Needs 1 Image</div>
+        </div>
+        
+        <div class="upload-box" id="uploadBox">
+          <div style="font-size:20px;">📁</div>
+          <p><strong>Click to Add Images</strong></p>
+          <p style="font-size:0.7rem;">Multiple uploads supported</p>
+        </div>
+        <input type="file" id="mediaFileInput" multiple accept="image/*">
+
+        <!-- Uploaded Images Grid -->
+        <div class="media-grid" id="mediaGrid"></div>
+      </div>
+
     </div>
 
-    <!-- Drop/Upload Area -->
-    <div class="media-upload-wrapper">
-      <input type="file" id="media-input" accept="image/*" multiple onchange="handleImageUpload(event)" />
-      <button class="upload-btn" onclick="document.getElementById('media-input').click()">
-        + Add Images
-      </button>
+    <!-- Center Canvas Viewport -->
+    <div class="viewport-container">
+      <div class="canvas-wrapper">
+        <canvas id="studioCanvas" width="1920" height="1080"></canvas>
+      </div>
     </div>
 
-    <!-- Image Thumbnails Grid -->
-    <div id="media-grid" class="media-grid"></div>
+    <!-- Right Sidebar: 3D Inspector -->
+    <div class="panel-right">
+      <div class="panel-title">3D Camera & Dynamics</div>
+
+      <div class="slider-group">
+        <div class="slider-header">
+          <span>Pitch Angle</span>
+          <span id="pitchVal">0°</span>
+        </div>
+        <input type="range" id="pitchSlider" min="-45" max="45" value="0">
+      </div>
+
+      <div class="slider-group">
+        <div class="slider-header">
+          <span>Yaw Perspective</span>
+          <span id="yawVal">0°</span>
+        </div>
+        <input type="range" id="yawSlider" min="-45" max="45" value="0">
+      </div>
+
+      <div class="slider-group">
+        <div class="slider-header">
+          <span>Scale Zoom</span>
+          <span id="scaleVal">1.0x</span>
+        </div>
+        <input type="range" id="scaleSlider" min="50" max="150" value="100">
+      </div>
+
+      <div class="slider-group">
+        <div class="slider-header">
+          <span>Motion Speed</span>
+          <span id="speedVal">1.0x</span>
+        </div>
+        <input type="range" id="speedSlider" min="20" max="200" value="100">
+      </div>
+    </div>
+
   </div>
-</div>
 
-<style>
-/* Viewport & Layout */
-.render-background-section { display: flex; flex-direction: column; gap: 16px; font-family: sans-serif; }
-.bg-viewport {
-  width: 100%; height: 280px; border-radius: 12px; overflow: hidden;
-  position: relative; background: #0d0f12; perspective: 1000px;
-}
-.bg-content-container { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; }
+  <!-- Bottom Timeline Playback -->
+  <div class="timeline-bar">
+    <button class="btn" id="playBtn">Pause</button>
+    <div class="time-code" id="timeCode">00:00.00</div>
+    <div class="scrubber-container">
+      <input type="range" id="timelineScrubber" min="0" max="600" value="0">
+    </div>
+  </div>
 
-/* Media Section & Thumbnails */
-.media-section { background: #161920; padding: 16px; border-radius: 10px; color: #fff; }
-.media-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-.media-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+  <script>
+    // --- 15 PRESET CONFIGURATIONS WITH DIFFERENT IMAGE SLOTS ---
+    const PRESETS = {
+      isoFloat: { name: "1. Isometric 3D Float", slots: 1, desc: "Single slot isometric card floating gently on an orbital axis." },
+      panZoom: { name: "2. Cinematic Pan & Zoom", slots: 1, desc: "Smooth high-definition camera tracking and subtle depth zoom." },
+      tiltGlow: { name: "3. 3D Tilt & Specular Sheen", slots: 1, desc: "Extreme yaw tilt with dynamic light sheen sweeping across." },
+      pulseSway: { name: "4. Rhythmic Pulse & Sway", slots: 1, desc: "Organic scale breathing with subtle pendulum rotation." },
+      dualSplit3D: { name: "5. Dual 3D Split Perspective", slots: 2, desc: "2 image slots pitched in opposing isometric planes." },
+      triPerspective: { name: "6. Triptych Focal Display", slots: 3, desc: "3 image slots angled inward toward a center focal point." },
+      quadGridFloat: { name: "7. Quad Grid 3D Matrix", slots: 4, desc: "4 slot image grid floating synchronously with wave motion." },
+      carouselRotate: { name: "8. 3D Orbit Carousel", slots: 3, desc: "3 cards orbiting around a central vertical spatial axis." },
+      cardStack: { name: "9. Cascading Card Stack", slots: 3, desc: "3 images stacked in depth, sliding outward sequentially." },
+      cubePerspective: { name: "10. Spatial Cube Planes", slots: 4, desc: "4 cards forming side faces of a turning spatial structure." },
+      diagonalGlide: { name: "11. Diagonal Isometric Glide", slots: 2, desc: "2 cards gliding along diagonal motion vectors." },
+      heroSidekick: { name: "12. Hero Focus & Side Preview", slots: 2, desc: "1 large central hero card flanked by a angled preview card." },
+      filmStripRoll: { name: "13. Floating Ribbon Reel", slots: 3, desc: "3 image cards flowing vertically in a dynamic ribbon curve." },
+      parallaxTunnel: { name: "14. Parallax Depth Frames", slots: 3, desc: "Concentric layered frames with depth perspective displacement." },
+      vorticalOrbit: { name: "15. Vortical Helix Orbit", slots: 4, desc: "4 cards orbiting at staggered height offsets with pitch angle." }
+    };
 
-.media-thumb-wrapper {
-  position: relative; width: 80px; height: 80px; border-radius: 8px;
-  overflow: hidden; border: 2px solid #2e3440;
-}
-.media-thumb-wrapper img { width: 100%; height: 100%; object-fit: cover; }
+    // --- APPLICATION STATE ---
+    const state = {
+      images: [], // Stores uploaded Image elements
+      presetKey: 'isoFloat',
+      bgType: 'dark',
+      isPlaying: true,
+      frame: 0,
+      speed: 1.0,
+      manualPitch: 0,
+      manualYaw: 0,
+      manualScale: 1.0,
+      canvas: null,
+      ctx: null
+    };
 
-/* Cross Overlay on Hover */
-.media-thumb-wrapper .remove-btn {
-  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(220, 38, 38, 0.85); color: #fff; display: flex;
-  align-items: center; justify-content: center; font-size: 20px; font-weight: bold;
-  opacity: 0; cursor: pointer; transition: opacity 0.2s ease-in-out; border: none;
-}
-.media-thumb-wrapper:hover .remove-btn { opacity: 1; }
+    // --- INITIALIZATION ---
+    window.addEventListener('DOMContentLoaded', () => {
+      state.canvas = document.getElementById('studioCanvas');
+      state.ctx = state.canvas.getContext('2d');
 
-/* --- 15 ANIMATION PRESETS CSS --- */
-/* Preset 1: Ken Burns */
-.preset-ken-burns img { width: 100%; height: 100%; object-fit: cover; animation: kenBurns 12s infinite alternate ease-in-out; }
-@keyframes kenBurns { 0% { transform: scale(1) translate(0, 0); } 100% { transform: scale(1.25) translate(-3%, -2%); } }
+      initPresetDropdown();
+      setupEventListeners();
+      renderMediaGrid();
+      requestAnimationFrame(loop);
+    });
 
-/* Preset 2: Parallax 3D Tilt */
-.preset-parallax-3d { display: flex; gap: 8px; padding: 12px; }
-.preset-parallax-3d img:nth-child(1) { width: 60%; height: 100%; object-fit: cover; animation: tiltLeft 6s infinite alternate ease-in-out; }
-.preset-parallax-3d img:nth-child(2) { width: 40%; height: 100%; object-fit: cover; animation: tiltRight 6s infinite alternate ease-in-out; }
-@keyframes tiltLeft { 0% { transform: rotateY(-15deg) scale(0.95); } 100% { transform: rotateY(5deg) scale(1.05); } }
-@keyframes tiltRight { 0% { transform: rotateY(15deg) scale(1.05); } 100% { transform: rotateY(-5deg) scale(0.95); } }
+    // Populate Preset Selector
+    function initPresetDropdown() {
+      const select = document.getElementById('presetSelect');
+      select.innerHTML = '';
+      for (let key in PRESETS) {
+        const opt = document.createElement('option');
+        opt.value = key;
+        opt.textContent = PRESETS[key].name;
+        select.appendChild(opt);
+      }
+      updatePresetInfo();
+    }
 
-/* Preset 3: Diagonal Split Slide */
-.preset-diagonal-split img { position: absolute; width: 100%; height: 100%; object-fit: cover; }
-.preset-diagonal-split img:nth-child(1) { clip-path: polygon(0 0, 100% 0, 0 100%); animation: diagSlide1 5s infinite alternate; }
-.preset-diagonal-split img:nth-child(2) { clip-path: polygon(100% 0, 100% 100%, 0 100%); animation: diagSlide2 5s infinite alternate; }
-@keyframes diagSlide1 { 0% { transform: translate(-10px, -10px); } 100% { transform: translate(10px, 10px); } }
-@keyframes diagSlide2 { 0% { transform: translate(10px, 10px); } 100% { transform: translate(-10px, -10px); } }
+    function updatePresetInfo() {
+      const preset = PRESETS[state.presetKey];
+      document.getElementById('presetDesc').textContent = preset.desc;
+      document.getElementById('slotBadge').textContent = `Needs ${preset.slots} Image${preset.slots > 1 ? 's' : ''}`;
+    }
 
-/* Preset 4: Tri-Panel Staggered Wave */
-.preset-tri-panel { display: flex; width: 100%; height: 100%; }
-.preset-tri-panel img { width: 33.33%; height: 100%; object-fit: cover; animation: waveUp 4s infinite alternate ease-in-out; }
-.preset-tri-panel img:nth-child(2) { animation-delay: 0.5s; }
-.preset-tri-panel img:nth-child(3) { animation-delay: 1s; }
-@keyframes waveUp { 0% { transform: translateY(-8%); } 100% { transform: translateY(8%); } }
+    // Event Binding
+    function setupEventListeners() {
+      // Preset selection change
+      document.getElementById('presetSelect').addEventListener('change', (e) => {
+        state.presetKey = e.target.value;
+        updatePresetInfo();
+      });
 
-/* Preset 5: 3D Cube Carousel */
-.preset-carousel-3d { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
-.preset-carousel-3d .cube { width: 180px; height: 180px; position: relative; transform-style: preserve-3d; animation: rotateCube 10s infinite linear; }
-.preset-carousel-3d .cube img { position: absolute; width: 180px; height: 180px; object-fit: cover; opacity: 0.9; }
-.preset-carousel-3d .cube img:nth-child(1) { transform: rotateY(0deg) translateZ(90px); }
-.preset-carousel-3d .cube img:nth-child(2) { transform: rotateY(90deg) translateZ(90px); }
-.preset-carousel-3d .cube img:nth-child(3) { transform: rotateY(180deg) translateZ(90px); }
-.preset-carousel-3d .cube img:nth-child(4) { transform: rotateY(-90deg) translateZ(90px); }
-@keyframes rotateCube { from { transform: rotateY(0deg) rotateX(10deg); } to { transform: rotateY(360deg) rotateX(10deg); } }
+      // Background selection
+      document.querySelectorAll('.bg-opt').forEach(opt => {
+        opt.addEventListener('click', () => {
+          document.querySelectorAll('.bg-opt').forEach(o => o.classList.remove('active'));
+          opt.classList.add('active');
+          state.bgType = opt.dataset.bg;
+        });
+      });
 
-/* Preset 6: Cyber Glitch */
-.preset-cyber-glitch img { position: absolute; width: 100%; height: 100%; object-fit: cover; }
-.preset-cyber-glitch img:nth-child(1) { animation: glitchA 2s infinite linear; }
-.preset-cyber-glitch img:nth-child(2) { opacity: 0.5; mix-blend-mode: hard-light; animation: glitchB 2s infinite linear; }
-@keyframes glitchA { 0%, 100% { transform: translate(0); } 20% { transform: translate(-5px, 3px); } 80% { transform: translate(5px, -3px); } }
-@keyframes glitchB { 0%, 100% { transform: translate(0); } 30% { transform: translate(6px, -2px); } 70% { transform: translate(-4px, 4px); } }
+      // Media upload triggers
+      const uploadBox = document.getElementById('uploadBox');
+      const fileInput = document.getElementById('mediaFileInput');
+      
+      uploadBox.addEventListener('click', () => fileInput.click());
+      fileInput.addEventListener('change', handleFileSelect);
 
-/* Preset 7: Floating Stack */
-.preset-floating-stack { display: flex; align-items: center; justify-content: center; height: 100%; }
-.preset-floating-stack img { position: absolute; width: 160px; height: 200px; border-radius: 8px; object-fit: cover; animation: floatStack 6s infinite ease-in-out alternate; }
-.preset-floating-stack img:nth-child(1) { transform: translateX(-60px) rotate(-8deg); animation-delay: 0s; }
-.preset-floating-stack img:nth-child(2) { transform: translateX(0px) rotate(0deg); z-index: 2; animation-delay: 1s; }
-.preset-floating-stack img:nth-child(3) { transform: translateX(60px) rotate(8deg); animation-delay: 2s; }
-@keyframes floatStack { 0% { translateY: -10px; } 100% { translateY: 10px; } }
+      // Play / Pause Button
+      const playBtn = document.getElementById('playBtn');
+      playBtn.addEventListener('click', () => {
+        state.isPlaying = !state.isPlaying;
+        playBtn.textContent = state.isPlaying ? 'Pause' : 'Play';
+      });
 
-/* Preset 8: Kinetic Pulse */
-.preset-kinetic-pulse img { width: 100%; height: 100%; object-fit: cover; animation: pulseScale 3s infinite ease-in-out; }
-@keyframes pulseScale { 0%, 100% { transform: scale(1) rotate(0deg); } 50% { transform: scale(1.15) rotate(2deg); } }
+      // Scrubber
+      const scrubber = document.getElementById('timelineScrubber');
+      scrubber.addEventListener('input', (e) => {
+        state.frame = parseInt(e.target.value);
+        updateTimeCode();
+      });
 
-/* Preset 9: Filmstrip Roll */
-.preset-filmstrip-roll { display: flex; flex-direction: column; animation: rollUp 8s infinite linear; }
-.preset-filmstrip-roll img { width: 100%; height: 140px; object-fit: cover; flex-shrink: 0; margin-bottom: 8px; }
-@keyframes rollUp { 0% { transform: translateY(0); } 100% { transform: translateY(-300px); } }
+      // Inspector Sliders
+      document.getElementById('pitchSlider').addEventListener('input', (e) => {
+        state.manualPitch = parseInt(e.target.value);
+        document.getElementById('pitchVal').textContent = `${state.manualPitch}°`;
+      });
+      document.getElementById('yawSlider').addEventListener('input', (e) => {
+        state.manualYaw = parseInt(e.target.value);
+        document.getElementById('yawVal').textContent = `${state.manualYaw}°`;
+      });
+      document.getElementById('scaleSlider').addEventListener('input', (e) => {
+        state.manualScale = parseInt(e.target.value) / 100;
+        document.getElementById('scaleVal').textContent = `${state.manualScale.toFixed(1)}x`;
+      });
+      document.getElementById('speedSlider').addEventListener('input', (e) => {
+        state.speed = parseInt(e.target.value) / 100;
+        document.getElementById('speedVal').textContent = `${state.speed.toFixed(1)}x`;
+      });
+    }
 
-/* Preset 10: Radial Portal */
-.preset-radial-portal img { position: absolute; width: 100%; height: 100%; object-fit: cover; }
-.preset-radial-portal img:nth-child(2) { clip-path: circle(30% at 50% 50%); animation: portalExpand 4s infinite alternate ease-in-out; }
-@keyframes portalExpand { 0% { clip-path: circle(15% at 50% 50%); } 100% { clip-path: circle(60% at 50% 50%); } }
+    // --- MEDIA FILE MANAGEMENT ---
+    function handleFileSelect(e) {
+      const files = Array.from(e.target.files);
+      if (!files.length) return;
 
-/* Preset 11: Glassmorphic Overlay */
-.preset-glass-overlay { display: flex; position: relative; width: 100%; height: 100%; }
-.preset-glass-overlay img { width: 33.33%; height: 100%; object-fit: cover; backdrop-filter: blur(4px); animation: glassShift 5s infinite alternate ease-in-out; }
-@keyframes glassShift { 0% { filter: blur(0px) brightness(1); } 100% { filter: blur(4px) brightness(1.2); } }
+      files.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const img = new Image();
+          img.onload = () => {
+            state.images.push(img);
+            renderMediaGrid();
+          };
+          img.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+      e.target.value = ''; // Reset input
+    }
 
-/* Preset 12: Vortex Spin */
-.preset-vortex-spin img { position: absolute; width: 100%; height: 100%; object-fit: cover; opacity: 0.7; animation: vortex 8s infinite linear; }
-.preset-vortex-spin img:nth-child(2) { animation-direction: reverse; animation-duration: 6s; }
-.preset-vortex-spin img:nth-child(3) { animation-duration: 12s; opacity: 1; scale: 0.6; }
-@keyframes vortex { from { transform: rotate(0deg) scale(1); } to { transform: rotate(360deg) scale(1.2); } }
+    // Render Media Thumbnails with Hover Remove Cross ('×')
+    function renderMediaGrid() {
+      const grid = document.getElementById('mediaGrid');
+      grid.innerHTML = '';
 
-/* Preset 13: Origami Flip */
-.preset-origami-flip { display: flex; width: 100%; height: 100%; perspective: 600px; }
-.preset-origami-flip img { width: 50%; height: 100%; object-fit: cover; animation: flip3D 4s infinite alternate ease-in-out; }
-@keyframes flip3D { 0% { transform: rotateY(0deg); } 100% { transform: rotateY(180deg); } }
+      state.images.forEach((img, idx) => {
+        const item = document.createElement('div');
+        item.className = 'media-thumb';
+        
+        const imgEl = document.createElement('img');
+        imgEl.src = img.src;
 
-/* Preset 14: Elastic Grid */
-.preset-elastic-grid { display: grid; grid-template-columns: 1fr 1fr; width: 100%; height: 100%; gap: 4px; }
-.preset-elastic-grid img { width: 100%; height: 100%; object-fit: cover; animation: elasticPop 3s infinite alternate ease-in-out; }
-@keyframes elasticPop { 0% { transform: scale(0.9); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        const slotTag = document.createElement('div');
+        slotTag.className = 'slot-number';
+        slotTag.textContent = `Slot ${idx + 1}`;
 
-/* Preset 15: Pan Reel */
-.preset-cinematic-reel { display: flex; width: 250%; height: 100%; animation: reelPan 12s infinite linear; }
-.preset-cinematic-reel img { width: 20%; height: 100%; object-fit: cover; }
-@keyframes reelPan { 0% { transform: translateX(0); } 100% { transform: translateX(-60%); } }
-</style>
+        // Hover Remove Overlay Button
+        const removeBtn = document.createElement('div');
+        removeBtn.className = 'remove-btn';
+        removeBtn.innerHTML = '&times;';
+        removeBtn.title = "Remove image";
+        removeBtn.onclick = (e) => {
+          e.stopPropagation();
+          removeImage(idx);
+        };
+
+        item.appendChild(imgEl);
+        item.appendChild(slotTag);
+        item.appendChild(removeBtn);
+        grid.appendChild(item);
+      });
+    }
+
+    function removeImage(index) {
+      state.images.splice(index, 1);
+      renderMediaGrid();
+    }
+
+    // Get Image or Stylized Placeholder
+    function getSlotImage(index) {
+      if (state.images[index]) return state.images[index];
+
+      // Fallback Procedural Canvas Texture
+      const pCanvas = document.createElement('canvas');
+      pCanvas.width = 800;
+      pCanvas.height = 450;
+      const pCtx = pCanvas.getContext('2d');
+
+      const hue = (index * 90 + 200) % 360;
+      const grad = pCtx.createLinearGradient(0, 0, 800, 450);
+      grad.addColorStop(0, `hsl(${hue}, 60%, 25%)`);
+      grad.addColorStop(1, `hsl(${hue + 40}, 70%, 15%)`);
+
+      pCtx.fillStyle = grad;
+      pCtx.fillRect(0, 0, 800, 450);
+
+      // Grid Pattern
+      pCtx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+      pCtx.lineWidth = 2;
+      for (let x = 0; x < 800; x += 40) {
+        pCtx.beginPath(); pCtx.moveTo(x, 0); pCtx.lineTo(x, 450); pCtx.stroke();
+      }
+      for (let y = 0; y < 450; y += 40) {
+        pCtx.beginPath(); pCtx.moveTo(0, y); pCtx.lineTo(800, y); pCtx.stroke();
+      }
+
+      // Slot Label
+      pCtx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+      pCtx.font = 'bold 36px sans-serif';
+      pCtx.textAlign = 'center';
+      pCtx.fillText(`SLOT ${index + 1}`, 400, 220);
+      pCtx.font = '18px sans-serif';
+      pCtx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+      pCtx.fillText(`Upload image to replace`, 400, 260);
+
+      return pCanvas;
+    }
+
+    // --- MAIN RENDER LOOP ---
+    function loop() {
+      if (state.isPlaying) {
+        state.frame += state.speed;
+        if (state.frame > 600) state.frame = 0;
+        document.getElementById('timelineScrubber').value = state.frame;
+        updateTimeCode();
+      }
+
+      drawCanvasFrame();
+      requestAnimationFrame(loop);
+    }
+
+    function updateTimeCode() {
+      const seconds = (state.frame / 60).toFixed(2);
+      document.getElementById('timeCode').textContent = `00:${seconds.padStart(5, '0')}`;
+    }
+
+    // --- CANVAS RENDERING ENGINE ---
+    function drawCanvasFrame() {
+      const { canvas, ctx, frame } = state;
+      const W = canvas.width;
+      const H = canvas.height;
+      const t = frame * 0.03; // Smooth animation timing
+
+      // 1. Draw Selected Background
+      ctx.save();
+      drawBackground(ctx, W, H);
+
+      // 2. Global Camera Transformation (Manual Controls + Center Origin)
+      ctx.translate(W / 2, H / 2);
+      ctx.scale(state.manualScale, state.manualScale);
+      
+      const pitchRad = (state.manualPitch * Math.PI) / 180;
+      const yawRad = (state.manualYaw * Math.PI) / 180;
+      ctx.transform(1, Math.tan(yawRad), 0, Math.cos(pitchRad), 0, 0);
+
+      // 3. Render Active Preset Animation
+      renderPreset(ctx, state.presetKey, t, W, H);
+
+      ctx.restore();
+    }
+
+    // Background Renderer
+    function drawBackground(ctx, W, H) {
+      if (state.bgType === 'dark') {
+        ctx.fillStyle = '#121316';
+        ctx.fillRect(0, 0, W, H);
+      } else if (state.bgType === 'white') {
+        ctx.fillStyle = '#f8fafc';
+        ctx.fillRect(0, 0, W, H);
+      } else if (state.bgType === 'grid') {
+        ctx.fillStyle = '#151720';
+        ctx.fillRect(0, 0, W, H);
+        ctx.strokeStyle = '#232633';
+        ctx.lineWidth = 2;
+        for (let x = 0; x < W; x += 60) {
+          ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+        }
+        for (let y = 0; y < H; y += 60) {
+          ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+        }
+      } else if (state.bgType === 'grad') {
+        const g = ctx.createRadialGradient(W/2, H/2, 100, W/2, H/2, W);
+        g.addColorStop(0, '#2e1065');
+        g.addColorStop(1, '#09090b');
+        ctx.fillStyle = g;
+        ctx.fillRect(0, 0, W, H);
+      }
+    }
+
+    // --- 15 PRESET DRAWING FUNCTIONS ---
+    function renderPreset(ctx, key, t, W, H) {
+      switch (key) {
+        case 'isoFloat': {
+          const img = getSlotImage(0);
+          const floatY = Math.sin(t * 1.5) * 25;
+          draw3DCard(ctx, img, 0, floatY, 800, 450, { pitch: 0.35, yaw: -0.25, roll: 0.05, shadow: true });
+          break;
+        }
+        case 'panZoom': {
+          const img = getSlotImage(0);
+          const zoom = 1 + Math.sin(t * 0.8) * 0.08;
+          const panX = Math.cos(t * 0.5) * 40;
+          draw3DCard(ctx, img, panX, 0, 900 * zoom, 506 * zoom, { pitch: 0.05, yaw: 0.05, shadow: true });
+          break;
+        }
+        case 'tiltGlow': {
+          const img = getSlotImage(0);
+          const tiltP = Math.sin(t) * 0.3;
+          const tiltY = Math.cos(t * 0.8) * 0.4;
+          draw3DCard(ctx, img, 0, 0, 850, 478, { pitch: tiltP, yaw: tiltY, glow: true, shadow: true });
+          break;
+        }
+        case 'pulseSway': {
+          const img = getSlotImage(0);
+          const scale = 1 + Math.sin(t * 2) * 0.05;
+          const sway = Math.sin(t) * 0.08;
+          draw3DCard(ctx, img, 0, 0, 800 * scale, 450 * scale, { roll: sway, shadow: true });
+          break;
+        }
+        case 'dualSplit3D': {
+          const img1 = getSlotImage(0);
+          const img2 = getSlotImage(1);
+          const off = Math.sin(t * 1.2) * 20;
+          draw3DCard(ctx, img1, -260, -20 + off, 550, 310, { pitch: 0.25, yaw: 0.2, shadow: true });
+          draw3DCard(ctx, img2, 260, 20 - off, 550, 310, { pitch: 0.25, yaw: -0.2, shadow: true });
+          break;
+        }
+        case 'triPerspective': {
+          const img1 = getSlotImage(0);
+          const img2 = getSlotImage(1);
+          const img3 = getSlotImage(2);
+          draw3DCard(ctx, img1, -450, Math.sin(t) * 15, 460, 260, { yaw: 0.45, pitch: 0.1, shadow: true });
+          draw3DCard(ctx, img3, 450, Math.cos(t) * 15, 460, 260, { yaw: -0.45, pitch: 0.1, shadow: true });
+          draw3DCard(ctx, img2, 0, Math.sin(t + 1) * 20, 560, 315, { pitch: 0.05, shadow: true });
+          break;
+        }
+        case 'quadGridFloat': {
+          for (let i = 0; i < 4; i++) {
+            const img = getSlotImage(i);
+            const gx = (i % 2 === 0 ? -1 : 1) * 280;
+            const gy = (i < 2 ? -1 : 1) * 160;
+            const wave = Math.sin(t * 1.5 + i) * 15;
+            draw3DCard(ctx, img, gx, gy + wave, 440, 248, { pitch: 0.2, yaw: -0.15, shadow: true });
+          }
+          break;
+        }
+        case 'carouselRotate': {
+          const num = 3;
+          const radius = 380;
+          for (let i = 0; i < num; i++) {
+            const angle = t * 0.8 + (i * Math.PI * 2) / num;
+            const cx = Math.cos(angle) * radius;
+            const cz = Math.sin(angle);
+            const scale = 0.75 + (cz + 1) * 0.2;
+            const img = getSlotImage(i);
+            draw3DCard(ctx, img, cx, cz * 40, 480 * scale, 270 * scale, { pitch: 0.1, yaw: -cx * 0.0008, shadow: true });
+          }
+          break;
+        }
+        case 'cardStack': {
+          for (let i = 2; i >= 0; i--) {
+            const img = getSlotImage(i);
+            const shift = (t * 40 + i * 80) % 240;
+            const offX = (2 - i) * 30 - shift * 0.2;
+            const offY = (2 - i) * 25 - shift * 0.1;
+            draw3DCard(ctx, img, offX, offY, 650, 365, { pitch: 0.2, yaw: -0.1, shadow: true });
+          }
+          break;
+        }
+        case 'cubePerspective': {
+          for (let i = 0; i < 4; i++) {
+            const img = getSlotImage(i);
+            const rot = t * 0.6 + (i * Math.PI) / 2;
+            const px = Math.sin(rot) * 350;
+            const pz = Math.cos(rot);
+            if (pz > -0.2) {
+              const sc = 0.7 + (pz + 1) * 0.18;
+              draw3DCard(ctx, img, px, 0, 460 * sc, 260 * sc, { yaw: rot * 0.5, shadow: true });
+            }
+          }
+          break;
+        }
+        case 'diagonalGlide': {
+          const img1 = getSlotImage(0);
+          const img2 = getSlotImage(1);
+          const slide = Math.sin(t) * 60;
+          draw3DCard(ctx, img1, -200 + slide, -100 - slide * 0.5, 520, 292, { pitch: 0.3, yaw: -0.25, shadow: true });
+          draw3DCard(ctx, img2, 200 - slide, 100 + slide * 0.5, 520, 292, { pitch: 0.3, yaw: -0.25, shadow: true });
+          break;
+        }
+        case 'heroSidekick': {
+          const heroImg = getSlotImage(0);
+          const sideImg = getSlotImage(1);
+          const float = Math.sin(t * 1.5) * 12;
+          draw3DCard(ctx, sideImg, 320, -30 - float, 420, 236, { pitch: 0.2, yaw: -0.35, shadow: true });
+          draw3DCard(ctx, heroImg, -100, float, 650, 365, { pitch: 0.1, yaw: 0.1, glow: true, shadow: true });
+          break;
+        }
+        case 'filmStripRoll': {
+          for (let i = 0; i < 3; i++) {
+            const img = getSlotImage(i);
+            const posY = ((t * 80 + i * 220) % 660) - 330;
+            draw3DCard(ctx, img, posY * 0.3, posY, 480, 270, { pitch: 0.25, yaw: -0.2, shadow: true });
+          }
+          break;
+        }
+        case 'parallaxTunnel': {
+          for (let i = 2; i >= 0; i--) {
+            const img = getSlotImage(i);
+            const scale = 1 - i * 0.22 + Math.sin(t + i) * 0.04;
+            draw3DCard(ctx, img, 0, 0, 800 * scale, 450 * scale, { pitch: 0.15 * (i + 1), yaw: -0.1 * (i + 1), shadow: true });
+          }
+          break;
+        }
+        case 'vorticalOrbit': {
+          for (let i = 0; i < 4; i++) {
+            const img = getSlotImage(i);
+            const a = t * 1.2 + (i * Math.PI) / 2;
+            const vx = Math.cos(a) * 320;
+            const vy = Math.sin(a * 2) * 80 + (i - 1.5) * 60;
+            draw3DCard(ctx, img, vx, vy, 400, 225, { pitch: 0.2, yaw: Math.sin(a) * 0.3, shadow: true });
+          }
+          break;
+        }
+      }
+    }
+
+    // Helper: Draw 3D Card Surface with Shadows and Sheen
+    function draw3DCard(ctx, img, x, y, w, h, opts = {}) {
+      ctx.save();
+      ctx.translate(x, y);
+
+      if (opts.pitch) ctx.scale(1, Math.cos(opts.pitch));
+      if (opts.yaw) ctx.transform(1, Math.tan(opts.yaw), 0, 1, 0, 0);
+      if (opts.roll) ctx.rotate(opts.roll);
+
+      // Drop Shadow
+      if (opts.shadow) {
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.55)';
+        ctx.shadowBlur = 30;
+        ctx.shadowOffsetY = 20;
+      }
+
+      // Draw Card Surface
+      const r = 12; // Rounded corners
+      ctx.beginPath();
+      ctx.roundRect(-w / 2, -h / 2, w, h, r);
+      ctx.fillStyle = '#1e2029';
+      ctx.fill();
+
+      // Clip image to card
+      ctx.save();
+      ctx.clip();
+      try {
+        ctx.drawImage(img, -w / 2, -h / 2, w, h);
+      } catch (e) {
+        // Safe fallback
+      }
+
+      // Specular Glow Sheen Overlay
+      if (opts.glow) {
+        const sheen = ctx.createLinearGradient(-w / 2, -h / 2, w / 2, h / 2);
+        sheen.addColorStop(0, 'rgba(255, 255, 255, 0.2)');
+        sheen.addColorStop(0.5, 'rgba(255, 255, 255, 0)');
+        sheen.addColorStop(1, 'rgba(255, 255, 255, 0.05)');
+        ctx.fillStyle = sheen;
+        ctx.fillRect(-w / 2, -h / 2, w, h);
+      }
+      ctx.restore();
+
+      // Border Highlight
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+      ctx.stroke();
+
+      ctx.restore();
+    }
+  </script>
+</body>
+</html>
