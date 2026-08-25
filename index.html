@@ -557,7 +557,7 @@
                     <label>Save File Format</label>
                     <select id="export-format">
                         <option value="webm" selected>Web Video (.webm / 60 FPS)</option>
-                        <option value="mp3">Audio Track (.mp3)</option>
+                        <option value="mp3">Audio File (.mp3)</option>
                         <option value="mp4">Video Track (.mp4)</option>
                     </select>
                 </div>
@@ -786,7 +786,7 @@
         window.addEventListener('DOMContentLoaded', () => {
             canvas = document.getElementById('render-canvas');
             
-            // High precision 16:9 canvas dimensions (1920x1080)
+            // Utilize client GPU power: High precision 16:9 canvas dimensions (1920x1080)
             canvas.width = 1920;
             canvas.height = 1080;
 
@@ -802,29 +802,6 @@
 
             requestAnimationFrame(animationEngineLoop);
         });
-
-        // PAGE NAVIGATION
-        function switchPage(pageId) {
-            state.activePage = pageId;
-            document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active-page'));
-            document.getElementById(`page-${pageId}`).classList.add('active-page');
-
-            const header = document.getElementById('global-header');
-            if (pageId === 'editor') {
-                header.style.display = 'none';
-            } else {
-                header.style.display = 'block';
-                document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
-                const activeNav = document.getElementById(`nav-${pageId}`);
-                if (activeNav) activeNav.classList.add('active');
-            }
-            saveToLocalStorage();
-        }
-
-        function loadPresetAndOpen(presetKey) {
-            setAnimationPreset(presetKey);
-            switchPage('editor');
-        }
 
         // SMOOTH 60 FPS RENDER LOOP
         function animationEngineLoop(timestamp) {
@@ -850,9 +827,10 @@
 
         // DRAW CANVAS FRAME AT LOCKED 16:9 RATIO
         function drawCanvasFrame() {
+            // Clear canvas completely
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Handle Render Background
+            // Handle Render Background according to Inspector setting
             if (state.bgType === 'dark') {
                 const bgGrad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
                 bgGrad.addColorStop(0, '#121216');
@@ -862,67 +840,71 @@
             } else if (state.bgType === 'white') {
                 ctx.fillStyle = '#ffffff';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
+            } else if (state.bgType === 'transparent') {
+                // ClearRect leaves full transparency for transparent recording outputs
             }
 
             // Compute Motion Transform based on preset and currentTime
             const progress = (state.currentTime % state.duration) / state.duration;
-            const sineWave = Math.sin(progress * Math.PI * 2);
-            const cosWave = Math.cos(progress * Math.PI * 2);
+            const cycle = Math.sin(progress * Math.PI * 2);
 
-            let scale = 1.0;
-            let rotX = state.pitch;
-            let rotY = state.yaw;
-            let offsetX = 0;
-            let offsetY = 0;
+            ctx.save();
+            ctx.translate(canvas.width / 2, canvas.height / 2);
+
+            let skewX = 0, skewY = 0, scale = 1.0, offsetX = 0, offsetY = 0;
 
             if (state.preset === 'isoFloat') {
-                rotX = 12 + sineWave * 4;
-                rotY = -15 + cosWave * 6;
-                offsetY = sineWave * 15;
+                skewX = (state.yaw * Math.PI / 180) + (cycle * 0.05);
+                skewY = (state.pitch * Math.PI / 180) + (Math.cos(progress * Math.PI * 2) * 0.03);
+                offsetY = cycle * 20;
+                scale = 0.85 + (cycle * 0.02);
             } else if (state.preset === 'panZoom') {
-                scale = 1.0 + progress * 0.15;
-                offsetX = (progress - 0.5) * 60;
-                rotX = 0;
-                rotY = 0;
+                scale = 0.8 + (progress * 0.3);
+                offsetX = (progress - 0.5) * 80;
+                offsetY = Math.sin(progress * Math.PI) * -30;
             } else if (state.preset === 'tiltGlow') {
-                rotX = sineWave * 15;
-                rotY = cosWave * 15;
-                scale = 1.05;
+                skewX = Math.sin(progress * Math.PI * 2) * 0.15;
+                skewY = Math.cos(progress * Math.PI * 2) * 0.1;
+                scale = 0.9;
             } else if (state.preset === 'pulseSway') {
-                scale = 1.0 + sineWave * 0.05;
-                rotY = sineWave * 8;
+                scale = 0.85 + Math.sin(progress * Math.PI * 4) * 0.04;
+                skewX = Math.sin(progress * Math.PI * 2) * 0.05;
+            } else if (state.preset === 'manual') {
+                skewX = state.yaw * Math.PI / 180;
+                skewY = state.pitch * Math.PI / 180;
+                scale = 0.85;
             }
 
-            // Render Graphic or Placeholder Card
-            ctx.save();
-            ctx.translate(canvas.width / 2 + offsetX, canvas.height / 2 + offsetY);
-            ctx.scale(scale, scale);
-
-            // Apply pseudo-3D skew distortion transform
-            const radX = (rotX * Math.PI) / 180;
-            const radY = (rotY * Math.PI) / 180;
-            ctx.transform(Math.cos(radY), Math.sin(radX), -Math.sin(radY), Math.cos(radX), 0, 0);
-
-            const cardW = 960;
-            const cardH = 540;
+            ctx.transform(scale, skewY, skewX, scale, offsetX, offsetY);
 
             if (imageReady) {
-                // Drop shadow behind artwork
+                const aspect = loadedImage.width / loadedImage.height;
+                let drawW = 1200;
+                let drawH = drawW / aspect;
+
+                if (drawH > 700) {
+                    drawH = 700;
+                    drawW = drawH * aspect;
+                }
+
                 ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
                 ctx.shadowBlur = 40;
-                ctx.shadowOffsetY = 20;
+                ctx.shadowOffsetY = 25;
 
-                ctx.drawImage(loadedImage, -cardW / 2, -cardH / 2, cardW, cardH);
+                ctx.drawImage(loadedImage, -drawW / 2, -drawH / 2, drawW, drawH);
             } else {
-                // Stylish Default Graphics Frame
-                ctx.shadowColor = 'rgba(0,0,0,0.5)';
-                ctx.shadowBlur = 30;
+                // Default Canvas Placeholder Card
                 ctx.fillStyle = '#1e1e24';
                 ctx.strokeStyle = '#3e3e48';
                 ctx.lineWidth = 4;
+                const cardW = 900, cardH = 500;
+                
+                ctx.shadowColor = 'rgba(0,0,0,0.5)';
+                ctx.shadowBlur = 30;
+                ctx.shadowOffsetY = 15;
 
                 ctx.beginPath();
-                ctx.roundRect(-cardW / 2, -cardH / 2, cardW, cardH, 16);
+                ctx.roundRect(-cardW / 2, -cardH / 2, cardW, cardH, 20);
                 ctx.fill();
                 ctx.stroke();
 
@@ -930,22 +912,45 @@
                 ctx.fillStyle = '#8e8e9a';
                 ctx.font = '600 28px -apple-system, sans-serif';
                 ctx.textAlign = 'center';
-                ctx.fillText('CLICK TO UPLOAD ARTWORK', 0, 10);
+                ctx.fillText('Click or Drag & Drop Media to Motion Preview', 0, -10);
+                ctx.font = '400 18px -apple-system, sans-serif';
+                ctx.fillText('Supports PNG, JPG, WEBP, and SVG', 0, 30);
             }
+
             ctx.restore();
         }
 
-        // PRESET SELECTION & UI STATE
-        function setAnimationPreset(presetKey) {
-            state.preset = presetKey;
-            document.querySelectorAll('.control-group').forEach(el => el.classList.remove('active-preset'));
-            const activeEl = document.getElementById(`preset-${presetKey}`);
-            if (activeEl) activeEl.classList.add('active-preset');
+        // NAVIGATION & STATE HANDLING
+        function switchPage(pageId) {
+            state.activePage = pageId;
+            document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active-page'));
+            document.getElementById(`page-${pageId}`).classList.add('active-page');
+
+            document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+            if (pageId === 'home') document.getElementById('nav-home').classList.add('active');
+            if (pageId === 'templates') document.getElementById('nav-templates').classList.add('active');
+
+            const header = document.getElementById('global-header');
+            header.style.display = (pageId === 'editor') ? 'none' : 'block';
+
             saveToLocalStorage();
         }
 
+        function setAnimationPreset(presetName) {
+            state.preset = presetName;
+            document.querySelectorAll('.control-group').forEach(el => el.classList.remove('active-preset'));
+            const activeEl = document.getElementById(`preset-${presetName}`);
+            if (activeEl) activeEl.classList.add('active-preset');
+
+            saveToLocalStorage();
+        }
+
+        function loadPresetAndOpen(presetName) {
+            setAnimationPreset(presetName);
+            switchPage('editor');
+        }
+
         function updateManual3D() {
-            state.preset = 'manual';
             state.pitch = parseFloat(document.getElementById('pitch-slider').value);
             state.yaw = parseFloat(document.getElementById('yaw-slider').value);
             document.getElementById('pitch-val').innerText = `${state.pitch}°`;
@@ -956,6 +961,7 @@
         function updateDuration(val) {
             state.duration = parseFloat(val);
             document.getElementById('duration-val').innerText = `${state.duration.toFixed(1)}s`;
+            updateTimelineUI();
             saveToLocalStorage();
         }
 
@@ -971,45 +977,28 @@
         }
 
         function resetTransforms() {
+            state.pitch = 10;
+            state.yaw = -12;
+            state.duration = 4.0;
             document.getElementById('pitch-slider').value = 10;
             document.getElementById('yaw-slider').value = -12;
             document.getElementById('duration-slider').value = 4.0;
-            document.getElementById('bg-select').value = 'dark';
-            updateManual3D();
-            updateDuration(4.0);
-            updateBackground('dark');
+            document.getElementById('pitch-val').innerText = '10°';
+            document.getElementById('yaw-val').innerText = '-12°';
+            document.getElementById('duration-val').innerText = '4.0s';
             setAnimationPreset('isoFloat');
+            updateBackground('dark');
+            document.getElementById('bg-select').value = 'dark';
         }
 
-        // VIEWPORT ZOOM CONTROLS
-        function adjustZoom(delta) {
-            state.zoom = Math.min(Math.max(0.5, state.zoom + delta), 2.0);
-            applyZoom();
-        }
-
-        function resetZoom() {
-            state.zoom = 1.0;
-            applyZoom();
-        }
-
-        function applyZoom() {
-            document.getElementById('canvas-wrapper').style.transform = `scale(${state.zoom})`;
-            document.getElementById('zoom-val').innerText = `${Math.round(state.zoom * 100)}%`;
-        }
-
-        function handleWheelZoom(e) {
-            e.preventDefault();
-            adjustZoom(e.deltaY < 0 ? 0.05 : -0.05);
-        }
-
-        // FILE UPLOAD HANDLERS
+        // IMAGE FILE HANDLING
         function triggerFileInput() {
             document.getElementById('image-file-input').click();
         }
 
         function handleFileSelect(e) {
             const file = e.target.files[0];
-            if (file) processImageFile(file);
+            if (file) loadFile(file);
         }
 
         function handleDragOver(e) {
@@ -1018,6 +1007,7 @@
         }
 
         function handleDragLeave(e) {
+            e.preventDefault();
             document.getElementById('dropzone').classList.remove('dragover');
         }
 
@@ -1025,11 +1015,11 @@
             e.preventDefault();
             document.getElementById('dropzone').classList.remove('dragover');
             if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-                processImageFile(e.dataTransfer.files[0]);
+                loadFile(e.dataTransfer.files[0]);
             }
         }
 
-        function processImageFile(file) {
+        function loadFile(file) {
             const reader = new FileReader();
             reader.onload = (event) => {
                 state.imageData = event.target.result;
@@ -1043,53 +1033,83 @@
         }
 
         function clearImage() {
-            imageReady = false;
             state.imageData = null;
+            imageReady = false;
+            loadedImage = new Image();
             saveToLocalStorage();
         }
 
-        // TIMELINE & CONTROLS
+        // VIEWPORT ZOOM CONTROLS
+        function adjustZoom(delta) {
+            state.zoom = Math.min(Math.max(0.4, state.zoom + delta), 2.0);
+            applyZoom();
+        }
+
+        function resetZoom() {
+            state.zoom = 1.0;
+            applyZoom();
+        }
+
+        function handleWheelZoom(e) {
+            if (e.ctrlKey || e.metaKey) {
+                e.preventDefault();
+                adjustZoom(e.deltaY < 0 ? 0.05 : -0.05);
+            }
+        }
+
+        function applyZoom() {
+            document.getElementById('canvas-wrapper').style.transform = `scale(${state.zoom})`;
+            document.getElementById('zoom-val').innerText = `${Math.round(state.zoom * 100)}%`;
+        }
+
+        // TIMELINE CONTROLS & SCRUBBING
         function togglePlayback() {
             state.isPlaying = !state.isPlaying;
             document.getElementById('play-btn').innerText = state.isPlaying ? '❚❚' : '▶';
         }
 
         function updateTimelineUI() {
-            const progress = (state.currentTime / state.duration) * 100;
-            document.getElementById('playhead').style.left = `${Math.min(progress, 100)}%`;
+            const pct = (state.currentTime / state.duration) * 100;
+            document.getElementById('playhead').style.left = `${Math.min(100, pct)}%`;
 
-            const curStr = formatTime(state.currentTime);
-            const durStr = formatTime(state.duration);
-            document.getElementById('time-display').innerText = `${curStr} / ${durStr}`;
+            const cur = formatTime(state.currentTime);
+            const dur = formatTime(state.duration);
+            document.getElementById('time-display').innerText = `${cur} / ${dur}`;
+
+            if (state.isRendering) {
+                document.getElementById('render-progress-bar').style.width = `${pct}%`;
+                document.getElementById('render-percent').innerText = `${Math.round(pct)}%`;
+            }
         }
 
         function formatTime(sec) {
-            const m = Math.floor(sec / 60);
-            const s = Math.floor(sec % 60);
-            const ms = Math.floor((sec % 1) * 10);
-            return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}.${ms}`;
+            const m = Math.floor(sec / 60).toString().padStart(2, '0');
+            const s = (sec % 60).toFixed(1).padStart(4, '0');
+            return `${m}:${s}`;
         }
 
         function startTimelineScrub(e) {
             isScrubbing = true;
-            handleTimelineMove(e);
+            scrub(e);
         }
 
         function handleTimelineMove(e) {
-            if (!isScrubbing) return;
-            const track = document.getElementById('timeline-track');
-            const rect = track.getBoundingClientRect();
-            const posX = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
-            const pct = posX / rect.width;
-            state.currentTime = pct * state.duration;
-            updateTimelineUI();
+            if (isScrubbing) scrub(e);
         }
 
         function handleTimelineEnd() {
             isScrubbing = false;
         }
 
-        // EXPORT & STREAM RECORDING
+        function scrub(e) {
+            const track = document.getElementById('timeline-track');
+            const rect = track.getBoundingClientRect();
+            const x = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
+            state.currentTime = (x / rect.width) * state.duration;
+            updateTimelineUI();
+        }
+
+        // EXPORT & REAL-TIME STREAM RECORDING
         function openExportModal() {
             document.getElementById('render-modal').classList.add('active');
             document.getElementById('render-form').style.display = 'block';
@@ -1097,98 +1117,101 @@
         }
 
         function closeExportModal() {
+            if (state.isRendering) return;
             document.getElementById('render-modal').classList.remove('active');
         }
 
         function startRenderAndRecordProcess() {
+            state.isRendering = true;
+            state.isPlaying = true;
+            state.currentTime = 0;
+
             document.getElementById('render-form').style.display = 'none';
             document.getElementById('render-progress-box').style.display = 'flex';
 
             recordedChunks = [];
-            state.currentTime = 0;
-            state.isRendering = true;
-            state.isPlaying = true;
-
             const stream = canvas.captureStream(60);
-            const format = document.getElementById('export-format').value;
-            let mime = 'video/webm;codecs=vp9';
-            if (!MediaRecorder.isTypeSupported(mime)) mime = 'video/webm';
 
-            mediaRecorder = new MediaRecorder(stream, { mimeType: mime });
+            const format = document.getElementById('export-format').value;
+            let mimeType = 'video/webm;codecs=vp9';
+            if (!MediaRecorder.isTypeSupported(mimeType)) mimeType = 'video/webm';
+
+            mediaRecorder = new MediaRecorder(stream, { mimeType });
             mediaRecorder.ondataavailable = (e) => {
                 if (e.data.size > 0) recordedChunks.push(e.data);
             };
 
-            mediaRecorder.onstop = () => {
-                const blob = new Blob(recordedChunks, { type: mime });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.style.display = 'none';
-                a.href = url;
-                a.download = `Motion_Studio_Render.${format === 'webm' ? 'webm' : format}`;
-                document.body.appendChild(a);
-                a.click();
-                setTimeout(() => {
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(url);
-                }, 100);
-            };
-
+            mediaRecorder.onstop = saveRecordedFile;
             mediaRecorder.start();
-
-            // Progress Bar simulation tied to render time
-            const interval = setInterval(() => {
-                if (!state.isRendering) {
-                    clearInterval(interval);
-                    return;
-                }
-                const pct = Math.min(100, Math.round((state.currentTime / state.duration) * 100));
-                document.getElementById('render-progress-bar').style.width = `${pct}%`;
-                document.getElementById('render-percent').innerText = `${pct}%`;
-            }, 50);
         }
 
         function finishRenderingAndSave() {
             state.isRendering = false;
+            state.isPlaying = false;
             if (mediaRecorder && mediaRecorder.state !== 'inactive') {
                 mediaRecorder.stop();
             }
             closeExportModal();
         }
 
+        function saveRecordedFile() {
+            const blob = new Blob(recordedChunks, { type: 'video/webm' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = `Motion_Studio_Render_${Date.now()}.webm`;
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(() => {
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            }, 100);
+        }
+
         // LOCAL STORAGE PERSISTENCE
         function saveToLocalStorage() {
-            const dataToSave = { ...state, imageData: state.imageData };
-            localStorage.setItem('motion_studio_state', JSON.stringify(dataToSave));
+            localStorage.setItem('motion_studio_state', JSON.stringify({
+                preset: state.preset,
+                pitch: state.pitch,
+                yaw: state.yaw,
+                duration: state.duration,
+                bgType: state.bgType,
+                imageData: state.imageData
+            }));
         }
 
         function loadFromLocalStorage() {
             const saved = localStorage.getItem('motion_studio_state');
-            if (saved) {
-                try {
-                    const parsed = JSON.parse(saved);
-                    state = { ...state, ...parsed };
-                    if (state.imageData) {
-                        loadedImage.src = state.imageData;
-                        loadedImage.onload = () => { imageReady = true; };
-                    }
-                } catch (err) {
-                    console.error('Could not parse local storage state', err);
+            if (!saved) return;
+            try {
+                const parsed = JSON.parse(saved);
+                state.preset = parsed.preset || 'isoFloat';
+                state.pitch = parsed.pitch ?? 10;
+                state.yaw = parsed.yaw ?? -12;
+                state.duration = parsed.duration ?? 4.0;
+                state.bgType = parsed.bgType || 'dark';
+                state.imageData = parsed.imageData || null;
+
+                if (state.imageData) {
+                    loadedImage.src = state.imageData;
+                    loadedImage.onload = () => { imageReady = true; };
                 }
+            } catch (err) {
+                console.error('Failed to parse saved state:', err);
             }
         }
 
         function applyStateToUI() {
             document.getElementById('pitch-slider').value = state.pitch;
             document.getElementById('yaw-slider').value = state.yaw;
+            document.getElementById('duration-slider').value = state.duration;
             document.getElementById('pitch-val').innerText = `${state.pitch}°`;
             document.getElementById('yaw-val').innerText = `${state.yaw}°`;
-            document.getElementById('duration-slider').value = state.duration;
             document.getElementById('duration-val').innerText = `${state.duration.toFixed(1)}s`;
             document.getElementById('bg-select').value = state.bgType;
             setAnimationPreset(state.preset);
             updateBackground(state.bgType);
-            switchPage(state.activePage);
         }
     </script>
 </body>
