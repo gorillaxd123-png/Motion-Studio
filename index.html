@@ -1,112 +1,346 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Motion Studio</title>
   <style>
-    body {
+    :root {
+      --bg-base: #121214;
+      --bg-surface: #1a1a1e;
+      --bg-panel: #222227;
+      --border-color: #2e2e35;
+      --text-main: #f0f0f5;
+      --text-muted: #8e8e9a;
+      --accent: #6366f1;
+      --accent-hover: #4f46e5;
+    }
+
+    * {
+      box-sizing: border-box;
       margin: 0;
-      font-family: Arial, sans-serif;
-      background: #2f2f2f;
-      color: #fff;
-      display: flex;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-main);
       height: 100vh;
-    }
-
-    .sidebar {
-      width: 20%;
-      background: #3a3a3a;
-      padding: 20px;
-      box-sizing: border-box;
-    }
-    .sidebar h2 { margin-top: 0; }
-
-    .preview {
-      width: 50%;
-      padding: 20px;
-      box-sizing: border-box;
-      text-align: center;
-    }
-    .preview h1 { margin-top: 0; }
-
-    /* Carousel container */
-    .carousel {
       display: flex;
+      flex-direction: column;
       overflow: hidden;
-      position: relative;
-      height: 300px;
-      border-radius: 12px;
-      background: #444;
     }
 
-    .carousel-track {
+    /* Top Navigation Header */
+    header {
+      height: 56px;
+      background-color: var(--bg-surface);
+      border-bottom: 1px solid var(--border-color);
       display: flex;
-      animation: scroll 12s linear infinite;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
     }
 
-    .carousel img {
-      width: 200px;
-      height: 300px;
-      margin-right: 10px;
-      border-radius: 12px;
-      filter: blur(0.5px); /* subtle motion blur */
-      transition: transform 0.3s;
+    .brand {
+      font-weight: 700;
+      font-size: 1.1rem;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
-    .carousel img:hover {
-      transform: scale(1.05);
-      filter: blur(0); /* sharpen on hover */
+    .brand-dot {
+      width: 10px;
+      height: 10px;
+      background: var(--accent);
+      border-radius: 50%;
     }
 
-    @keyframes scroll {
-      0% { transform: translateX(0); }
-      100% { transform: translateX(-50%); }
+    .export-btn {
+      background-color: var(--accent);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s ease;
     }
 
-    .media {
-      width: 30%;
-      background: #3a3a3a;
-      padding: 20px;
-      box-sizing: border-box;
+    .export-btn:hover {
+      background-color: var(--accent-hover);
     }
-    .media h2 { margin-top: 0; }
-    .media-item { margin: 10px 0; }
+
+    /* Main Layout */
+    .studio-layout {
+      display: grid;
+      grid-template-columns: 240px 1fr 300px;
+      height: calc(100vh - 56px);
+    }
+
+    /* Panels Setup */
+    .panel {
+      background-color: var(--bg-surface);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      padding: 16px;
+      gap: 16px;
+      overflow-y: auto;
+    }
+
+    .panel-right {
+      border-right: none;
+      border-left: 1px solid var(--border-color);
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .panel-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      font-weight: 700;
+    }
+
+    /* Left Sidebar: Categories */
+    .category-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .category-item {
+      padding: 10px 12px;
+      border-radius: 6px;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+
+    .category-item:hover, .category-item.active {
+      background-color: var(--bg-panel);
+      color: var(--text-main);
+    }
+
+    /* Center Section: Stage Preview */
+    .viewport-container {
+      background-color: var(--bg-base);
+      display: flex;
+      flex-direction: column;
+      padding: 24px;
+      gap: 16px;
+    }
+
+    .canvas-stage {
+      flex: 1;
+      background-color: var(--bg-panel);
+      border: 1px dashed var(--border-color);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .canvas-placeholder {
+      width: 70%;
+      aspect-ratio: 16/9;
+      background-color: #16161a;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .timeline-bar {
+      height: 48px;
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      gap: 12px;
+    }
+
+    .play-btn {
+      background: none;
+      border: none;
+      color: var(--text-main);
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    .track-scrubber {
+      flex: 1;
+      height: 6px;
+      background: var(--bg-panel);
+      border-radius: 3px;
+      position: relative;
+    }
+
+    .track-progress {
+      width: 40%;
+      height: 100%;
+      background: var(--accent);
+      border-radius: 3px;
+    }
+
+    /* Right Sidebar: Image Slots */
+    .slots-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .slot-card {
+      background-color: var(--bg-panel);
+      border: 1px dashed var(--border-color);
+      border-radius: 8px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      cursor: pointer;
+      transition: border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .slot-card:hover {
+      border-color: var(--accent);
+      background-color: #26262c;
+    }
+
+    .slot-info {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+    }
+
+    .slot-name {
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .slot-dim {
+      color: var(--text-muted);
+      font-size: 0.75rem;
+    }
+
+    .slot-dropzone {
+      height: 80px;
+      background-color: var(--bg-base);
+      border-radius: 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      border: 1px solid var(--border-color);
+    }
+
+    .slot-dropzone span {
+      font-size: 1.2rem;
+    }
   </style>
 </head>
 <body>
-  <div class="sidebar">
-    <h2>Categories</h2>
-    <ul>
-      <li>Intro Animations</li>
-      <li>Transitions</li>
-      <li>Lower Thirds</li>
-      <li>End Screens</li>
-    </ul>
-  </div>
 
-  <div class="preview">
-    <h1>Motion Studio</h1>
-    <div class="carousel">
-      <div class="carousel-track">
-        <!-- Six thumbnails -->
-        <img src="thumb1.jpg" alt="Thumbnail 1">
-        <img src="thumb2.jpg" alt="Thumbnail 2">
-        <img src="thumb3.jpg" alt="Thumbnail 3">
-        <img src="thumb4.jpg" alt="Thumbnail 4">
-        <img src="thumb5.jpg" alt="Thumbnail 5">
-        <img src="thumb6.jpg" alt="Thumbnail 6">
-      </div>
+  <header>
+    <div class="brand">
+      <div class="brand-dot"></div>
+      Motion Studio
     </div>
+    <button class="export-btn">Render Video</button>
+  </header>
+
+  <div class="studio-layout">
+    
+    <aside class="panel">
+      <span class="panel-title">Categories</span>
+      <ul class="category-list">
+        <li class="category-item active">3D Image Cards</li>
+        <li class="category-item">Split Screen Transitions</li>
+        <li class="category-item">YouTube Overlays</li>
+        <li class="category-item">Logo Motion</li>
+        <li class="category-item">Text Masks</li>
+      </ul>
+    </aside>
+
+    <main class="viewport-container">
+      <div class="canvas-stage">
+        <div class="canvas-placeholder">
+          <span>Live Motion Preview Stage</span>
+        </div>
+      </div>
+      <div class="timeline-bar">
+        <button class="play-btn">▶</button>
+        <div class="track-scrubber">
+          <div class="track-progress"></div>
+        </div>
+      </div>
+    </main>
+
+    <aside class="panel panel-right">
+      <div class="panel-header">
+        <span class="panel-title">Image Slots</span>
+        <span class="slot-dim">3 Active</span>
+      </div>
+
+      <div class="slots-list">
+        <div class="slot-card">
+          <div class="slot-info">
+            <span class="slot-name">Slot 1 (Main Asset)</span>
+            <span class="slot-dim">1080x1080</span>
+          </div>
+          <div class="slot-dropzone">
+            <span>+</span>
+            <p>Upload Image</p>
+          </div>
+        </div>
+
+        <div class="slot-card">
+          <div class="slot-info">
+            <span class="slot-name">Slot 2 (Background)</span>
+            <span class="slot-dim">1920x1080</span>
+          </div>
+          <div class="slot-dropzone">
+            <span>+</span>
+            <p>Upload Image</p>
+          </div>
+        </div>
+
+        <div class="slot-card">
+          <div class="slot-info">
+            <span class="slot-name">Slot 3 (Overlay Icon)</span>
+            <span class="slot-dim">512x512</span>
+          </div>
+          <div class="slot-dropzone">
+            <span>+</span>
+            <p>Upload Image</p>
+          </div>
+        </div>
+      </div>
+    </aside>
+
   </div>
 
-  <div class="media">
-    <h2>Media</h2>
-    <div class="media-item">Thumbnail 1</div>
-    <div class="media-item">Thumbnail 2</div>
-    <div class="media-item">Thumbnail 3</div>
-    <div class="media-item">Thumbnail 4</div>
-    <div class="media-item">Thumbnail 5</div>
-    <div class="media-item">Thumbnail 6</div>
-  </div>
 </body>
 </html>
