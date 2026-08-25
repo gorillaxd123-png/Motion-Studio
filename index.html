@@ -1,980 +1,1205 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Motion Studio - 3D Animation & Render Suite</title>
-  <style>
-    :root {
-      --bg-dark: #121316;
-      --bg-panel: #1a1c23;
-      --bg-card: #232633;
-      --bg-input: #151720;
-      --accent: #6366f1;
-      --accent-hover: #4f46e5;
-      --accent-glow: rgba(99, 102, 241, 0.35);
-      --text-main: #f3f4f6;
-      --text-muted: #9ca3af;
-      --border-color: #2e3245;
-      --danger: #ef4444;
-      --radius: 8px;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Motion Studio — Motion Graphics Editor & Renderer</title>
+    <style>
+        /* --- DESIGN SYSTEM & SMOOTH GREY THEME --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            user-select: none;
+        }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      user-select: none;
-    }
+        :root {
+            --bg-deep: #0e0e10;
+            --bg-smooth-grey: #161619;
+            --bg-panel: #1e1e24;
+            --bg-element: #26262e;
+            --bg-element-hover: #30303a;
+            --border-grey: #2e2e36;
+            --border-light: #3e3e48;
+            --text-primary: #f4f4f5;
+            --text-muted: #8e8e9a;
+            --radius-lg: 16px;
+            --radius-md: 8px;
+            --radius-sm: 4px;
+        }
 
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background-color: var(--bg-dark);
-      color: var(--text-main);
-      height: 100vh;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-    }
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
 
-    /* Header Navigation */
-    header {
-      height: 52px;
-      background-color: var(--bg-panel);
-      border-bottom: 1px solid var(--border-color);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 20px;
-      z-index: 10;
-    }
+        a { color: inherit; text-decoration: none; }
 
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-weight: 700;
-      font-size: 1.1rem;
-      letter-spacing: 0.5px;
-    }
+        .btn {
+            background: var(--bg-element);
+            color: var(--text-primary);
+            border: 1px solid var(--border-grey);
+            padding: 8px 18px;
+            border-radius: var(--radius-md);
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
 
-    .brand-icon {
-      width: 24px;
-      height: 24px;
-      background: linear-gradient(135deg, var(--accent), #a855f7);
-      border-radius: 6px;
-      display: grid;
-      place-items: center;
-      font-size: 12px;
-    }
+        .btn:hover {
+            background: var(--bg-element-hover);
+            border-color: var(--border-light);
+            transform: translateY(-1px);
+        }
 
-    .header-actions {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
+        .btn-primary {
+            background: var(--text-primary);
+            color: var(--bg-deep);
+            border: none;
+            font-weight: 600;
+        }
 
-    .btn {
-      background-color: var(--bg-card);
-      color: var(--text-main);
-      border: 1px solid var(--border-color);
-      padding: 6px 14px;
-      border-radius: var(--radius);
-      font-size: 0.85rem;
-      font-weight: 500;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: all 0.2s ease;
-    }
+        .btn-primary:hover { background: #d4d4d8; }
 
-    .btn:hover {
-      background-color: #2d3142;
-      border-color: #3e445e;
-    }
+        header.site-header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(22, 22, 25, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-grey);
+            z-index: 100;
+        }
 
-    .btn-primary {
-      background: linear-gradient(135deg, var(--accent), var(--accent-hover));
-      border: none;
-      box-shadow: 0 2px 10px var(--accent-glow);
-    }
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 24px;
+        }
 
-    .btn-primary:hover {
-      opacity: 0.9;
-    }
+        .logo {
+            font-size: 1.15rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
 
-    /* Main Studio Layout */
-    .studio-body {
-      flex: 1;
-      display: flex;
-      overflow: hidden;
-    }
+        .logo-icon {
+            width: 22px;
+            height: 22px;
+            background: var(--text-primary);
+            border-radius: 5px;
+        }
 
-    /* Left Panel: Media & Presets */
-    .panel-left {
-      width: 320px;
-      background-color: var(--bg-panel);
-      border-right: 1px solid var(--border-color);
-      display: flex;
-      flex-direction: column;
-      overflow-y: auto;
-    }
+        .nav-links {
+            display: flex;
+            gap: 28px;
+            list-style: none;
+        }
 
-    .panel-section {
-      padding: 18px;
-      border-bottom: 1px solid var(--border-color);
-    }
+        .nav-links a {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
 
-    .panel-title {
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: var(--text-muted);
-      margin-bottom: 12px;
-      font-weight: 700;
-    }
+        .nav-links a:hover, .nav-links a.active { color: var(--text-primary); }
 
-    .form-group {
-      margin-bottom: 14px;
-    }
+        .page-section { display: none; }
+        .page-section.active-page { display: block; }
 
-    .form-group label {
-      display: block;
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      margin-bottom: 6px;
-    }
+        /* --- LANDING & TEMPLATES --- */
+        .hero {
+            max-width: 1200px;
+            margin: 130px auto 60px;
+            padding: 0 24px;
+            text-align: center;
+        }
 
-    select, input[type="text"] {
-      width: 100%;
-      background-color: var(--bg-input);
-      border: 1px solid var(--border-color);
-      color: var(--text-main);
-      padding: 8px 10px;
-      border-radius: var(--radius);
-      font-size: 0.85rem;
-      outline: none;
-    }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg-panel);
+            border: 1px solid var(--border-grey);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+        }
 
-    select:focus, input[type="text"]:focus {
-      border-color: var(--accent);
-    }
+        .badge-dot { width: 8px; height: 8px; background: #a1a1aa; border-radius: 50%; }
 
-    /* Render Background Selector */
-    .bg-options {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
-    }
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            line-height: 1.15;
+            letter-spacing: -1.5px;
+            margin-bottom: 20px;
+            background: linear-gradient(180deg, #ffffff 0%, #a1a1aa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
 
-    .bg-opt {
-      height: 36px;
-      border-radius: 6px;
-      border: 2px solid transparent;
-      cursor: pointer;
-      display: grid;
-      place-items: center;
-      font-size: 10px;
-      font-weight: 600;
-      color: #fff;
-    }
+        .hero p {
+            font-size: 1.15rem;
+            color: var(--text-muted);
+            max-width: 680px;
+            margin: 0 auto 36px;
+        }
 
-    .bg-opt.active {
-      border-color: var(--accent);
-    }
+        .hero-cta { display: flex; justify-content: center; gap: 16px; }
 
-    .bg-dark-opt { background: #121316; }
-    .bg-white-opt { background: #f8fafc; color: #111; }
-    .bg-grid-opt { background: repeating-conic-gradient(#202430 0% 25%, #151720 0% 50%) 50% / 12px 12px; }
-    .bg-grad-opt { background: linear-gradient(135deg, #1e1b4b, #311042); }
+        .templates-page { max-width: 1200px; margin: 120px auto 60px; padding: 0 24px; }
+        .template-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+        }
 
-    /* Media Upload & Manager Section */
-    .media-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 10px;
-    }
+        .template-card {
+            background: var(--bg-smooth-grey);
+            border: 1px solid var(--border-grey);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
 
-    .slot-badge {
-      font-size: 0.7rem;
-      background: rgba(99, 102, 241, 0.2);
-      color: #818cf8;
-      padding: 2px 8px;
-      border-radius: 10px;
-      border: 1px solid rgba(99, 102, 241, 0.4);
-    }
+        .template-card:hover {
+            border-color: var(--border-light);
+            transform: translateY(-3px);
+        }
 
-    .upload-box {
-      border: 2px dashed var(--border-color);
-      border-radius: var(--radius);
-      padding: 16px;
-      text-align: center;
-      background-color: var(--bg-input);
-      cursor: pointer;
-      transition: all 0.2s ease;
-      margin-bottom: 12px;
-    }
+        .template-thumb {
+            aspect-ratio: 16 / 9;
+            background: #1f1f27;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            border-bottom: 1px solid var(--border-grey);
+        }
 
-    .upload-box:hover {
-      border-color: var(--accent);
-      background-color: rgba(99, 102, 241, 0.05);
-    }
+        .template-info { padding: 16px; }
 
-    .upload-box p {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      margin-top: 4px;
-    }
+        /* --- STUDIO EDITOR --- */
+        .editor-wrapper {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            font-size: 13px;
+        }
 
-    .media-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-    }
+        .app-header {
+            height: 48px;
+            background: var(--bg-smooth-grey);
+            border-bottom: 1px solid var(--border-grey);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+        }
 
-    .media-thumb {
-      position: relative;
-      aspect-ratio: 16/9;
-      background-color: var(--bg-card);
-      border-radius: 6px;
-      overflow: hidden;
-      border: 1px solid var(--border-color);
-    }
+        .workspace {
+            display: grid;
+            grid-template-columns: 280px 1fr 300px;
+            flex: 1;
+            height: calc(100vh - 48px - 140px);
+            overflow: hidden;
+        }
 
-    .media-thumb img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
+        .sidebar-left, .sidebar-right {
+            background: var(--bg-smooth-grey);
+            padding: 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
 
-    .media-thumb .slot-number {
-      position: absolute;
-      bottom: 2px;
-      left: 4px;
-      font-size: 9px;
-      background: rgba(0,0,0,0.7);
-      padding: 1px 4px;
-      border-radius: 3px;
-    }
+        .sidebar-left { border-right: 1px solid var(--border-grey); }
+        .sidebar-right { border-left: 1px solid var(--border-grey); }
 
-    /* Close / Remove cross overlay on hover */
-    .media-thumb .remove-btn {
-      position: absolute;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      left: 0;
-      background: rgba(239, 68, 68, 0.85);
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-      font-weight: bold;
-      opacity: 0;
-      cursor: pointer;
-      transition: opacity 0.2s ease;
-    }
+        .viewport-container {
+            background: var(--bg-deep);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            cursor: grab;
+        }
 
-    .media-thumb:hover .remove-btn {
-      opacity: 1;
-    }
+        .viewport-container:active { cursor: grabbing; }
 
-    /* Center Viewport Canvas */
-    .viewport-container {
-      flex: 1;
-      background-color: #0b0c0e;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      padding: 20px;
-    }
+        .viewport-controls {
+            position: absolute;
+            bottom: 16px;
+            right: 16px;
+            background: var(--bg-panel);
+            border: 1px solid var(--border-grey);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            padding: 4px 8px;
+            gap: 8px;
+            z-index: 10;
+        }
 
-    .canvas-wrapper {
-      position: relative;
-      width: 100%;
-      max-width: 1000px;
-      aspect-ratio: 16/9;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.6);
-      border-radius: 8px;
-      overflow: hidden;
-      border: 1px solid var(--border-color);
-      background: #000;
-    }
+        .zoom-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            cursor: pointer;
+            font-size: 1rem;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-sm);
+        }
 
-    canvas {
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
+        .zoom-btn:hover { background: var(--bg-element); }
 
-    /* Timeline & Playback Bar */
-    .timeline-bar {
-      height: 56px;
-      width: 100%;
-      background-color: var(--bg-panel);
-      border-top: 1px solid var(--border-color);
-      display: flex;
-      align-items: center;
-      padding: 0 20px;
-      gap: 16px;
-    }
+        .canvas-frame-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.1s ease-out;
+            will-change: transform;
+        }
 
-    .time-code {
-      font-family: monospace;
-      font-size: 0.85rem;
-      color: var(--accent);
-      width: 80px;
-    }
+        .canvas-frame {
+            width: 640px;
+            aspect-ratio: 16 / 9;
+            background: #111115;
+            border-radius: 12px;
+            border: 1px solid var(--border-light);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
 
-    .scrubber-container {
-      flex: 1;
-      position: relative;
-      display: flex;
-      align-items: center;
-    }
+        /* Transparency grid indicator when background is transparent */
+        .canvas-frame.bg-transparent-grid {
+            background-image: linear-gradient(45deg, #1c1c24 25%, transparent 25%), linear-gradient(-45deg, #1c1c24 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #1c1c24 75%), linear-gradient(-45deg, transparent 75%, #1c1c24 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+        }
 
-    .scrubber-container input[type="range"] {
-      width: 100%;
-      accent-color: var(--accent);
-      cursor: pointer;
-    }
+        #render-canvas {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            cursor: pointer;
+        }
 
-    /* Right Panel: 3D Inspector Controls */
-    .panel-right {
-      width: 280px;
-      background-color: var(--bg-panel);
-      border-left: 1px solid var(--border-color);
-      padding: 18px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      overflow-y: auto;
-    }
+        .upload-dropzone {
+            border: 1px dashed var(--border-light);
+            padding: 16px;
+            text-align: center;
+            border-radius: 6px;
+            background: var(--bg-panel);
+            cursor: pointer;
+            transition: border-color 0.2s, background-color 0.2s;
+        }
 
-    .slider-group {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
+        .upload-dropzone:hover, .upload-dropzone.dragover {
+            border-color: var(--text-primary);
+            background: var(--bg-element);
+        }
 
-    .slider-header {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.8rem;
-      color: var(--text-muted);
-    }
+        .control-group {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-grey);
+            padding: 10px;
+            border-radius: var(--radius-sm);
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
 
-    .slider-group input[type="range"] {
-      width: 100%;
-      accent-color: var(--accent);
-    }
+        .control-group.active-preset {
+            border-color: var(--text-primary);
+            color: var(--text-primary);
+            background: var(--bg-element);
+        }
 
-    /* Hidden File Input */
-    #mediaFileInput {
-      display: none;
-    }
-  </style>
+        .control-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .control-row label { color: var(--text-primary); font-size: 0.8rem; }
+        .control-row input[type="range"] { flex: 1; accent-color: var(--text-primary); }
+
+        .value-display {
+            width: 44px;
+            background: var(--bg-panel);
+            border: 1px solid var(--border-grey);
+            border-radius: var(--radius-sm);
+            padding: 2px 4px;
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .timeline-bar {
+            height: 140px;
+            background: var(--bg-smooth-grey);
+            border-top: 1px solid var(--border-grey);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .timeline-controls {
+            height: 36px;
+            border-bottom: 1px solid var(--border-grey);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+        }
+
+        .play-btn {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: var(--text-primary);
+            color: var(--bg-deep);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            transition: transform 0.15s ease;
+        }
+
+        .play-btn:hover { transform: scale(1.05); }
+
+        .timeline-track-area {
+            flex: 1;
+            padding: 12px 16px;
+            background: var(--bg-deep);
+            position: relative;
+            cursor: pointer;
+        }
+
+        .timeline-ruler {
+            display: flex;
+            justify-content: space-between;
+            color: var(--text-muted);
+            font-size: 0.7rem;
+            border-bottom: 1px solid var(--border-grey);
+            padding-bottom: 4px;
+            pointer-events: none;
+        }
+
+        .timeline-keyframe-track {
+            margin-top: 10px;
+            height: 36px;
+            background: var(--bg-panel);
+            border: 1px solid var(--border-grey);
+            border-radius: var(--radius-sm);
+            position: relative;
+        }
+
+        .playhead {
+            position: absolute;
+            top: 0;
+            left: 0%;
+            width: 2px;
+            height: 100%;
+            background: #ffffff;
+            box-shadow: 0 0 10px rgba(255,255,255,0.9);
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        .playhead-handle {
+            position: absolute;
+            top: -6px;
+            left: -5px;
+            width: 12px;
+            height: 12px;
+            background: var(--text-primary);
+            border-radius: 2px;
+            transform: rotate(45deg);
+        }
+
+        .keyframe-node {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%) rotate(45deg);
+            width: 10px;
+            height: 10px;
+            background: var(--text-muted);
+            border-radius: 2px;
+            pointer-events: none;
+        }
+
+        /* --- RENDERING MODAL --- */
+        .render-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(14, 14, 16, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .render-modal-overlay.active { display: flex; }
+
+        .render-card {
+            background: var(--bg-smooth-grey);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            width: 440px;
+            padding: 32px;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .render-header h3 { font-size: 1.25rem; font-weight: 700; margin-bottom: 4px; }
+        .render-header p { font-size: 0.85rem; color: var(--text-muted); }
+
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .form-group label { font-size: 0.8rem; color: var(--text-muted); }
+        .form-group select {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-grey);
+            color: var(--text-primary);
+            padding: 10px;
+            border-radius: var(--radius-md);
+            font-size: 0.9rem;
+            outline: none;
+        }
+
+        .progress-container {
+            display: none;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .progress-bar-bg {
+            width: 100%;
+            height: 10px;
+            background: var(--bg-panel);
+            border-radius: 5px;
+            overflow: hidden;
+            border: 1px solid var(--border-grey);
+        }
+
+        .progress-bar-fill {
+            width: 0%;
+            height: 100%;
+            background: var(--text-primary);
+            transition: width 0.05s linear;
+        }
+    </style>
 </head>
 <body>
 
-  <!-- Header -->
-  <header>
-    <div class="brand">
-      <div class="brand-icon">M</div>
-      <span>Motion Studio</span>
-    </div>
-    <div class="header-actions">
-      <span style="font-size:0.75rem; color:var(--text-muted)">1080p • 60 FPS</span>
-      <button class="btn btn-primary" id="renderBtn">Render Video</button>
-    </div>
-  </header>
+    <!-- HIDDEN FILE INPUT -->
+    <input type="file" id="image-file-input" accept="image/*" style="display: none;" onchange="handleFileSelect(event)">
 
-  <!-- Studio Body -->
-  <div class="studio-body">
-    
-    <!-- Left Sidebar: Settings, Presets & Media -->
-    <div class="panel-left">
-      
-      <!-- Preset Selection -->
-      <div class="panel-section">
-        <div class="panel-title">Animation Presets</div>
-        <div class="form-group">
-          <label for="presetSelect">Select Preset (15 Styles)</label>
-          <select id="presetSelect"></select>
+    <!-- RENDER & RECORDING MODAL -->
+    <div class="render-modal-overlay" id="render-modal">
+        <div class="render-card">
+            <div class="render-header">
+                <h3>Record 60 FPS Viewport Stream</h3>
+                <p>Hardware-accelerated live preview capture at locked 16:9 ratio.</p>
+            </div>
+
+            <div id="render-form">
+                <div class="form-group" style="margin-bottom: 14px;">
+                    <label>Resolution Ratio</label>
+                    <select id="export-res" disabled>
+                        <option value="16/9" selected>16:9 Widescreen (1920x1080 HD)</option>
+                    </select>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label>Save File Format</label>
+                    <select id="export-format">
+                        <option value="webm" selected>Web Video (.webm / 60 FPS)</option>
+                        <option value="mp3">Audio File (.mp3)</option>
+                        <option value="mp4">Video Track (.mp4)</option>
+                    </select>
+                </div>
+
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button class="btn" onclick="closeExportModal()">Cancel</button>
+                    <button class="btn btn-primary" onclick="startRenderAndRecordProcess()">Record & Save</button>
+                </div>
+            </div>
+
+            <div class="progress-container" id="render-progress-box">
+                <div style="display: flex; justify-content: space-between; font-size: 0.85rem;">
+                    <span id="render-status-text">Recording 60 FPS Stream...</span>
+                    <span id="render-percent">0%</span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="render-progress-bar"></div>
+                </div>
+            </div>
         </div>
-        <div id="presetDesc" style="font-size: 0.75rem; color: var(--text-muted); line-height: 1.4;"></div>
-      </div>
-
-      <!-- Render Background -->
-      <div class="panel-section">
-        <div class="panel-title">Render Background</div>
-        <div class="bg-options">
-          <div class="bg-opt bg-dark-opt active" data-bg="dark">Dark</div>
-          <div class="bg-opt bg-white-opt" data-bg="white">White</div>
-          <div class="bg-opt bg-grid-opt" data-bg="grid">Grid</div>
-          <div class="bg-opt bg-grad-opt" data-bg="grad">Glow</div>
-        </div>
-      </div>
-
-      <!-- Media Section -->
-      <div class="panel-section">
-        <div class="media-header">
-          <div class="panel-title" style="margin:0;">Media Slots</div>
-          <div class="slot-badge" id="slotBadge">Needs 1 Image</div>
-        </div>
-        
-        <div class="upload-box" id="uploadBox">
-          <div style="font-size:20px;">📁</div>
-          <p><strong>Click to Add Images</strong></p>
-          <p style="font-size:0.7rem;">Multiple uploads supported</p>
-        </div>
-        <input type="file" id="mediaFileInput" multiple accept="image/*">
-
-        <!-- Uploaded Images Grid -->
-        <div class="media-grid" id="mediaGrid"></div>
-      </div>
-
     </div>
 
-    <!-- Center Canvas Viewport -->
-    <div class="viewport-container">
-      <div class="canvas-wrapper">
-        <canvas id="studioCanvas" width="1920" height="1080"></canvas>
-      </div>
-    </div>
-
-    <!-- Right Sidebar: 3D Inspector -->
-    <div class="panel-right">
-      <div class="panel-title">3D Camera & Dynamics</div>
-
-      <div class="slider-group">
-        <div class="slider-header">
-          <span>Pitch Angle</span>
-          <span id="pitchVal">0°</span>
+    <!-- SITE HEADER -->
+    <header class="site-header" id="global-header">
+        <div class="nav-container">
+            <div class="logo" onclick="switchPage('home')">
+                <div class="logo-icon"></div> Motion Studio
+            </div>
+            <ul class="nav-links">
+                <li><a onclick="switchPage('home')" id="nav-home" class="active">Home</a></li>
+                <li><a onclick="switchPage('templates')" id="nav-templates">Templates</a></li>
+            </ul>
+            <button class="btn btn-primary" onclick="switchPage('editor')">Launch Editor</button>
         </div>
-        <input type="range" id="pitchSlider" min="-45" max="45" value="0">
-      </div>
+    </header>
 
-      <div class="slider-group">
-        <div class="slider-header">
-          <span>Yaw Perspective</span>
-          <span id="yawVal">0°</span>
+    <!-- PAGE 1: HOME -->
+    <main id="page-home" class="page-section active-page">
+        <section class="hero">
+            <div class="badge">
+                <span class="badge-dot"></span> 60 FPS Smooth Canvas Recording
+            </div>
+            <h1>Cinematic Motion Graphics.<br>Real-Time Viewport Recorder.</h1>
+            <p>Turn raw thumbnails, screenshots, and artwork into slick 16:9 videos recorded directly live from your screen engine.</p>
+            <div class="hero-cta">
+                <button class="btn btn-primary" onclick="switchPage('editor')">Start Creating Free</button>
+                <button class="btn" onclick="switchPage('templates')">Explore Templates</button>
+            </div>
+        </section>
+    </main>
+
+    <!-- PAGE 2: TEMPLATES -->
+    <main id="page-templates" class="page-section">
+        <section class="templates-page">
+            <div style="text-align: center;">
+                <h2>Motion Template Library</h2>
+                <p style="color:var(--text-muted);">Select any preset to open directly in the Motion Studio Editor.</p>
+            </div>
+            <div class="template-grid">
+                <div class="template-card" onclick="loadPresetAndOpen('isoFloat')">
+                    <div class="template-thumb">16:9 Isometric Float</div>
+                    <div class="template-info">
+                        <h4>App Demo Showcase</h4>
+                        <span style="color:var(--text-muted); font-size:0.8rem;">Desktop software walkthroughs</span>
+                    </div>
+                </div>
+                <div class="template-card" onclick="loadPresetAndOpen('panZoom')">
+                    <div class="template-thumb">16:9 Pan & Zoom</div>
+                    <div class="template-info">
+                        <h4>Camera Movement Motion</h4>
+                        <span style="color:var(--text-muted); font-size:0.8rem;">Smooth focal slide</span>
+                    </div>
+                </div>
+                <div class="template-card" onclick="loadPresetAndOpen('tiltGlow')">
+                    <div class="template-thumb">3D Tilt & Glow</div>
+                    <div class="template-info">
+                        <h4>Thumbnail Animate</h4>
+                        <span style="color:var(--text-muted); font-size:0.8rem;">Depth for static thumbnails</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- PAGE 3: STUDIO EDITOR -->
+    <main id="page-editor" class="page-section">
+        <div class="editor-wrapper">
+            <header class="app-header">
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <button class="btn" style="padding:4px 10px; font-size:0.8rem;" onclick="switchPage('home')">← Exit Editor</button>
+                    <span style="font-weight:600; font-size:0.85rem;">Studio_Render_16x9.motion</span>
+                </div>
+                <div>
+                    <span style="font-size:0.8rem; color:var(--text-muted); font-weight:600;">Fixed Render Aspect Ratio: 16:9 (1920x1080)</span>
+                </div>
+                <div>
+                    <button class="btn btn-primary" style="padding:5px 12px; font-size:0.8rem;" onclick="openExportModal()">Record & Export</button>
+                </div>
+            </header>
+
+            <div class="workspace">
+                <!-- LEFT SIDEBAR -->
+                <aside class="sidebar-left">
+                    <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">MEDIA INPUT</span>
+                    <div class="upload-dropzone" id="dropzone" onclick="triggerFileInput()" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
+                        <p style="font-size:0.85rem; font-weight:500;">Drop Image Here</p>
+                        <span style="font-size:0.75rem; color:var(--text-muted);">or click to browse local files</span>
+                    </div>
+
+                    <button class="btn" style="font-size:0.75rem; padding:4px;" onclick="clearImage()">Remove Image</button>
+
+                    <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted); margin-top:10px;">ANIMATION PRESETS</span>
+                    <div style="display:flex; flex-direction:column; gap:8px;">
+                        <div class="control-group" id="preset-isoFloat" style="cursor:pointer;" onclick="setAnimationPreset('isoFloat')">1. Isometric Float</div>
+                        <div class="control-group" id="preset-panZoom" style="cursor:pointer;" onclick="setAnimationPreset('panZoom')">2. Pan & Zoom</div>
+                        <div class="control-group" id="preset-tiltGlow" style="cursor:pointer;" onclick="setAnimationPreset('tiltGlow')">3. Dynamic Tilt & Glow</div>
+                        <div class="control-group" id="preset-pulseSway" style="cursor:pointer;" onclick="setAnimationPreset('pulseSway')">4. Pulse & Sway</div>
+                        <div class="control-group" id="preset-manual" style="cursor:pointer;" onclick="setAnimationPreset('manual')">5. Manual Slider Control</div>
+                    </div>
+                </aside>
+
+                <!-- CENTER CANVAS VIEWPORT -->
+                <main class="viewport-container" id="viewport-container" onwheel="handleWheelZoom(event)">
+                    <div class="canvas-frame-wrapper" id="canvas-wrapper">
+                        <div class="canvas-frame" id="canvas-frame">
+                            <canvas id="render-canvas" onclick="triggerFileInput()"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="viewport-controls">
+                        <button class="zoom-btn" onclick="adjustZoom(-0.1)">-</button>
+                        <span style="font-size: 0.75rem; color: var(--text-muted); min-width: 40px; text-align: center;" id="zoom-val">100%</span>
+                        <button class="zoom-btn" onclick="adjustZoom(0.1)">+</button>
+                        <button class="zoom-btn" style="font-size: 0.75rem;" onclick="resetZoom()">Reset</button>
+                    </div>
+                </main>
+
+                <!-- RIGHT INSPECTOR PANEL -->
+                <aside class="sidebar-right">
+                    <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">MANUAL 3D ROTATION</span>
+                    <div class="control-row">
+                        <label>Pitch (X)</label>
+                        <input type="range" id="pitch-slider" min="-45" max="45" value="10" oninput="updateManual3D()">
+                        <span class="value-display" id="pitch-val">10°</span>
+                    </div>
+                    <div class="control-row">
+                        <label>Yaw (Y)</label>
+                        <input type="range" id="yaw-slider" min="-45" max="45" value="-12" oninput="updateManual3D()">
+                        <span class="value-display" id="yaw-val">-12°</span>
+                    </div>
+
+                    <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted); margin-top:10px;">TIMING & EASING</span>
+                    <div class="control-row">
+                        <label>Duration</label>
+                        <input type="range" id="duration-slider" min="1" max="10" value="4" step="0.5" oninput="updateDuration(this.value)">
+                        <span class="value-display" id="duration-val">4.0s</span>
+                    </div>
+
+                    <!-- BACKGROUND SELECTION UNDER TIMING & EASING -->
+                    <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted); margin-top:10px;">RENDER BACKGROUND</span>
+                    <div class="control-row">
+                        <label>Canvas Bg</label>
+                        <select id="bg-select" onchange="updateBackground(this.value)" style="background:var(--bg-panel); border:1px solid var(--border-grey); color:var(--text-primary); padding:6px 8px; border-radius:4px; font-size:0.8rem; cursor:pointer;">
+                            <option value="dark" selected>Dark Studio</option>
+                            <option value="white">Solid White</option>
+                            <option value="transparent">Transparent (No Bg)</option>
+                        </select>
+                    </div>
+
+                    <button class="btn" style="margin-top:20px; font-size:0.8rem;" onclick="resetTransforms()">Reset All Controls</button>
+                </aside>
+            </div>
+
+            <!-- TIMELINE FOOTER -->
+            <footer class="timeline-bar">
+                <div class="timeline-controls">
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <button class="play-btn" id="play-btn" onclick="togglePlayback()">❚❚</button>
+                        <span style="color:var(--text-muted); font-size:0.8rem;" id="time-display">00:00.0 / 00:04.0</span>
+                    </div>
+                    <span style="color:var(--text-muted); font-size:0.75rem;">16:9 • High-Performance 60 FPS Engine</span>
+                </div>
+                <div class="timeline-track-area" id="timeline-track" onmousedown="startTimelineScrub(event)">
+                    <div class="timeline-ruler">
+                        <span>0s</span><span>1s</span><span>2s</span><span>3s</span><span>4s</span>
+                    </div>
+                    <div class="timeline-keyframe-track">
+                        <div class="playhead" id="playhead">
+                            <div class="playhead-handle"></div>
+                        </div>
+                        <div class="keyframe-node" style="left: 0%;"></div>
+                        <div class="keyframe-node" style="left: 50%;"></div>
+                        <div class="keyframe-node" style="left: 100%;"></div>
+                    </div>
+                </div>
+            </footer>
         </div>
-        <input type="range" id="yawSlider" min="-45" max="45" value="0">
-      </div>
+    </main>
 
-      <div class="slider-group">
-        <div class="slider-header">
-          <span>Scale Zoom</span>
-          <span id="scaleVal">1.0x</span>
-        </div>
-        <input type="range" id="scaleSlider" min="50" max="150" value="100">
-      </div>
+    <!-- SCRIPT LOGIC -->
+    <script>
+        // CLIENT STATE
+        let state = {
+            activePage: 'home',
+            preset: 'isoFloat',
+            pitch: 10,
+            yaw: -12,
+            duration: 4.0,
+            zoom: 1.0,
+            bgType: 'dark', // 'dark', 'white', or 'transparent'
+            imageData: null,
+            isPlaying: true,
+            isRendering: false,
+            currentTime: 0
+        };
 
-      <div class="slider-group">
-        <div class="slider-header">
-          <span>Motion Speed</span>
-          <span id="speedVal">1.0x</span>
-        </div>
-        <input type="range" id="speedSlider" min="20" max="200" value="100">
-      </div>
-    </div>
+        let loadedImage = new Image();
+        let imageReady = false;
+        let lastTimestamp = null;
+        let isScrubbing = false;
 
-  </div>
+        let canvas, ctx;
+        let mediaRecorder = null;
+        let recordedChunks = [];
 
-  <!-- Bottom Timeline Playback -->
-  <div class="timeline-bar">
-    <button class="btn" id="playBtn">Pause</button>
-    <div class="time-code" id="timeCode">00:00.00</div>
-    <div class="scrubber-container">
-      <input type="range" id="timelineScrubber" min="0" max="600" value="0">
-    </div>
-  </div>
+        window.addEventListener('DOMContentLoaded', () => {
+            canvas = document.getElementById('render-canvas');
+            
+            // Utilize client GPU power: High precision 16:9 canvas dimensions (1920x1080)
+            canvas.width = 1920;
+            canvas.height = 1080;
 
-  <script>
-    // --- 15 PRESET CONFIGURATIONS WITH DIFFERENT IMAGE SLOTS ---
-    const PRESETS = {
-      isoFloat: { name: "1. Isometric 3D Float", slots: 1, desc: "Single slot isometric card floating gently on an orbital axis." },
-      panZoom: { name: "2. Cinematic Pan & Zoom", slots: 1, desc: "Smooth high-definition camera tracking and subtle depth zoom." },
-      tiltGlow: { name: "3. 3D Tilt & Specular Sheen", slots: 1, desc: "Extreme yaw tilt with dynamic light sheen sweeping across." },
-      pulseSway: { name: "4. Rhythmic Pulse & Sway", slots: 1, desc: "Organic scale breathing with subtle pendulum rotation." },
-      dualSplit3D: { name: "5. Dual 3D Split Perspective", slots: 2, desc: "2 image slots pitched in opposing isometric planes." },
-      triPerspective: { name: "6. Triptych Focal Display", slots: 3, desc: "3 image slots angled inward toward a center focal point." },
-      quadGridFloat: { name: "7. Quad Grid 3D Matrix", slots: 4, desc: "4 slot image grid floating synchronously with wave motion." },
-      carouselRotate: { name: "8. 3D Orbit Carousel", slots: 3, desc: "3 cards orbiting around a central vertical spatial axis." },
-      cardStack: { name: "9. Cascading Card Stack", slots: 3, desc: "3 images stacked in depth, sliding outward sequentially." },
-      cubePerspective: { name: "10. Spatial Cube Planes", slots: 4, desc: "4 cards forming side faces of a turning spatial structure." },
-      diagonalGlide: { name: "11. Diagonal Isometric Glide", slots: 2, desc: "2 cards gliding along diagonal motion vectors." },
-      heroSidekick: { name: "12. Hero Focus & Side Preview", slots: 2, desc: "1 large central hero card flanked by a angled preview card." },
-      filmStripRoll: { name: "13. Floating Ribbon Reel", slots: 3, desc: "3 image cards flowing vertically in a dynamic ribbon curve." },
-      parallaxTunnel: { name: "14. Parallax Depth Frames", slots: 3, desc: "Concentric layered frames with depth perspective displacement." },
-      vorticalOrbit: { name: "15. Vortical Helix Orbit", slots: 4, desc: "4 cards orbiting at staggered height offsets with pitch angle." }
-    };
+            ctx = canvas.getContext('2d', { alpha: true, desynchronized: true });
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
 
-    // --- APPLICATION STATE ---
-    const state = {
-      images: [], // Stores uploaded Image elements
-      presetKey: 'isoFloat',
-      bgType: 'dark',
-      isPlaying: true,
-      frame: 0,
-      speed: 1.0,
-      manualPitch: 0,
-      manualYaw: 0,
-      manualScale: 1.0,
-      canvas: null,
-      ctx: null
-    };
+            loadFromLocalStorage();
+            applyStateToUI();
 
-    // --- INITIALIZATION ---
-    window.addEventListener('DOMContentLoaded', () => {
-      state.canvas = document.getElementById('studioCanvas');
-      state.ctx = state.canvas.getContext('2d');
+            window.addEventListener('mousemove', handleTimelineMove);
+            window.addEventListener('mouseup', handleTimelineEnd);
 
-      initPresetDropdown();
-      setupEventListeners();
-      renderMediaGrid();
-      requestAnimationFrame(loop);
-    });
-
-    // Populate Preset Selector
-    function initPresetDropdown() {
-      const select = document.getElementById('presetSelect');
-      select.innerHTML = '';
-      for (let key in PRESETS) {
-        const opt = document.createElement('option');
-        opt.value = key;
-        opt.textContent = PRESETS[key].name;
-        select.appendChild(opt);
-      }
-      updatePresetInfo();
-    }
-
-    function updatePresetInfo() {
-      const preset = PRESETS[state.presetKey];
-      document.getElementById('presetDesc').textContent = preset.desc;
-      document.getElementById('slotBadge').textContent = `Needs ${preset.slots} Image${preset.slots > 1 ? 's' : ''}`;
-    }
-
-    // Event Binding
-    function setupEventListeners() {
-      // Preset selection change
-      document.getElementById('presetSelect').addEventListener('change', (e) => {
-        state.presetKey = e.target.value;
-        updatePresetInfo();
-      });
-
-      // Background selection
-      document.querySelectorAll('.bg-opt').forEach(opt => {
-        opt.addEventListener('click', () => {
-          document.querySelectorAll('.bg-opt').forEach(o => o.classList.remove('active'));
-          opt.classList.add('active');
-          state.bgType = opt.dataset.bg;
+            requestAnimationFrame(animationEngineLoop);
         });
-      });
 
-      // Media upload triggers
-      const uploadBox = document.getElementById('uploadBox');
-      const fileInput = document.getElementById('mediaFileInput');
-      
-      uploadBox.addEventListener('click', () => fileInput.click());
-      fileInput.addEventListener('change', handleFileSelect);
+        // SMOOTH 60 FPS RENDER LOOP
+        function animationEngineLoop(timestamp) {
+            if (!lastTimestamp) lastTimestamp = timestamp;
+            const delta = (timestamp - lastTimestamp) / 1000;
+            lastTimestamp = timestamp;
 
-      // Play / Pause Button
-      const playBtn = document.getElementById('playBtn');
-      playBtn.addEventListener('click', () => {
-        state.isPlaying = !state.isPlaying;
-        playBtn.textContent = state.isPlaying ? 'Pause' : 'Play';
-      });
-
-      // Scrubber
-      const scrubber = document.getElementById('timelineScrubber');
-      scrubber.addEventListener('input', (e) => {
-        state.frame = parseInt(e.target.value);
-        updateTimeCode();
-      });
-
-      // Inspector Sliders
-      document.getElementById('pitchSlider').addEventListener('input', (e) => {
-        state.manualPitch = parseInt(e.target.value);
-        document.getElementById('pitchVal').textContent = `${state.manualPitch}°`;
-      });
-      document.getElementById('yawSlider').addEventListener('input', (e) => {
-        state.manualYaw = parseInt(e.target.value);
-        document.getElementById('yawVal').textContent = `${state.manualYaw}°`;
-      });
-      document.getElementById('scaleSlider').addEventListener('input', (e) => {
-        state.manualScale = parseInt(e.target.value) / 100;
-        document.getElementById('scaleVal').textContent = `${state.manualScale.toFixed(1)}x`;
-      });
-      document.getElementById('speedSlider').addEventListener('input', (e) => {
-        state.speed = parseInt(e.target.value) / 100;
-        document.getElementById('speedVal').textContent = `${state.speed.toFixed(1)}x`;
-      });
-    }
-
-    // --- MEDIA FILE MANAGEMENT ---
-    function handleFileSelect(e) {
-      const files = Array.from(e.target.files);
-      if (!files.length) return;
-
-      files.forEach(file => {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          const img = new Image();
-          img.onload = () => {
-            state.images.push(img);
-            renderMediaGrid();
-          };
-          img.src = event.target.result;
-        };
-        reader.readAsDataURL(file);
-      });
-      e.target.value = ''; // Reset input
-    }
-
-    // Render Media Thumbnails with Hover Remove Cross ('×')
-    function renderMediaGrid() {
-      const grid = document.getElementById('mediaGrid');
-      grid.innerHTML = '';
-
-      state.images.forEach((img, idx) => {
-        const item = document.createElement('div');
-        item.className = 'media-thumb';
-        
-        const imgEl = document.createElement('img');
-        imgEl.src = img.src;
-
-        const slotTag = document.createElement('div');
-        slotTag.className = 'slot-number';
-        slotTag.textContent = `Slot ${idx + 1}`;
-
-        // Hover Remove Overlay Button
-        const removeBtn = document.createElement('div');
-        removeBtn.className = 'remove-btn';
-        removeBtn.innerHTML = '&times;';
-        removeBtn.title = "Remove image";
-        removeBtn.onclick = (e) => {
-          e.stopPropagation();
-          removeImage(idx);
-        };
-
-        item.appendChild(imgEl);
-        item.appendChild(slotTag);
-        item.appendChild(removeBtn);
-        grid.appendChild(item);
-      });
-    }
-
-    function removeImage(index) {
-      state.images.splice(index, 1);
-      renderMediaGrid();
-    }
-
-    // Get Image or Stylized Placeholder
-    function getSlotImage(index) {
-      if (state.images[index]) return state.images[index];
-
-      // Fallback Procedural Canvas Texture
-      const pCanvas = document.createElement('canvas');
-      pCanvas.width = 800;
-      pCanvas.height = 450;
-      const pCtx = pCanvas.getContext('2d');
-
-      const hue = (index * 90 + 200) % 360;
-      const grad = pCtx.createLinearGradient(0, 0, 800, 450);
-      grad.addColorStop(0, `hsl(${hue}, 60%, 25%)`);
-      grad.addColorStop(1, `hsl(${hue + 40}, 70%, 15%)`);
-
-      pCtx.fillStyle = grad;
-      pCtx.fillRect(0, 0, 800, 450);
-
-      // Grid Pattern
-      pCtx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
-      pCtx.lineWidth = 2;
-      for (let x = 0; x < 800; x += 40) {
-        pCtx.beginPath(); pCtx.moveTo(x, 0); pCtx.lineTo(x, 450); pCtx.stroke();
-      }
-      for (let y = 0; y < 450; y += 40) {
-        pCtx.beginPath(); pCtx.moveTo(0, y); pCtx.lineTo(800, y); pCtx.stroke();
-      }
-
-      // Slot Label
-      pCtx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-      pCtx.font = 'bold 36px sans-serif';
-      pCtx.textAlign = 'center';
-      pCtx.fillText(`SLOT ${index + 1}`, 400, 220);
-      pCtx.font = '18px sans-serif';
-      pCtx.fillStyle = 'rgba(255, 255, 255, 0.5)';
-      pCtx.fillText(`Upload image to replace`, 400, 260);
-
-      return pCanvas;
-    }
-
-    // --- MAIN RENDER LOOP ---
-    function loop() {
-      if (state.isPlaying) {
-        state.frame += state.speed;
-        if (state.frame > 600) state.frame = 0;
-        document.getElementById('timelineScrubber').value = state.frame;
-        updateTimeCode();
-      }
-
-      drawCanvasFrame();
-      requestAnimationFrame(loop);
-    }
-
-    function updateTimeCode() {
-      const seconds = (state.frame / 60).toFixed(2);
-      document.getElementById('timeCode').textContent = `00:${seconds.padStart(5, '0')}`;
-    }
-
-    // --- CANVAS RENDERING ENGINE ---
-    function drawCanvasFrame() {
-      const { canvas, ctx, frame } = state;
-      const W = canvas.width;
-      const H = canvas.height;
-      const t = frame * 0.03; // Smooth animation timing
-
-      // 1. Draw Selected Background
-      ctx.save();
-      drawBackground(ctx, W, H);
-
-      // 2. Global Camera Transformation (Manual Controls + Center Origin)
-      ctx.translate(W / 2, H / 2);
-      ctx.scale(state.manualScale, state.manualScale);
-      
-      const pitchRad = (state.manualPitch * Math.PI) / 180;
-      const yawRad = (state.manualYaw * Math.PI) / 180;
-      ctx.transform(1, Math.tan(yawRad), 0, Math.cos(pitchRad), 0, 0);
-
-      // 3. Render Active Preset Animation
-      renderPreset(ctx, state.presetKey, t, W, H);
-
-      ctx.restore();
-    }
-
-    // Background Renderer
-    function drawBackground(ctx, W, H) {
-      if (state.bgType === 'dark') {
-        ctx.fillStyle = '#121316';
-        ctx.fillRect(0, 0, W, H);
-      } else if (state.bgType === 'white') {
-        ctx.fillStyle = '#f8fafc';
-        ctx.fillRect(0, 0, W, H);
-      } else if (state.bgType === 'grid') {
-        ctx.fillStyle = '#151720';
-        ctx.fillRect(0, 0, W, H);
-        ctx.strokeStyle = '#232633';
-        ctx.lineWidth = 2;
-        for (let x = 0; x < W; x += 60) {
-          ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
-        }
-        for (let y = 0; y < H; y += 60) {
-          ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
-        }
-      } else if (state.bgType === 'grad') {
-        const g = ctx.createRadialGradient(W/2, H/2, 100, W/2, H/2, W);
-        g.addColorStop(0, '#2e1065');
-        g.addColorStop(1, '#09090b');
-        ctx.fillStyle = g;
-        ctx.fillRect(0, 0, W, H);
-      }
-    }
-
-    // --- 15 PRESET DRAWING FUNCTIONS ---
-    function renderPreset(ctx, key, t, W, H) {
-      switch (key) {
-        case 'isoFloat': {
-          const img = getSlotImage(0);
-          const floatY = Math.sin(t * 1.5) * 25;
-          draw3DCard(ctx, img, 0, floatY, 800, 450, { pitch: 0.35, yaw: -0.25, roll: 0.05, shadow: true });
-          break;
-        }
-        case 'panZoom': {
-          const img = getSlotImage(0);
-          const zoom = 1 + Math.sin(t * 0.8) * 0.08;
-          const panX = Math.cos(t * 0.5) * 40;
-          draw3DCard(ctx, img, panX, 0, 900 * zoom, 506 * zoom, { pitch: 0.05, yaw: 0.05, shadow: true });
-          break;
-        }
-        case 'tiltGlow': {
-          const img = getSlotImage(0);
-          const tiltP = Math.sin(t) * 0.3;
-          const tiltY = Math.cos(t * 0.8) * 0.4;
-          draw3DCard(ctx, img, 0, 0, 850, 478, { pitch: tiltP, yaw: tiltY, glow: true, shadow: true });
-          break;
-        }
-        case 'pulseSway': {
-          const img = getSlotImage(0);
-          const scale = 1 + Math.sin(t * 2) * 0.05;
-          const sway = Math.sin(t) * 0.08;
-          draw3DCard(ctx, img, 0, 0, 800 * scale, 450 * scale, { roll: sway, shadow: true });
-          break;
-        }
-        case 'dualSplit3D': {
-          const img1 = getSlotImage(0);
-          const img2 = getSlotImage(1);
-          const off = Math.sin(t * 1.2) * 20;
-          draw3DCard(ctx, img1, -260, -20 + off, 550, 310, { pitch: 0.25, yaw: 0.2, shadow: true });
-          draw3DCard(ctx, img2, 260, 20 - off, 550, 310, { pitch: 0.25, yaw: -0.2, shadow: true });
-          break;
-        }
-        case 'triPerspective': {
-          const img1 = getSlotImage(0);
-          const img2 = getSlotImage(1);
-          const img3 = getSlotImage(2);
-          draw3DCard(ctx, img1, -450, Math.sin(t) * 15, 460, 260, { yaw: 0.45, pitch: 0.1, shadow: true });
-          draw3DCard(ctx, img3, 450, Math.cos(t) * 15, 460, 260, { yaw: -0.45, pitch: 0.1, shadow: true });
-          draw3DCard(ctx, img2, 0, Math.sin(t + 1) * 20, 560, 315, { pitch: 0.05, shadow: true });
-          break;
-        }
-        case 'quadGridFloat': {
-          for (let i = 0; i < 4; i++) {
-            const img = getSlotImage(i);
-            const gx = (i % 2 === 0 ? -1 : 1) * 280;
-            const gy = (i < 2 ? -1 : 1) * 160;
-            const wave = Math.sin(t * 1.5 + i) * 15;
-            draw3DCard(ctx, img, gx, gy + wave, 440, 248, { pitch: 0.2, yaw: -0.15, shadow: true });
-          }
-          break;
-        }
-        case 'carouselRotate': {
-          const num = 3;
-          const radius = 380;
-          for (let i = 0; i < num; i++) {
-            const angle = t * 0.8 + (i * Math.PI * 2) / num;
-            const cx = Math.cos(angle) * radius;
-            const cz = Math.sin(angle);
-            const scale = 0.75 + (cz + 1) * 0.2;
-            const img = getSlotImage(i);
-            draw3DCard(ctx, img, cx, cz * 40, 480 * scale, 270 * scale, { pitch: 0.1, yaw: -cx * 0.0008, shadow: true });
-          }
-          break;
-        }
-        case 'cardStack': {
-          for (let i = 2; i >= 0; i--) {
-            const img = getSlotImage(i);
-            const shift = (t * 40 + i * 80) % 240;
-            const offX = (2 - i) * 30 - shift * 0.2;
-            const offY = (2 - i) * 25 - shift * 0.1;
-            draw3DCard(ctx, img, offX, offY, 650, 365, { pitch: 0.2, yaw: -0.1, shadow: true });
-          }
-          break;
-        }
-        case 'cubePerspective': {
-          for (let i = 0; i < 4; i++) {
-            const img = getSlotImage(i);
-            const rot = t * 0.6 + (i * Math.PI) / 2;
-            const px = Math.sin(rot) * 350;
-            const pz = Math.cos(rot);
-            if (pz > -0.2) {
-              const sc = 0.7 + (pz + 1) * 0.18;
-              draw3DCard(ctx, img, px, 0, 460 * sc, 260 * sc, { yaw: rot * 0.5, shadow: true });
+            if (state.isPlaying && !isScrubbing) {
+                state.currentTime += delta;
+                if (state.currentTime >= state.duration) {
+                    if (state.isRendering) {
+                        finishRenderingAndSave();
+                    } else {
+                        state.currentTime = 0;
+                    }
+                }
+                updateTimelineUI();
             }
-          }
-          break;
+
+            drawCanvasFrame();
+            requestAnimationFrame(animationEngineLoop);
         }
-        case 'diagonalGlide': {
-          const img1 = getSlotImage(0);
-          const img2 = getSlotImage(1);
-          const slide = Math.sin(t) * 60;
-          draw3DCard(ctx, img1, -200 + slide, -100 - slide * 0.5, 520, 292, { pitch: 0.3, yaw: -0.25, shadow: true });
-          draw3DCard(ctx, img2, 200 - slide, 100 + slide * 0.5, 520, 292, { pitch: 0.3, yaw: -0.25, shadow: true });
-          break;
+
+        // DRAW CANVAS FRAME AT LOCKED 16:9 RATIO
+        function drawCanvasFrame() {
+            // Clear canvas completely
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Handle Render Background according to Inspector setting
+            if (state.bgType === 'dark') {
+                const bgGrad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+                bgGrad.addColorStop(0, '#121216');
+                bgGrad.addColorStop(1, '#09090b');
+                ctx.fillStyle = bgGrad;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            } else if (state.bgType === 'white') {
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            } else if (state.bgType === 'transparent') {
+                // ClearRect leaves full transparency for transparent recording outputs
+            }
+
+            // Compute Motion Transform based on preset and currentTime
+            const progress = (state.currentTime % state.duration) / state.duration;
+            const cycle = Math.sin(progress * Math.PI * 2);
+
+            ctx.save();
+            ctx.translate(canvas.width / 2, canvas.height / 2);
+
+            let scale = 0.85;
+            let rotX = 0;
+            let rotY = 0;
+            let offsetY = 0;
+
+            if (state.preset === 'isoFloat') {
+                rotX = 0.15 + cycle * 0.04;
+                rotY = -0.15 + cycle * 0.04;
+                offsetY = cycle * 20;
+            } else if (state.preset === 'panZoom') {
+                scale = 0.8 + Math.sin(progress * Math.PI) * 0.15;
+                rotY = cycle * 0.08;
+            } else if (state.preset === 'tiltGlow') {
+                rotX = Math.sin(progress * Math.PI * 2) * 0.2;
+                rotY = Math.cos(progress * Math.PI * 2) * 0.2;
+            } else if (state.preset === 'pulseSway') {
+                scale = 0.82 + cycle * 0.05;
+                rotY = cycle * 0.12;
+            } else if (state.preset === 'manual') {
+                rotX = (state.pitch * Math.PI) / 180;
+                rotY = (state.yaw * Math.PI) / 180;
+            }
+
+            ctx.translate(0, offsetY);
+            ctx.scale(scale, scale);
+            ctx.transform(1, rotY, rotX, 1, 0, 0);
+
+            // Draw Mockup Card Frame (16:9 aspect ratio native)
+            const cardW = 1200;
+            const cardH = 675;
+
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
+            ctx.shadowBlur = 40;
+            ctx.shadowOffsetY = 20;
+
+            ctx.fillStyle = '#1c1c24';
+            ctx.strokeStyle = state.bgType === 'white' ? '#d4d4d8' : '#3e3e48';
+            ctx.lineWidth = 4;
+            
+            ctx.beginPath();
+            ctx.roundRect(-cardW/2, -cardH/2, cardW, cardH, 24);
+            ctx.fill();
+            ctx.stroke();
+
+            if (imageReady) {
+                ctx.save();
+                ctx.beginPath();
+                ctx.roundRect(-cardW/2 + 20, -cardH/2 + 20, cardW - 40, cardH - 40, 16);
+                ctx.clip();
+                ctx.drawImage(loadedImage, -cardW/2 + 20, -cardH/2 + 20, cardW - 40, cardH - 40);
+                ctx.restore();
+            } else {
+                ctx.fillStyle = state.bgType === 'white' ? '#52525b' : '#8e8e9a';
+                ctx.font = '32px -apple-system, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('Click or Drag Image Here to Render Video', 0, 10);
+            }
+
+            ctx.restore();
         }
-        case 'heroSidekick': {
-          const heroImg = getSlotImage(0);
-          const sideImg = getSlotImage(1);
-          const float = Math.sin(t * 1.5) * 12;
-          draw3DCard(ctx, sideImg, 320, -30 - float, 420, 236, { pitch: 0.2, yaw: -0.35, shadow: true });
-          draw3DCard(ctx, heroImg, -100, float, 650, 365, { pitch: 0.1, yaw: 0.1, glow: true, shadow: true });
-          break;
+
+        // BACKGROUND SELECTION UPDATE
+        function updateBackground(val) {
+            state.bgType = val;
+            const frame = document.getElementById('canvas-frame');
+            if (val === 'transparent') {
+                frame.classList.add('bg-transparent-grid');
+            } else {
+                frame.classList.remove('bg-transparent-grid');
+            }
+            saveToLocalStorage();
         }
-        case 'filmStripRoll': {
-          for (let i = 0; i < 3; i++) {
-            const img = getSlotImage(i);
-            const posY = ((t * 80 + i * 220) % 660) - 330;
-            draw3DCard(ctx, img, posY * 0.3, posY, 480, 270, { pitch: 0.25, yaw: -0.2, shadow: true });
-          }
-          break;
+
+        // PAGE SWITCHING
+        function switchPage(pageId) {
+            state.activePage = pageId;
+            document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active-page'));
+            document.getElementById('page-' + pageId).classList.add('active-page');
+
+            const globalHeader = document.getElementById('global-header');
+            if (pageId === 'editor') {
+                globalHeader.style.display = 'none';
+            } else {
+                globalHeader.style.display = 'block';
+                document.getElementById('nav-home').classList.toggle('active', pageId === 'home');
+                document.getElementById('nav-templates').classList.toggle('active', pageId === 'templates');
+            }
+            window.scrollTo(0, 0);
         }
-        case 'parallaxTunnel': {
-          for (let i = 2; i >= 0; i--) {
-            const img = getSlotImage(i);
-            const scale = 1 - i * 0.22 + Math.sin(t + i) * 0.04;
-            draw3DCard(ctx, img, 0, 0, 800 * scale, 450 * scale, { pitch: 0.15 * (i + 1), yaw: -0.1 * (i + 1), shadow: true });
-          }
-          break;
+
+        function setAnimationPreset(presetName) {
+            state.preset = presetName;
+            document.querySelectorAll('.sidebar-left .control-group').forEach(el => el.classList.remove('active-preset'));
+            const activeEl = document.getElementById('preset-' + presetName);
+            if (activeEl) activeEl.classList.add('active-preset');
+            saveToLocalStorage();
         }
-        case 'vorticalOrbit': {
-          for (let i = 0; i < 4; i++) {
-            const img = getSlotImage(i);
-            const a = t * 1.2 + (i * Math.PI) / 2;
-            const vx = Math.cos(a) * 320;
-            const vy = Math.sin(a * 2) * 80 + (i - 1.5) * 60;
-            draw3DCard(ctx, img, vx, vy, 400, 225, { pitch: 0.2, yaw: Math.sin(a) * 0.3, shadow: true });
-          }
-          break;
+
+        function loadPresetAndOpen(presetName) {
+            setAnimationPreset(presetName);
+            switchPage('editor');
         }
-      }
-    }
 
-    // Helper: Draw 3D Card Surface with Shadows and Sheen
-    function draw3DCard(ctx, img, x, y, w, h, opts = {}) {
-      ctx.save();
-      ctx.translate(x, y);
+        // ZOOM & CONTROLS
+        function adjustZoom(delta) {
+            state.zoom = Math.min(Math.max(0.4, state.zoom + delta), 2.5);
+            applyZoomUI();
+        }
 
-      if (opts.pitch) ctx.scale(1, Math.cos(opts.pitch));
-      if (opts.yaw) ctx.transform(1, Math.tan(opts.yaw), 0, 1, 0, 0);
-      if (opts.roll) ctx.rotate(opts.roll);
+        function resetZoom() {
+            state.zoom = 1.0;
+            applyZoomUI();
+        }
 
-      // Drop Shadow
-      if (opts.shadow) {
-        ctx.shadowColor = 'rgba(0, 0, 0, 0.55)';
-        ctx.shadowBlur = 30;
-        ctx.shadowOffsetY = 20;
-      }
+        function handleWheelZoom(e) {
+            e.preventDefault();
+            adjustZoom(e.deltaY < 0 ? 0.08 : -0.08);
+        }
 
-      // Draw Card Surface
-      const r = 12; // Rounded corners
-      ctx.beginPath();
-      ctx.roundRect(-w / 2, -h / 2, w, h, r);
-      ctx.fillStyle = '#1e2029';
-      ctx.fill();
+        function applyZoomUI() {
+            document.getElementById('canvas-wrapper').style.transform = `scale(${state.zoom})`;
+            document.getElementById('zoom-val').innerText = Math.round(state.zoom * 100) + '%';
+        }
 
-      // Clip image to card
-      ctx.save();
-      ctx.clip();
-      try {
-        ctx.drawImage(img, -w / 2, -h / 2, w, h);
-      } catch (e) {
-        // Safe fallback
-      }
+        function updateManual3D() {
+            state.pitch = document.getElementById('pitch-slider').value;
+            state.yaw = document.getElementById('yaw-slider').value;
+            document.getElementById('pitch-val').innerText = state.pitch + '°';
+            document.getElementById('yaw-val').innerText = state.yaw + '°';
+            saveToLocalStorage();
+        }
 
-      // Specular Glow Sheen Overlay
-      if (opts.glow) {
-        const sheen = ctx.createLinearGradient(-w / 2, -h / 2, w / 2, h / 2);
-        sheen.addColorStop(0, 'rgba(255, 255, 255, 0.2)');
-        sheen.addColorStop(0.5, 'rgba(255, 255, 255, 0)');
-        sheen.addColorStop(1, 'rgba(255, 255, 255, 0.05)');
-        ctx.fillStyle = sheen;
-        ctx.fillRect(-w / 2, -h / 2, w, h);
-      }
-      ctx.restore();
+        function updateDuration(val) {
+            state.duration = parseFloat(val);
+            document.getElementById('duration-val').innerText = state.duration.toFixed(1) + 's';
+            updateTimelineUI();
+        }
 
-      // Border Highlight
-      ctx.lineWidth = 2;
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
-      ctx.stroke();
+        function resetTransforms() {
+            document.getElementById('pitch-slider').value = 10;
+            document.getElementById('yaw-slider').value = -12;
+            document.getElementById('duration-slider').value = 4.0;
+            document.getElementById('bg-select').value = 'dark';
+            updateBackground('dark');
+            resetZoom();
+            updateDuration(4.0);
+            setAnimationPreset('isoFloat');
+        }
 
-      ctx.restore();
-    }
-  </script>
+        // FILE HANDLING
+        function triggerFileInput() { document.getElementById('image-file-input').click(); }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) processFile(file);
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            document.getElementById('dropzone').classList.add('dragover');
+        }
+
+        function handleDragLeave(e) {
+            e.preventDefault();
+            document.getElementById('dropzone').classList.remove('dragover');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            document.getElementById('dropzone').classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file) processFile(file);
+        }
+
+        function processFile(file) {
+            if (!file.type.startsWith('image/')) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                state.imageData = e.target.result;
+                loadedImage.src = state.imageData;
+                loadedImage.onload = () => { imageReady = true; };
+                saveToLocalStorage();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function clearImage() {
+            state.imageData = null;
+            imageReady = false;
+            loadedImage = new Image();
+            saveToLocalStorage();
+        }
+
+        // TIMELINE & PLAYBACK
+        function togglePlayback() {
+            state.isPlaying = !state.isPlaying;
+            document.getElementById('play-btn').innerText = state.isPlaying ? '❚❚' : '▶';
+        }
+
+        function updateTimelineUI() {
+            const progress = Math.min(100, Math.max(0, (state.currentTime / state.duration) * 100));
+            document.getElementById('playhead').style.left = progress + '%';
+            document.getElementById('time-display').innerText = 
+                `00:0${state.currentTime.toFixed(1)} / 00:0${state.duration.toFixed(1)}`;
+
+            if (state.isRendering) {
+                document.getElementById('render-progress-bar').style.width = progress + '%';
+                document.getElementById('render-percent').innerText = Math.round(progress) + '%';
+            }
+        }
+
+        function startTimelineScrub(e) {
+            isScrubbing = true;
+            scrubTimelineEvent(e);
+        }
+
+        function handleTimelineMove(e) {
+            if (isScrubbing) scrubTimelineEvent(e);
+        }
+
+        function handleTimelineEnd() { isScrubbing = false; }
+
+        function scrubTimelineEvent(e) {
+            const track = document.getElementById('timeline-track');
+            const rect = track.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const percentage = Math.max(0, Math.min(100, (clickX / rect.width) * 100));
+            state.currentTime = (percentage / 100) * state.duration;
+            updateTimelineUI();
+        }
+
+        // REAL 60 FPS CANVAS STREAM RECORDING
+        function openExportModal() {
+            document.getElementById('render-modal').classList.add('active');
+            document.getElementById('render-form').style.display = 'block';
+            document.getElementById('render-progress-box').style.display = 'none';
+        }
+
+        function closeExportModal() {
+            document.getElementById('render-modal').classList.remove('active');
+            state.isRendering = false;
+        }
+
+        function startRenderAndRecordProcess() {
+            document.getElementById('render-form').style.display = 'none';
+            document.getElementById('render-progress-box').style.display = 'flex';
+
+            recordedChunks = [];
+            
+            // Capture hardware stream at exact 60 FPS
+            const stream = canvas.captureStream(60);
+
+            let options = { mimeType: 'video/webm;codecs=vp9', videoBitsPerSecond: 8000000 };
+            if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+                options = { mimeType: 'video/webm' };
+            }
+
+            try {
+                mediaRecorder = new MediaRecorder(stream, options);
+            } catch (e) {
+                mediaRecorder = new MediaRecorder(stream);
+            }
+
+            mediaRecorder.ondataavailable = function(e) {
+                if (e.data && e.data.size > 0) {
+                    recordedChunks.push(e.data);
+                }
+            };
+
+            mediaRecorder.onstop = saveRecordedOutput;
+
+            // Reset time sequence and trigger recording loop
+            state.currentTime = 0;
+            state.isPlaying = true;
+            state.isRendering = true;
+            mediaRecorder.start();
+        }
+
+        function finishRenderingAndSave() {
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+            }
+        }
+
+        function saveRecordedOutput() {
+            const format = document.getElementById('export-format').value;
+            const mimeType = format === 'mp3' ? 'audio/mp3' : 'video/webm';
+
+            const blob = new Blob(recordedChunks, { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Motion_Studio_16x9_60FPS.${format}`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            closeExportModal();
+        }
+
+        // LOCAL STORAGE
+        function saveToLocalStorage() {
+            try {
+                localStorage.setItem('motion_studio_state', JSON.stringify({
+                    preset: state.preset,
+                    pitch: state.pitch,
+                    yaw: state.yaw,
+                    duration: state.duration,
+                    zoom: state.zoom,
+                    bgType: state.bgType,
+                    imageData: state.imageData
+                }));
+            } catch (e) {}
+        }
+
+        function loadFromLocalStorage() {
+            const saved = localStorage.getItem('motion_studio_state');
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    state.preset = parsed.preset || 'isoFloat';
+                    state.pitch = parsed.pitch || 10;
+                    state.yaw = parsed.yaw || -12;
+                    state.duration = parsed.duration || 4.0;
+                    state.zoom = parsed.zoom || 1.0;
+                    state.bgType = parsed.bgType || 'dark';
+                    state.imageData = parsed.imageData || null;
+                } catch (e) {}
+            }
+        }
+
+        function applyStateToUI() {
+            document.getElementById('pitch-slider').value = state.pitch;
+            document.getElementById('yaw-slider').value = state.yaw;
+            document.getElementById('duration-slider').value = state.duration;
+            document.getElementById('bg-select').value = state.bgType;
+
+            updateDuration(state.duration);
+            updateBackground(state.bgType);
+            setAnimationPreset(state.preset);
+            applyZoomUI();
+
+            if (state.imageData) {
+                loadedImage.src = state.imageData;
+                loadedImage.onload = () => { imageReady = true; };
+            }
+        }
+    </script>
 </body>
 </html>
