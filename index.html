@@ -3,18 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Motion Studio — ccLeaf Inspired Library</title>
+  <title>Motion Studio — Motion Graphics Platform</title>
   <style>
     :root {
       --bg-color: #ffffff;
       --border-color: #e2e8f0;
       --card-bg: #ffffff;
       --accent: #0071e3;
+      --accent-hover: #005bb5;
       --text-main: #0f172a;
       --text-muted: #64748b;
       --badge-bg: #f1f5f9;
 
-      /* Button Colors */
+      /* Social & Nav Button Colors */
       --btn-discord: #5865F2;
       --btn-youtube: #FF0000;
       --btn-portfolio: #0f172a;
@@ -35,7 +36,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 32px 24px;
+      padding: 24px;
       overflow-x: hidden;
     }
 
@@ -62,19 +63,22 @@
       box-shadow: 0 0 25px rgba(0, 113, 227, 0.9);
     }
 
-    /* Navigation Bar - ccLeaf Minimal White Style */
-    nav {
+    /* Navigation Bar - ccLeaf Style Header */
+    header {
       width: 100%;
       max-width: 1100px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 16px 24px;
+      padding: 14px 24px;
       background: #ffffff;
       border: 1px solid var(--border-color);
       border-radius: 100px;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
-      margin-bottom: 40px;
+      margin-bottom: 30px;
+      position: sticky;
+      top: 20px;
+      z-index: 100;
     }
 
     .brand {
@@ -85,6 +89,7 @@
       align-items: center;
       gap: 8px;
       color: var(--text-main);
+      text-decoration: none;
     }
 
     .brand-dot {
@@ -95,34 +100,61 @@
       box-shadow: 0 0 8px var(--accent);
     }
 
+    /* Page Navigation Tabs */
+    .nav-links {
+      display: flex;
+      gap: 6px;
+      background: #f8fafc;
+      padding: 4px;
+      border-radius: 100px;
+      border: 1px solid var(--border-color);
+    }
+
+    .nav-tab {
+      padding: 8px 18px;
+      border-radius: 100px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 0.88rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+
+    .nav-tab.active {
+      background: #ffffff;
+      color: var(--accent);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+
+    /* External Action Buttons */
     .nav-buttons {
       display: flex;
-      gap: 10px;
+      gap: 8px;
       align-items: center;
     }
 
-    /* Shiny Button Effect Base */
     .btn-shine {
       position: relative;
-      padding: 10px 20px;
+      padding: 9px 18px;
       border-radius: 100px;
       border: none;
       background: var(--accent);
       color: #fff;
-      font-size: 0.9rem;
-      font-weight: 500;
+      font-size: 0.85rem;
+      font-weight: 600;
       overflow: hidden;
       transition: transform 0.2s ease, box-shadow 0.2s ease;
       text-decoration: none;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
+      gap: 6px;
     }
 
     .btn-shine svg {
-      width: 16px;
-      height: 16px;
+      width: 15px;
+      height: 15px;
       fill: currentColor;
     }
 
@@ -152,36 +184,39 @@
       box-shadow: 0 8px 20px rgba(0, 113, 227, 0.25);
     }
 
-    /* Color Specific Button Classes */
-    .btn-discord {
-      background: var(--btn-discord);
-    }
-    .btn-discord:hover {
-      box-shadow: 0 8px 20px rgba(88, 101, 242, 0.3);
+    .btn-discord { background: var(--btn-discord); }
+    .btn-youtube { background: var(--btn-youtube); }
+    .btn-portfolio { background: var(--btn-portfolio); color: #fff; }
+
+    /* Page Views Layout */
+    main {
+      width: 100%;
+      max-width: 1100px;
     }
 
-    .btn-youtube {
-      background: var(--btn-youtube);
-    }
-    .btn-youtube:hover {
-      box-shadow: 0 8px 20px rgba(255, 0, 0, 0.3);
-    }
-
-    .btn-portfolio {
-      background: var(--btn-portfolio);
-      color: #ffffff;
-      border: 1px solid rgba(0, 0, 0, 0.08);
-    }
-    .btn-portfolio:hover {
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    .page-view {
+      display: none;
+      width: 100%;
+      animation: fadeIn 0.3s ease-in-out forwards;
     }
 
-    /* Hero Section */
+    .page-view.active {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Hero Component (Welcome & Pages Header) */
     .hero {
       text-align: center;
       max-width: 720px;
       width: 100%;
-      margin-bottom: 40px;
+      margin: 30px 0 40px;
     }
 
     .hero h1 {
@@ -195,12 +230,40 @@
     .hero p {
       font-size: 1.1rem;
       color: var(--text-muted);
-      margin-bottom: 30px;
+      margin-bottom: 24px;
     }
 
-    /* Search Bar - ccLeaf Style */
+    /* WELCOME PAGE SPECIFICS */
+    .welcome-features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      width: 100%;
+      margin-top: 20px;
+    }
+
+    .feature-card {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 30px 24px;
+      text-align: left;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
+    }
+
+    .feature-card h3 {
+      font-size: 1.2rem;
+      margin-bottom: 8px;
+    }
+
+    .feature-card p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    /* LIBRARY PAGE SPECIFICS */
     .search-box {
-      position: relative;
       width: 100%;
       max-width: 580px;
       margin: 0 auto;
@@ -213,7 +276,6 @@
       border-radius: 100px;
       border: 1px solid var(--border-color);
       background: #f8fafc;
-      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
       outline: none;
       color: var(--text-main);
       transition: all 0.25s ease;
@@ -225,7 +287,6 @@
       border-color: var(--accent);
     }
 
-    /* Category Chips - ccLeaf Library Pills */
     .categories-bar {
       display: flex;
       justify-content: center;
@@ -252,14 +313,12 @@
       box-shadow: 0 4px 12px rgba(0, 113, 227, 0.1);
     }
 
-    /* Clean Card Grid Display */
     .template-grid {
       width: 100%;
-      max-width: 1100px;
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
       gap: 24px;
-      margin-top: 20px;
+      margin-top: 30px;
     }
 
     .card {
@@ -297,7 +356,6 @@
     .card-title {
       font-size: 1.1rem;
       font-weight: 700;
-      color: var(--text-main);
     }
 
     .card-desc {
@@ -305,101 +363,246 @@
       color: var(--text-muted);
       line-height: 1.4;
     }
+
+    /* PRICING PAGE SPECIFICS */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+      width: 100%;
+      margin-top: 20px;
+    }
+
+    .price-card {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 32px 24px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+    }
+
+    .price-card.featured {
+      border-color: var(--accent);
+      box-shadow: 0 8px 30px rgba(0, 113, 227, 0.15);
+      position: relative;
+    }
+
+    .price-card .badge {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--accent);
+      color: white;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 100px;
+      text-transform: uppercase;
+    }
+
+    .price {
+      font-size: 2.5rem;
+      font-weight: 800;
+    }
+
+    .price span {
+      font-size: 1rem;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    /* FAQ PAGE SPECIFICS */
+    .faq-container {
+      width: 100%;
+      max-width: 760px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-top: 20px;
+    }
+
+    .faq-item {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 20px 24px;
+      text-align: left;
+    }
+
+    .faq-item h3 {
+      font-size: 1.05rem;
+      margin-bottom: 8px;
+    }
+
+    .faq-item p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
   </style>
 </head>
 <body>
 
-  <!-- Custom Blue Glowing Dot Cursor -->
   <div class="glow-cursor" id="cursor"></div>
 
-  <!-- Header Navigation -->
-  <nav>
-    <div class="brand">
+  <header>
+    <a href="#" class="brand interactive" onclick="switchPage('welcome')">
       <div class="brand-dot"></div>
       Motion Studio
-    </div>
-    <div class="nav-buttons">
-      <!-- Create New Button -->
-      <button class="btn-shine interactive">
-        <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-        Create New
-      </button>
+    </a>
 
-      <!-- Discord Button -->
+    <div class="nav-links">
+      <button class="nav-tab active interactive" onclick="switchPage('welcome', this)">Welcome</button>
+      <button class="nav-tab interactive" onclick="switchPage('library', this)">Library</button>
+      <button class="nav-tab interactive" onclick="switchPage('pricing', this)">Pricing</button>
+      <button class="nav-tab interactive" onclick="switchPage('faq', this)">FAQ</button>
+    </div>
+
+    <div class="nav-buttons">
       <a href="https://discord.gg/bWrm9ybEbB" target="_blank" rel="noopener noreferrer" class="btn-shine btn-discord interactive">
         <svg viewBox="0 0 24 24"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.893.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
         Discord
       </a>
-
-      <!-- YouTube Button -->
       <a href="https://www.youtube.com/@krushnaxd133" target="_blank" rel="noopener noreferrer" class="btn-shine btn-youtube interactive">
         <svg viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
         YouTube
       </a>
-
-      <!-- Portfolio Button -->
       <a href="https://krushna-portfolio-seven.vercel.app/" target="_blank" rel="noopener noreferrer" class="btn-shine btn-portfolio interactive">
         <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
         Portfolio
       </a>
     </div>
-  </nav>
+  </header>
 
-  <!-- Hero Section -->
-  <div class="hero">
-    <h1>Motion Graphics Library</h1>
-    <p>Explore clean, customizable drag-and-drop animation presets.</p>
-    
-    <!-- Search Bar -->
-    <div class="search-box">
-      <input type="text" class="search-input interactive" id="searchInput" placeholder="Search motion graphics templates...">
-    </div>
+  <main>
+    <section id="welcome-page" class="page-view active">
+      <div class="hero">
+        <h1>Motion Graphics Reimagined</h1>
+        <p>A ccLeaf-inspired collection of premium motion assets, text effects, and chat overlays built for creators.</p>
+        <button class="btn-shine interactive" style="padding: 14px 28px; font-size: 1rem;" onclick="switchPage('library')">
+          Explore Library
+        </button>
+      </div>
 
-    <!-- Category Filters -->
-    <div class="categories-bar">
-      <div class="chip active interactive">All Motion</div>
-      <div class="chip interactive">Image Motion</div>
-      <div class="chip interactive">Youtube Motion</div>
-      <div class="chip interactive">Text Motion</div>
-      <div class="chip interactive">Chat Motion</div>
-    </div>
-  </div>
+      <div class="welcome-features">
+        <div class="feature-card">
+          <h3>⚡ Drag & Drop Simplicity</h3>
+          <p>Easily import high-quality animation presets directly into your favorite editing software.</p>
+        </div>
+        <div class="feature-card">
+          <h3>🎯 Highly Customizable</h3>
+          <p>Modify text, image frames, and video assets to match your unique content identity.</p>
+        </div>
+        <div class="feature-card">
+          <h3>💎 Clean Modern Design</h3>
+          <p>Minimalist aesthetic designed to enhance videos without cluttering the screen.</p>
+        </div>
+      </div>
+    </section>
 
-  <!-- Template Grid Display -->
-  <div class="template-grid" id="templateGrid">
-    <div class="card interactive">
-      <div class="card-preview">Grid Zoom Strip</div>
-      <div class="card-title">Grid Zoom Strip</div>
-      <div class="card-desc">Multi-image zoom transition with ultra-smooth spring mechanics.</div>
-      <button class="btn-shine interactive">
-        <svg viewBox="0 0 24 24"><path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg>
-        Open Template
-      </button>
-    </div>
+    <section id="library-page" class="page-view">
+      <div class="hero">
+        <h1>Motion Graphics Library</h1>
+        <p>Explore customizable animation templates for your projects.</p>
+        
+        <div class="search-box">
+          <input type="text" class="search-input interactive" id="searchInput" placeholder="Search templates (e.g., zoom, chat, text)...">
+        </div>
 
-    <div class="card interactive">
-      <div class="card-preview">Glass Device Reveal</div>
-      <div class="card-title">Glass Device Reveal</div>
-      <div class="card-desc">Hardware float showcase with real-time dynamic light reflections.</div>
-      <button class="btn-shine interactive">
-        <svg viewBox="0 0 24 24"><path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg>
-        Open Template
-      </button>
-    </div>
+        <div class="categories-bar">
+          <div class="chip active interactive" onclick="filterCategory('all', this)">All Motion</div>
+          <div class="chip interactive" onclick="filterCategory('image', this)">Image Motion</div>
+          <div class="chip interactive" onclick="filterCategory('youtube', this)">Youtube Motion</div>
+          <div class="chip interactive" onclick="filterCategory('text', this)">Text Motion</div>
+          <div class="chip interactive" onclick="filterCategory('chat', this)">Chat Motion</div>
+        </div>
+      </div>
 
-    <div class="card interactive">
-      <div class="card-preview">Kinetic Dynamic UI</div>
-      <div class="card-title">Kinetic Dynamic UI</div>
-      <div class="card-desc">Interactive responsive interface elements with smooth modern easing.</div>
-      <button class="btn-shine interactive">
-        <svg viewBox="0 0 24 24"><path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg>
-        Open Template
-      </button>
-    </div>
-  </div>
+      <div class="template-grid" id="templateGrid">
+        <div class="card interactive" data-category="image">
+          <div class="card-preview">Grid Zoom Strip</div>
+          <div class="card-title">Grid Zoom Strip</div>
+          <div class="card-desc">Multi-image zoom transition with spring mechanics.</div>
+          <button class="btn-shine interactive">Open Template</button>
+        </div>
+
+        <div class="card interactive" data-category="youtube">
+          <div class="card-preview">Glass Device Reveal</div>
+          <div class="card-title">Glass Device Reveal</div>
+          <div class="card-desc">Hardware float showcase with real-time reflections.</div>
+          <button class="btn-shine interactive">Open Template</button>
+        </div>
+
+        <div class="card interactive" data-category="text">
+          <div class="card-preview">Kinetic Dynamic UI</div>
+          <div class="card-title">Kinetic Dynamic UI</div>
+          <div class="card-desc">Interactive responsive typography and UI text layers.</div>
+          <button class="btn-shine interactive">Open Template</button>
+        </div>
+
+        <div class="card interactive" data-category="chat">
+          <div class="card-preview">Stream Chat Overlay</div>
+          <div class="card-title">Stream Chat Overlay</div>
+          <div class="card-desc">Animated social messaging popups with auto-scroll.</div>
+          <button class="btn-shine interactive">Open Template</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="pricing-page" class="page-view">
+      <div class="hero">
+        <h1>Simple, Transparent Pricing</h1>
+        <p>Choose the tier that best fits your content creation workflow.</p>
+      </div>
+
+      <div class="pricing-grid">
+        <div class="price-card">
+          <h3>Starter</h3>
+          <div class="price">$0 <span>/ month</span></div>
+          <p style="color: var(--text-muted); font-size: 0.9rem;">Access to essential free motion graphics and templates.</p>
+          <button class="btn-shine interactive" style="background: var(--text-main);">Get Started</button>
+        </div>
+
+        <div class="price-card featured">
+          <div class="badge">Most Popular</div>
+          <h3>Pro Creator</h3>
+          <div class="price">$19 <span>/ month</span></div>
+          <p style="color: var(--text-muted); font-size: 0.9rem;">Full access to Image, Text, YouTube, and Chat motion presets.</p>
+          <button class="btn-shine interactive">Upgrade to Pro</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="faq-page" class="page-view">
+      <div class="hero">
+        <h1>Frequently Asked Questions</h1>
+        <p>Have questions? We have answers.</p>
+      </div>
+
+      <div class="faq-container">
+        <div class="faq-item">
+          <h3>What video editors are supported?</h3>
+          <p>Presets work seamlessly with Premiere Pro, After Effects, DaVinci Resolve, and Final Cut Pro.</p>
+        </div>
+        <div class="faq-item">
+          <h3>Can I use these templates for commercial client work?</h3>
+          <p>Yes, all templates unlocked under Pro licenses come with commercial usage rights.</p>
+        </div>
+        <div class="faq-item">
+          <h3>How do I join the Discord community?</h3>
+          <p>Click the Discord button in the main navigation bar above to receive support and tips.</p>
+        </div>
+      </div>
+    </section>
+  </main>
 
   <script>
-    // Smooth Following Glowing Dot Cursor
+    // Cursor Physics Tracker
     const cursor = document.getElementById('cursor');
     let mouseX = 0, mouseY = 0;
     let cursorX = 0, cursorY = 0;
@@ -412,34 +615,62 @@
     function renderCursor() {
       cursorX += (mouseX - cursorX) * 0.15;
       cursorY += (mouseY - cursorY) * 0.15;
-      
       cursor.style.left = `${cursorX}px`;
       cursor.style.top = `${cursorY}px`;
-
       requestAnimationFrame(renderCursor);
     }
     renderCursor();
 
-    // Hover effect for interactive elements
-    const interactives = document.querySelectorAll('.interactive');
-    interactives.forEach(el => {
-      el.addEventListener('mouseenter', () => cursor.classList.add('hovered'));
-      el.addEventListener('mouseleave', () => cursor.classList.remove('hovered'));
-    });
+    // Attach Cursor Hover Effects to Interactive elements
+    function attachCursorListeners() {
+      const interactives = document.querySelectorAll('.interactive');
+      interactives.forEach(el => {
+        el.addEventListener('mouseenter', () => cursor.classList.add('hovered'));
+        el.addEventListener('mouseleave', () => cursor.classList.remove('hovered'));
+      });
+    }
+    attachCursorListeners();
 
-    // Simple Search Filter Demo
-    const searchInput = document.getElementById('searchInput');
-    const cards = document.querySelectorAll('.card');
+    // Multi-Page Switching Mechanism
+    function switchPage(pageId, tabElement) {
+      document.querySelectorAll('.page-view').forEach(page => page.classList.remove('active'));
+      
+      const targetPage = document.getElementById(`${pageId}-page`);
+      if (targetPage) targetPage.classList.add('active');
 
-    searchInput.addEventListener('input', (e) => {
-      const query = e.target.value.toLowerCase();
+      if (tabElement) {
+        document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+        tabElement.classList.add('active');
+      } else {
+        // Sync active tab state if navigate programmatically
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+          tab.classList.toggle('active', tab.innerText.toLowerCase() === pageId);
+        });
+      }
+    }
+
+    // Category Filtering Logic
+    function filterCategory(category, chipElement) {
+      document.querySelectorAll('.categories-bar .chip').forEach(chip => chip.classList.remove('active'));
+      chipElement.classList.add('active');
+
+      const cards = document.querySelectorAll('.card');
       cards.forEach(card => {
-        const title = card.querySelector('.card-title').innerText.toLowerCase();
-        if (title.includes(query)) {
+        if (category === 'all' || card.dataset.category === category) {
           card.style.display = 'flex';
         } else {
           card.style.display = 'none';
         }
+      });
+    }
+
+    // Search Filtering
+    const searchInput = document.getElementById('searchInput');
+    searchInput.addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase();
+      document.querySelectorAll('.card').forEach(card => {
+        const title = card.querySelector('.card-title').innerText.toLowerCase();
+        card.style.display = title.includes(query) ? 'flex' : 'none';
       });
     });
   </script>
