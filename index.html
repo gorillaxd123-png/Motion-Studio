@@ -11,7 +11,7 @@
             padding: 0;
             box-sizing: border-box;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            user-select: none;
+            cursor: none !important; /* Hide native cursor for custom glowing cursor */
         }
 
         :root {
@@ -24,6 +24,8 @@
             --border-light: #3e3e48;
             --text-primary: #f4f4f5;
             --text-muted: #8e8e9a;
+            --accent-blue: #0070f3;
+            --accent-blue-glow: rgba(0, 112, 243, 0.6);
             --radius-lg: 16px;
             --radius-md: 8px;
             --radius-sm: 4px;
@@ -37,6 +39,38 @@
             min-height: 100vh;
         }
 
+        /* --- GLOWING BLUE CURSOR --- */
+        .cursor-dot {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 10px;
+            height: 10px;
+            background-color: #38bdf8;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 12px #38bdf8, 0 0 24px #0284c7;
+            transition: transform 0.1s ease-out, width 0.2s ease, height 0.2s ease;
+        }
+
+        .cursor-trail {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 28px;
+            height: 28px;
+            border: 2px solid rgba(56, 189, 248, 0.5);
+            background: rgba(56, 189, 248, 0.08);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9998;
+            transform: translate(-50%, -50%);
+            transition: transform 0.18s ease-out;
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
+        }
+
         a { color: inherit; text-decoration: none; }
 
         .btn {
@@ -47,7 +81,6 @@
             border-radius: var(--radius-md);
             font-size: 0.9rem;
             font-weight: 500;
-            cursor: pointer;
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -70,6 +103,7 @@
 
         .btn-primary:hover { background: #d4d4d8; }
 
+        /* --- SITE HEADER & NAV --- */
         header.site-header {
             position: fixed;
             top: 0;
@@ -81,12 +115,13 @@
         }
 
         .nav-container {
-            max-width: 1200px;
+            max-width: 1300px;
             margin: 0 auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 16px 24px;
+            padding: 12px 24px;
+            gap: 20px;
         }
 
         .logo {
@@ -95,35 +130,75 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            cursor: pointer;
+            white-space: nowrap;
         }
 
         .logo-icon {
             width: 22px;
             height: 22px;
-            background: var(--text-primary);
+            background: #38bdf8;
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.8);
             border-radius: 5px;
+        }
+
+        /* SEARCH BAR IN NAVBAR */
+        .nav-search-box {
+            position: relative;
+            flex: 1;
+            max-width: 280px;
+        }
+
+        .nav-search-input {
+            width: 100%;
+            background: var(--bg-panel);
+            border: 1px solid var(--border-grey);
+            border-radius: 20px;
+            padding: 6px 14px 6px 36px;
+            color: var(--text-primary);
+            font-size: 0.85rem;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .nav-search-input:focus {
+            border-color: #38bdf8;
+            box-shadow: 0 0 8px rgba(56, 189, 248, 0.3);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.8rem;
+            color: var(--text-muted);
         }
 
         .nav-links {
             display: flex;
-            gap: 28px;
+            gap: 22px;
             list-style: none;
+            align-items: center;
         }
 
         .nav-links a {
             color: var(--text-muted);
             font-size: 0.9rem;
-            cursor: pointer;
             transition: color 0.2s ease;
         }
 
         .nav-links a:hover, .nav-links a.active { color: var(--text-primary); }
 
+        .nav-right-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
         .page-section { display: none; }
         .page-section.active-page { display: block; }
 
-        /* --- LANDING & TEMPLATES --- */
+        /* --- HOME SECTION --- */
         .hero {
             max-width: 1200px;
             margin: 130px auto 60px;
@@ -144,7 +219,7 @@
             margin-bottom: 24px;
         }
 
-        .badge-dot { width: 8px; height: 8px; background: #a1a1aa; border-radius: 50%; }
+        .badge-dot { width: 8px; height: 8px; background: #38bdf8; box-shadow: 0 0 8px #38bdf8; border-radius: 50%; }
 
         .hero h1 {
             font-size: 3.5rem;
@@ -166,472 +241,176 @@
 
         .hero-cta { display: flex; justify-content: center; gap: 16px; }
 
-        .templates-page { max-width: 1200px; margin: 120px auto 60px; padding: 0 24px; }
-        .template-grid {
+        /* --- PRICING & FAQ STYLES --- */
+        .grid-container {
+            max-width: 1100px;
+            margin: 120px auto 60px;
+            padding: 0 24px;
+        }
+
+        .pricing-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
             margin-top: 40px;
         }
 
-        .template-card {
+        .price-card {
             background: var(--bg-smooth-grey);
             border: 1px solid var(--border-grey);
-            border-radius: var(--radius-md);
-            overflow: hidden;
-            cursor: pointer;
-            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .template-card:hover {
-            border-color: var(--border-light);
-            transform: translateY(-3px);
-        }
-
-        .template-thumb {
-            aspect-ratio: 16 / 9;
-            background: #1f1f27;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            border-bottom: 1px solid var(--border-grey);
-        }
-
-        .template-info { padding: 16px; }
-
-        /* --- STUDIO EDITOR --- */
-        .editor-wrapper {
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            font-size: 13px;
-        }
-
-        .app-header {
-            height: 48px;
-            background: var(--bg-smooth-grey);
-            border-bottom: 1px solid var(--border-grey);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 16px;
-        }
-
-        .workspace {
-            display: grid;
-            grid-template-columns: 280px 1fr 320px;
-            flex: 1;
-            height: calc(100vh - 48px - 140px);
-            overflow: hidden;
-        }
-
-        .sidebar-left, .sidebar-right {
-            background: var(--bg-smooth-grey);
-            padding: 16px;
-            overflow-y: auto;
+            border-radius: var(--radius-lg);
+            padding: 32px;
             display: flex;
             flex-direction: column;
             gap: 16px;
+            transition: transform 0.2s ease;
         }
 
-        .sidebar-left { border-right: 1px solid var(--border-grey); }
-        .sidebar-right { border-left: 1px solid var(--border-grey); }
+        .price-card:hover { transform: translateY(-4px); border-color: #38bdf8; }
+        .price-card.featured { border-color: #38bdf8; box-shadow: 0 0 25px rgba(56, 189, 248, 0.15); }
 
-        .viewport-container {
-            background: var(--bg-deep);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            overflow: hidden;
-            cursor: grab;
-        }
-
-        .viewport-container:active { cursor: grabbing; }
-
-        .viewport-controls {
-            position: absolute;
-            bottom: 16px;
-            right: 16px;
-            background: var(--bg-panel);
+        .faq-item {
+            background: var(--bg-smooth-grey);
             border: 1px solid var(--border-grey);
             border-radius: var(--radius-md);
-            display: flex;
-            align-items: center;
-            padding: 4px 8px;
-            gap: 8px;
-            z-index: 10;
+            padding: 20px;
+            margin-bottom: 12px;
         }
 
-        .zoom-btn {
-            background: transparent;
-            border: none;
-            color: var(--text-primary);
-            cursor: pointer;
-            font-size: 1rem;
-            width: 24px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: var(--radius-sm);
-        }
-
-        .zoom-btn:hover { background: var(--bg-element); }
-
-        .canvas-frame-wrapper {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: transform 0.1s ease-out;
-            will-change: transform;
-        }
-
-        .canvas-frame {
-            width: 640px;
-            aspect-ratio: 16 / 9;
-            background: #111115;
-            border-radius: 12px;
-            border: 1px solid var(--border-light);
-            box-shadow: 0 30px 60px rgba(0,0,0,0.7);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .canvas-frame.bg-transparent-grid {
-            background-image: linear-gradient(45deg, #1c1c24 25%, transparent 25%), linear-gradient(-45deg, #1c1c24 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #1c1c24 75%), linear-gradient(-45deg, transparent 75%, #1c1c24 75%);
-            background-size: 20px 20px;
-            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
-        }
-
-        #render-canvas {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            cursor: pointer;
-        }
-
-        .upload-dropzone {
-            border: 1px dashed var(--border-light);
-            padding: 16px;
-            text-align: center;
-            border-radius: 6px;
-            background: var(--bg-panel);
-            cursor: pointer;
-            transition: border-color 0.2s, background-color 0.2s;
-        }
-
-        .upload-dropzone:hover, .upload-dropzone.dragover {
-            border-color: var(--text-primary);
-            background: var(--bg-element);
-        }
-
-        .control-group {
-            background: var(--bg-panel);
-            border: 1px solid var(--border-grey);
-            padding: 10px;
-            border-radius: var(--radius-sm);
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .control-group.active-preset {
-            border-color: var(--text-primary);
-            color: var(--text-primary);
-            background: var(--bg-element);
-        }
-
-        .control-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-        }
-
-        .control-row label { color: var(--text-primary); font-size: 0.8rem; }
-        .control-row input[type="range"] { flex: 1; accent-color: var(--text-primary); }
-
-        .value-display {
-            width: 48px;
-            background: var(--bg-panel);
-            border: 1px solid var(--border-grey);
-            border-radius: var(--radius-sm);
-            padding: 2px 4px;
-            text-align: center;
-            font-size: 0.75rem;
-            color: var(--text-muted);
-        }
-
-        /* --- MEDIA SLOTS PANEL --- */
-        .media-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 8px;
-            margin-top: 6px;
-        }
-
-        .media-slot {
-            background: var(--bg-panel);
-            border: 1px dashed var(--border-grey);
-            border-radius: var(--radius-sm);
-            height: 52px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-            transition: border-color 0.2s;
-        }
-
-        .media-slot:hover { border-color: var(--text-primary); }
-        .media-slot.has-image { border-style: solid; border-color: var(--border-light); }
-        .media-slot img { width: 100%; height: 100%; object-fit: cover; }
-
-        .slot-badge {
-            position: absolute;
-            top: 2px;
-            left: 4px;
-            font-size: 0.65rem;
-            font-weight: 700;
-            background: rgba(0,0,0,0.6);
-            padding: 1px 4px;
-            border-radius: 3px;
-            color: var(--text-primary);
-            z-index: 2;
-        }
-
-        .slot-clear {
-            position: absolute;
-            top: 2px;
-            right: 4px;
-            font-size: 0.65rem;
-            background: rgba(0,0,0,0.7);
-            color: #ff5555;
-            padding: 0 4px;
-            border-radius: 3px;
-            display: none;
-            z-index: 3;
-        }
-
-        .media-slot:hover .slot-clear { display: block; }
-
-        .timeline-bar {
-            height: 140px;
-            background: var(--bg-smooth-grey);
-            border-top: 1px solid var(--border-grey);
-            display: flex;
-            flex-direction: column;
-        }
-
-        .timeline-controls {
-            height: 36px;
-            border-bottom: 1px solid var(--border-grey);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 16px;
-        }
-
-        .play-btn {
-            width: 26px;
-            height: 26px;
-            border-radius: 50%;
-            background: var(--text-primary);
-            color: var(--bg-deep);
-            border: none;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            transition: transform 0.15s ease;
-        }
-
-        .play-btn:hover { transform: scale(1.05); }
-
-        .timeline-track-area {
-            flex: 1;
-            padding: 12px 16px;
-            background: var(--bg-deep);
-            position: relative;
-            cursor: pointer;
-        }
-
-        .timeline-ruler {
-            display: flex;
-            justify-content: space-between;
-            color: var(--text-muted);
-            font-size: 0.7rem;
-            border-bottom: 1px solid var(--border-grey);
-            padding-bottom: 4px;
-            pointer-events: none;
-        }
-
-        .timeline-keyframe-track {
-            margin-top: 10px;
-            height: 36px;
-            background: var(--bg-panel);
-            border: 1px solid var(--border-grey);
-            border-radius: var(--radius-sm);
-            position: relative;
-        }
-
-        .playhead {
-            position: absolute;
-            top: 0;
-            left: 0%;
-            width: 2px;
-            height: 100%;
-            background: #ffffff;
-            box-shadow: 0 0 10px rgba(255,255,255,0.9);
-            z-index: 5;
-            pointer-events: none;
-        }
-
-        .playhead-handle {
-            position: absolute;
-            top: -6px;
-            left: -5px;
-            width: 12px;
-            height: 12px;
-            background: var(--text-primary);
-            border-radius: 2px;
-            transform: rotate(45deg);
-        }
-
-        .keyframe-node {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%) rotate(45deg);
-            width: 10px;
-            height: 10px;
-            background: var(--text-muted);
-            border-radius: 2px;
-            pointer-events: none;
-        }
-
-        /* --- RENDERING MODAL --- */
-        .render-modal-overlay {
+        /* --- AUTH & MODAL STYLES --- */
+        .modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100vw;
             height: 100vh;
-            background: rgba(14, 14, 16, 0.75);
+            background: rgba(14, 14, 16, 0.8);
             backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            z-index: 1000;
+            z-index: 2000;
             display: none;
             align-items: center;
             justify-content: center;
         }
 
-        .render-modal-overlay.active { display: flex; }
+        .modal-overlay.active { display: flex; }
 
-        .render-card {
+        .auth-card {
             background: var(--bg-smooth-grey);
             border: 1px solid var(--border-light);
             border-radius: var(--radius-lg);
-            width: 440px;
+            width: 380px;
             padding: 32px;
             box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8);
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 18px;
+            text-align: center;
         }
 
-        .render-header h3 { font-size: 1.25rem; font-weight: 700; margin-bottom: 4px; }
-        .render-header p { font-size: 0.85rem; color: var(--text-muted); }
-
-        .form-group { display: flex; flex-direction: column; gap: 6px; }
-        .form-group label { font-size: 0.8rem; color: var(--text-muted); }
-        .form-group select {
-            background: var(--bg-panel);
-            border: 1px solid var(--border-grey);
-            color: var(--text-primary);
+        .google-btn {
+            background: #ffffff;
+            color: #111115;
+            border: none;
             padding: 10px;
             border-radius: var(--radius-md);
             font-size: 0.9rem;
-            outline: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: background 0.2s;
         }
 
-        .progress-container {
-            display: none;
-            flex-direction: column;
-            gap: 12px;
+        .google-btn:hover { background: #e4e4e7; }
+
+        .auth-divider {
+            display: flex;
+            align-items: center;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            margin: 4px 0;
         }
 
-        .progress-bar-bg {
+        .auth-divider::before, .auth-divider::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: var(--border-grey);
+        }
+
+        .auth-input {
             width: 100%;
-            height: 10px;
             background: var(--bg-panel);
-            border-radius: 5px;
-            overflow: hidden;
             border: 1px solid var(--border-grey);
+            padding: 10px;
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            outline: none;
+            font-size: 0.85rem;
         }
 
-        .progress-bar-fill {
-            width: 0%;
-            height: 100%;
-            background: var(--text-primary);
-            transition: width 0.05s linear;
-        }
+        /* --- STUDIO EDITOR ENGINE --- */
+        .editor-wrapper { height: 100vh; display: flex; flex-direction: column; overflow: hidden; font-size: 13px; }
+        .app-header { height: 48px; background: var(--bg-smooth-grey); border-bottom: 1px solid var(--border-grey); display: flex; align-items: center; justify-content: space-between; padding: 0 16px; }
+        .workspace { display: grid; grid-template-columns: 280px 1fr 320px; flex: 1; height: calc(100vh - 48px - 140px); overflow: hidden; }
+        .sidebar-left, .sidebar-right { background: var(--bg-smooth-grey); padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; }
+        .sidebar-left { border-right: 1px solid var(--border-grey); }
+        .sidebar-right { border-left: 1px solid var(--border-grey); }
+        .viewport-container { background: var(--bg-deep); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+        .canvas-frame-wrapper { display: flex; align-items: center; justify-content: center; transition: transform 0.1s ease-out; }
+        .canvas-frame { width: 640px; aspect-ratio: 16 / 9; background: #111115; border-radius: 12px; border: 1px solid var(--border-light); box-shadow: 0 30px 60px rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
+        #render-canvas { width: 100%; height: 100%; object-fit: contain; }
+        .upload-dropzone { border: 1px dashed var(--border-light); padding: 16px; text-align: center; border-radius: 6px; background: var(--bg-panel); }
+        .control-group { background: var(--bg-panel); border: 1px solid var(--border-grey); padding: 10px; border-radius: var(--radius-sm); font-size: 0.8rem; color: var(--text-muted); }
+        .control-group.active-preset { border-color: #38bdf8; color: var(--text-primary); background: var(--bg-element); }
+        .control-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+        .control-row input[type="range"] { flex: 1; accent-color: #38bdf8; }
+        .value-display { width: 48px; background: var(--bg-panel); border: 1px solid var(--border-grey); border-radius: var(--radius-sm); padding: 2px 4px; text-align: center; font-size: 0.75rem; color: var(--text-muted); }
+        .media-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 6px; }
+        .media-slot { background: var(--bg-panel); border: 1px dashed var(--border-grey); border-radius: var(--radius-sm); height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+        .media-slot.has-image { border-style: solid; border-color: var(--border-light); }
+        .media-slot img { width: 100%; height: 100%; object-fit: cover; }
+        .slot-badge { position: absolute; top: 2px; left: 4px; font-size: 0.65rem; font-weight: 700; background: rgba(0,0,0,0.6); padding: 1px 4px; border-radius: 3px; }
+        .timeline-bar { height: 140px; background: var(--bg-smooth-grey); border-top: 1px solid var(--border-grey); display: flex; flex-direction: column; }
+        .timeline-controls { height: 36px; border-bottom: 1px solid var(--border-grey); display: flex; align-items: center; justify-content: space-between; padding: 0 16px; }
+        .play-btn { width: 26px; height: 26px; border-radius: 50%; background: var(--text-primary); color: var(--bg-deep); border: none; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .timeline-track-area { flex: 1; padding: 12px 16px; background: var(--bg-deep); position: relative; }
+        .timeline-ruler { display: flex; justify-content: space-between; color: var(--text-muted); font-size: 0.7rem; border-bottom: 1px solid var(--border-grey); padding-bottom: 4px; }
+        .timeline-keyframe-track { margin-top: 10px; height: 36px; background: var(--bg-panel); border: 1px solid var(--border-grey); border-radius: var(--radius-sm); position: relative; }
+        .playhead { position: absolute; top: 0; left: 0%; width: 2px; height: 100%; background: #38bdf8; box-shadow: 0 0 10px #38bdf8; z-index: 5; }
+        .playhead-handle { position: absolute; top: -6px; left: -5px; width: 12px; height: 12px; background: #38bdf8; border-radius: 2px; transform: rotate(45deg); }
     </style>
 </head>
 <body>
 
-    <!-- HIDDEN MULTI FILE INPUT -->
+    <!-- GLOWING BLUE CUSTOM CURSOR DOT -->
+    <div class="cursor-dot" id="cursor-dot"></div>
+    <div class="cursor-trail" id="cursor-trail"></div>
+
+    <!-- HIDDEN FILE INPUTS -->
     <input type="file" id="image-file-input" accept="image/*" style="display: none;" onchange="handleFileSelect(event)">
     <input type="file" id="slot-file-input" accept="image/*" style="display: none;" onchange="handleSlotFileSelect(event)">
 
-    <!-- RENDER & RECORDING MODAL -->
-    <div class="render-modal-overlay" id="render-modal">
-        <div class="render-card">
-            <div class="render-header">
-                <h3>Record 60 FPS Viewport Stream</h3>
-                <p>Hardware-accelerated live preview capture at locked 16:9 ratio.</p>
-            </div>
+    <!-- LOGIN & ACCOUNT MODAL (GOOGLE GMAIL AUTH) -->
+    <div class="modal-overlay" id="auth-modal">
+        <div class="auth-card">
+            <h3>Welcome to Motion Studio</h3>
+            <p style="font-size:0.8rem; color:var(--text-muted);">Sign in or create your account to sync presets.</p>
+            
+            <button class="google-btn" onclick="loginWithGoogle()">
+                <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.29v3.14C3.26 21.27 7.36 24 12 24z"/><path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.59H1.29B9.98 9.98 0 000 12c0 1.61.39 3.14 1.29 4.56l3.99-3.14z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.36 0 3.26 2.73 1.29 6.59l3.99 3.14c.95-2.83 3.6-4.98 6.72-4.98z"/></svg>
+                Continue with Google Gmail
+            </button>
 
-            <div id="render-form">
-                <div class="form-group" style="margin-bottom: 14px;">
-                    <label>Resolution Ratio</label>
-                    <select id="export-res" disabled>
-                        <option value="16/9" selected>16:9 Widescreen (1920x1080 HD)</option>
-                    </select>
-                </div>
+            <div class="auth-divider">or email login</div>
 
-                <div class="form-group" style="margin-bottom: 20px;">
-                    <label>Save File Format</label>
-                    <select id="export-format">
-                        <option value="webm" selected>Web Video (.webm / 60 FPS)</option>
-                        <option value="mp3">Audio File (.mp3)</option>
-                        <option value="mp4">Video Track (.mp4)</option>
-                    </select>
-                </div>
+            <input type="email" class="auth-input" placeholder="Enter your email address">
+            <input type="password" class="auth-input" placeholder="Enter your password">
 
-                <div style="display: flex; gap: 10px; justify-content: flex-end;">
-                    <button class="btn" onclick="closeExportModal()">Cancel</button>
-                    <button class="btn btn-primary" onclick="startRenderAndRecordProcess()">Record & Save</button>
-                </div>
-            </div>
-
-            <div class="progress-container" id="render-progress-box">
-                <div style="display: flex; justify-content: space-between; font-size: 0.85rem;">
-                    <span id="render-status-text">Recording 60 FPS Stream...</span>
-                    <span id="render-percent">0%</span>
-                </div>
-                <div class="progress-bar-bg">
-                    <div class="progress-bar-fill" id="render-progress-bar"></div>
-                </div>
+            <div style="display:flex; gap:10px; margin-top:6px;">
+                <button class="btn btn-primary" style="flex:1;" onclick="closeAuthModal()">Sign In</button>
+                <button class="btn" style="flex:1;" onclick="closeAuthModal()">Cancel</button>
             </div>
         </div>
     </div>
@@ -642,11 +421,25 @@
             <div class="logo" onclick="switchPage('home')">
                 <div class="logo-icon"></div> Motion Studio
             </div>
+
+            <!-- SEARCH BAR IN NAVBAR -->
+            <div class="nav-search-box">
+                <span class="search-icon">🔍</span>
+                <input type="text" class="nav-search-input" placeholder="Search templates, presets..." onkeyup="handleNavSearch(event)">
+            </div>
+
+            <!-- NAV LINKS -->
             <ul class="nav-links">
                 <li><a onclick="switchPage('home')" id="nav-home" class="active">Home</a></li>
                 <li><a onclick="switchPage('templates')" id="nav-templates">Templates</a></li>
+                <li><a onclick="switchPage('pricing')" id="nav-pricing">Pricing</a></li>
+                <li><a onclick="switchPage('faq')" id="nav-faq">FAQ</a></li>
             </ul>
-            <button class="btn btn-primary" onclick="switchPage('editor')">Launch Editor</button>
+
+            <div class="nav-right-actions">
+                <button class="btn" style="padding:6px 14px;" onclick="openAuthModal()">Login</button>
+                <button class="btn btn-primary" style="padding:6px 14px;" onclick="switchPage('editor')">Launch Editor</button>
+            </div>
         </div>
     </header>
 
@@ -654,9 +447,9 @@
     <main id="page-home" class="page-section active-page">
         <section class="hero">
             <div class="badge">
-                <span class="badge-dot"></span> 60 FPS Smooth Canvas Recording
+                <span class="badge-dot"></span> Glowing Blue Engine • 60 FPS Canvas Studio
             </div>
-            <h1>Cinematic Motion Graphics.<br>Real-Time Viewport Recorder.</h1>
+            <h1>Cinematic Motion Graphics.<br>Real-Time Viewport Renderer.</h1>
             <p>Turn raw thumbnails, screenshots, and artwork into slick 16:9 videos recorded directly live from your screen engine.</p>
             <div class="hero-cta">
                 <button class="btn btn-primary" onclick="switchPage('editor')">Start Creating Free</button>
@@ -667,31 +460,69 @@
 
     <!-- PAGE 2: TEMPLATES -->
     <main id="page-templates" class="page-section">
-        <section class="templates-page">
+        <section class="grid-container" style="margin-top:100px;">
             <div style="text-align: center;">
                 <h2>Motion Template Library</h2>
                 <p style="color:var(--text-muted);">Select any preset to open directly in the Motion Studio Editor.</p>
             </div>
-            <div class="template-grid">
-                <div class="template-card" onclick="loadPresetAndOpen('popup')">
-                    <div class="template-thumb">Pop-up Motion</div>
-                    <div class="template-info">
-                        <h4>App Demo Showcase</h4>
-                        <span style="color:var(--text-muted); font-size:0.8rem;">Bottom to center motion blur slide</span>
-                    </div>
+            <div class="pricing-grid">
+                <div class="price-card" onclick="loadPresetAndOpen('popup')">
+                    <h4>Pop-up Motion</h4>
+                    <p style="color:var(--text-muted); font-size:0.85rem;">Bottom to center motion blur slide</p>
+                    <button class="btn btn-primary" style="margin-top:auto;">Open Template</button>
                 </div>
-                <div class="template-card" onclick="loadPresetAndOpen('showcase')">
-                    <div class="template-thumb">Showcase Motion</div>
-                    <div class="template-info">
-                        <h4>5 Card Showcase</h4>
-                        <span style="color:var(--text-muted); font-size:0.8rem;">Smooth 5-Image Slot Sequence Pan</span>
-                    </div>
+                <div class="price-card" onclick="loadPresetAndOpen('showcase')">
+                    <h4>5 Card Showcase</h4>
+                    <p style="color:var(--text-muted); font-size:0.85rem;">Smooth 5-Image Slot Sequence Pan with motion blur</p>
+                    <button class="btn btn-primary" style="margin-top:auto;">Open Template</button>
                 </div>
             </div>
         </section>
     </main>
 
-    <!-- PAGE 3: STUDIO EDITOR -->
+    <!-- PAGE 3: PRICING -->
+    <main id="page-pricing" class="page-section">
+        <section class="grid-container">
+            <div style="text-align: center;">
+                <h2>Simple, Transparent Pricing</h2>
+                <p style="color:var(--text-muted);">Create studio-quality motion graphics directly in your web browser.</p>
+            </div>
+            <div class="pricing-grid">
+                <div class="price-card">
+                    <h3>Free Starter</h3>
+                    <div style="font-size: 2rem; font-weight: 700;">$0</div>
+                    <p style="color:var(--text-muted); font-size:0.85rem;">Full access to standard motion presets and 60 FPS WebM recording.</p>
+                    <button class="btn" style="margin-top:auto;" onclick="switchPage('editor')">Get Started</button>
+                </div>
+                <div class="price-card featured">
+                    <h3>Pro Creator</h3>
+                    <div style="font-size: 2rem; font-weight: 700; color:#38bdf8;">$12 <span style="font-size:0.9rem;">/mo</span></div>
+                    <p style="color:var(--text-muted); font-size:0.85rem;">Unlimited 5-Image Showcase renders, 4K rendering, and custom keyframes.</p>
+                    <button class="btn btn-primary" style="margin-top:auto;" onclick="openAuthModal()">Upgrade to Pro</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- PAGE 4: FAQ -->
+    <main id="page-faq" class="page-section">
+        <section class="grid-container">
+            <div style="text-align: center; margin-bottom: 40px;">
+                <h2>Frequently Asked Questions</h2>
+                <p style="color:var(--text-muted);">Everything you need to know about Motion Studio.</p>
+            </div>
+            <div class="faq-item">
+                <h4>How does the 60 FPS Canvas recording work?</h4>
+                <p style="color:var(--text-muted); font-size:0.85rem; margin-top:4px;">Motion Studio uses hardware-accelerated MediaStream API to capture high-definition real-time animations straight out of your browser canvas without backend rendering delays.</p>
+            </div>
+            <div class="faq-item">
+                <h4>How do the 5 Image Slots work in Showcase mode?</h4>
+                <p style="color:var(--text-muted); font-size:0.85rem; margin-top:4px;">Upload up to 5 custom images into the right Inspector media slots. Selecting Showcase will sequence and pan across all 5 images smoothly with real-time motion blur.</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- PAGE 5: STUDIO EDITOR ENGINE -->
     <main id="page-editor" class="page-section">
         <div class="editor-wrapper">
             <header class="app-header">
@@ -699,98 +530,48 @@
                     <button class="btn" style="padding:4px 10px; font-size:0.8rem;" onclick="switchPage('home')">← Exit Editor</button>
                     <span style="font-weight:600; font-size:0.85rem;">Studio_Render_16x9.motion</span>
                 </div>
-                <div>
-                    <span style="font-size:0.8rem; color:var(--text-muted); font-weight:600;">Fixed Render Aspect Ratio: 16:9 (1920x1080)</span>
-                </div>
-                <div>
-                    <button class="btn btn-primary" style="padding:5px 12px; font-size:0.8rem;" onclick="openExportModal()">Record & Export</button>
-                </div>
+                <div><span style="font-size:0.8rem; color:var(--text-muted); font-weight:600;">Fixed Aspect Ratio: 16:9</span></div>
+                <div><button class="btn btn-primary" style="padding:5px 12px; font-size:0.8rem;" onclick="openExportModal()">Record & Export</button></div>
             </header>
 
             <div class="workspace">
-                <!-- LEFT SIDEBAR -->
                 <aside class="sidebar-left">
                     <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">MAIN MEDIA INPUT</span>
-                    <div class="upload-dropzone" id="dropzone" onclick="triggerFileInput()" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
+                    <div class="upload-dropzone" onclick="triggerFileInput()">
                         <p style="font-size:0.85rem; font-weight:500;">Drop Main Image Here</p>
                         <span style="font-size:0.75rem; color:var(--text-muted);">or click to browse local files</span>
                     </div>
-
                     <button class="btn" style="font-size:0.75rem; padding:4px;" onclick="clearImage()">Remove Main Image</button>
 
                     <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted); margin-top:10px;">ANIMATION PRESETS</span>
                     <div style="display:flex; flex-direction:column; gap:8px;">
-                        <div class="control-group active-preset" id="preset-popup" style="cursor:pointer;" onclick="setAnimationPreset('popup')">1. Pop-up</div>
-                        <div class="control-group" id="preset-showcase" style="cursor:pointer;" onclick="setAnimationPreset('showcase')">2. Showcase (Slots 1 to 5)</div>
-                        <div class="control-group" id="preset-manual" style="cursor:pointer;" onclick="setAnimationPreset('manual')">3. Manual Slider Control</div>
+                        <div class="control-group active-preset" id="preset-popup" onclick="setAnimationPreset('popup')">1. Pop-up</div>
+                        <div class="control-group" id="preset-showcase" onclick="setAnimationPreset('showcase')">2. Showcase (Slots 1 to 5)</div>
+                        <div class="control-group" id="preset-manual" onclick="setAnimationPreset('manual')">3. Manual Control</div>
                     </div>
                 </aside>
 
-                <!-- CENTER CANVAS VIEWPORT -->
-                <main class="viewport-container" id="viewport-container" onwheel="handleWheelZoom(event)">
-                    <div class="canvas-frame-wrapper" id="canvas-wrapper">
-                        <div class="canvas-frame" id="canvas-frame">
+                <main class="viewport-container" id="viewport-container">
+                    <div class="canvas-frame-wrapper">
+                        <div class="canvas-frame">
                             <canvas id="render-canvas" onclick="triggerFileInput()"></canvas>
                         </div>
                     </div>
-
-                    <div class="viewport-controls">
-                        <button class="zoom-btn" onclick="adjustZoom(-0.1)">-</button>
-                        <span style="font-size: 0.75rem; color: var(--text-muted); min-width: 40px; text-align: center;" id="zoom-val">100%</span>
-                        <button class="zoom-btn" onclick="adjustZoom(0.1)">+</button>
-                        <button class="zoom-btn" style="font-size: 0.75rem;" onclick="resetZoom()">Reset</button>
-                    </div>
                 </main>
 
-                <!-- RIGHT INSPECTOR PANEL -->
                 <aside class="sidebar-right">
-                    <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">MANUAL 3D ROTATION</span>
-                    <div class="control-row">
-                        <label>Pitch (X)</label>
-                        <input type="range" id="pitch-slider" min="-45" max="45" value="10" oninput="updateManual3D()">
-                        <span class="value-display" id="pitch-val">10°</span>
-                    </div>
-                    <div class="control-row">
-                        <label>Yaw (Y)</label>
-                        <input type="range" id="yaw-slider" min="-45" max="45" value="-12" oninput="updateManual3D()">
-                        <span class="value-display" id="yaw-val">-12°</span>
-                    </div>
-
-                    <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted); margin-top:10px;">TIMING & EASING</span>
-                    <div class="control-row">
-                        <label>Duration</label>
-                        <input type="range" id="duration-slider" min="1" max="10" value="4" step="0.5" oninput="updateDuration(this.value)">
-                        <span class="value-display" id="duration-val">4.0s</span>
-                    </div>
+                    <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">MANUAL ROTATION</span>
+                    <div class="control-row"><label>Pitch (X)</label><input type="range" id="pitch-slider" min="-45" max="45" value="10" oninput="updateManual3D()"><span class="value-display" id="pitch-val">10°</span></div>
+                    <div class="control-row"><label>Yaw (Y)</label><input type="range" id="yaw-slider" min="-45" max="45" value="-12" oninput="updateManual3D()"><span class="value-display" id="yaw-val">-12°</span></div>
 
                     <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted); margin-top:10px;">RENDER BACKGROUND</span>
-                    <div class="control-row">
-                        <label>Canvas Bg</label>
-                        <select id="bg-select" onchange="updateBackground(this.value)" style="background:var(--bg-panel); border:1px solid var(--border-grey); color:var(--text-primary); padding:6px 8px; border-radius:4px; font-size:0.8rem; cursor:pointer;">
-                            <option value="dark" selected>Dark Studio</option>
-                            <option value="white">Solid White</option>
-                            <option value="transparent">Transparent (No Bg)</option>
-                        </select>
-                    </div>
+                    <div class="control-row"><label>Speed</label><input type="range" id="speed-slider" min="0.25" max="3.0" value="1.0" step="0.25" oninput="updateSpeed(this.value)"><span class="value-display" id="speed-val">1.0x</span></div>
 
-                    <!-- SPEED CONTROL DIRECTLY UNDER RENDER BACKGROUND -->
-                    <div class="control-row" style="margin-top: 6px;">
-                        <label>Speed</label>
-                        <input type="range" id="speed-slider" min="0.25" max="3.0" value="1.0" step="0.25" oninput="updateSpeed(this.value)">
-                        <span class="value-display" id="speed-val">1.0x</span>
-                    </div>
-
-                    <!-- MEDIA SLOTS (10 SLOTS) -->
                     <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted); margin-top:10px;">MEDIA (10 SLOTS)</span>
-                    <div class="media-grid" id="media-slots-grid">
-                        <!-- Generates 10 slots dynamically via JavaScript -->
-                    </div>
-
-                    <button class="btn" style="margin-top:20px; font-size:0.8rem;" onclick="resetTransforms()">Reset All Controls</button>
+                    <div class="media-grid" id="media-slots-grid"></div>
                 </aside>
             </div>
 
-            <!-- TIMELINE FOOTER -->
             <footer class="timeline-bar">
                 <div class="timeline-controls">
                     <div style="display:flex; align-items:center; gap:12px;">
@@ -799,17 +580,10 @@
                     </div>
                     <span style="color:var(--text-muted); font-size:0.75rem;">16:9 • High-Performance 60 FPS Engine</span>
                 </div>
-                <div class="timeline-track-area" id="timeline-track" onmousedown="startTimelineScrub(event)">
-                    <div class="timeline-ruler">
-                        <span>0s</span><span>1s</span><span>2s</span><span>3s</span><span>4s</span>
-                    </div>
+                <div class="timeline-track-area">
+                    <div class="timeline-ruler"><span>0s</span><span>1s</span><span>2s</span><span>3s</span><span>4s</span></div>
                     <div class="timeline-keyframe-track">
-                        <div class="playhead" id="playhead">
-                            <div class="playhead-handle"></div>
-                        </div>
-                        <div class="keyframe-node" style="left: 0%;"></div>
-                        <div class="keyframe-node" style="left: 50%;"></div>
-                        <div class="keyframe-node" style="left: 100%;"></div>
+                        <div class="playhead" id="playhead"><div class="playhead-handle"></div></div>
                     </div>
                 </div>
             </footer>
@@ -818,7 +592,29 @@
 
     <!-- SCRIPT LOGIC -->
     <script>
-        // CLIENT STATE
+        // GLOWING BLUE CURSOR CONTROLLER
+        const dot = document.getElementById('cursor-dot');
+        const trail = document.getElementById('cursor-trail');
+        let mouseX = 0, mouseY = 0;
+        let trailX = 0, trailY = 0;
+
+        window.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            dot.style.left = `${mouseX}px`;
+            dot.style.top = `${mouseY}px`;
+        });
+
+        function animateCursor() {
+            trailX += (mouseX - trailX) * 0.2;
+            trailY += (mouseY - trailY) * 0.2;
+            trail.style.left = `${trailX}px`;
+            trail.style.top = `${trailY}px`;
+            requestAnimationFrame(animateCursor);
+        }
+        animateCursor();
+
+        // STATE & CANVAS SETUP
         let state = {
             activePage: 'home',
             preset: 'popup',
@@ -826,11 +622,8 @@
             yaw: -12,
             duration: 4.0,
             speed: 1.0,
-            zoom: 1.0,
-            bgType: 'dark',
             imageData: null,
             isPlaying: true,
-            isRendering: false,
             currentTime: 0,
             mediaSlots: Array(10).fill(null)
         };
@@ -840,32 +633,67 @@
         let activeSlotTarget = null;
         let imageReady = false;
         let lastTimestamp = null;
-        let isScrubbing = false;
-
         let canvas, ctx;
-        let mediaRecorder = null;
-        let recordedChunks = [];
 
         window.addEventListener('DOMContentLoaded', () => {
             canvas = document.getElementById('render-canvas');
             canvas.width = 1920;
             canvas.height = 1080;
-
-            ctx = canvas.getContext('2d', { alpha: true, desynchronized: true });
-            ctx.imageSmoothingEnabled = true;
-            ctx.imageSmoothingQuality = 'high';
-
+            ctx = canvas.getContext('2d');
             renderMediaSlotUI();
-            loadFromLocalStorage();
-            applyStateToUI();
-
-            window.addEventListener('mousemove', handleTimelineMove);
-            window.addEventListener('mouseup', handleTimelineEnd);
-
             requestAnimationFrame(animationEngineLoop);
         });
 
-        // MEDIA SLOTS GENERATOR & CONTROLS
+        function switchPage(pageId) {
+            state.activePage = pageId;
+            document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active-page'));
+            document.getElementById(`page-${pageId}`).classList.add('active-page');
+
+            document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+            const activeNav = document.getElementById(`nav-${pageId}`);
+            if (activeNav) activeNav.classList.add('active');
+
+            document.getElementById('global-header').style.display = (pageId === 'editor') ? 'none' : 'block';
+        }
+
+        function openAuthModal() { document.getElementById('auth-modal').classList.add('active'); }
+        function closeAuthModal() { document.getElementById('auth-modal').classList.remove('active'); }
+        function loginWithGoogle() {
+            alert('Connected with Google Gmail account!');
+            closeAuthModal();
+        }
+
+        function handleNavSearch(e) {
+            if (e.key === 'Enter') {
+                switchPage('templates');
+            }
+        }
+
+        function setAnimationPreset(name) {
+            state.preset = name;
+            document.querySelectorAll('.control-group').forEach(el => el.classList.remove('active-preset'));
+            const activeEl = document.getElementById(`preset-${name}`);
+            if (activeEl) activeEl.classList.add('active-preset');
+        }
+
+        function loadPresetAndOpen(name) {
+            setAnimationPreset(name);
+            switchPage('editor');
+        }
+
+        function updateSpeed(val) {
+            state.speed = parseFloat(val);
+            document.getElementById('speed-val').innerText = `${state.speed.toFixed(2)}x`;
+        }
+
+        function updateManual3D() {
+            state.pitch = parseFloat(document.getElementById('pitch-slider').value);
+            state.yaw = parseFloat(document.getElementById('yaw-slider').value);
+            document.getElementById('pitch-val').innerText = `${state.pitch}°`;
+            document.getElementById('yaw-val').innerText = `${state.yaw}°`;
+            setAnimationPreset('manual');
+        }
+
         function renderMediaSlotUI() {
             const grid = document.getElementById('media-slots-grid');
             grid.innerHTML = '';
@@ -883,27 +711,13 @@
                     const img = document.createElement('img');
                     img.src = state.mediaSlots[i];
                     slot.appendChild(img);
-
-                    const clearBtn = document.createElement('div');
-                    clearBtn.className = 'slot-clear';
-                    clearBtn.innerText = '✕';
-                    clearBtn.onclick = (e) => {
-                        e.stopPropagation();
-                        clearSlotImage(i);
-                    };
-                    slot.appendChild(clearBtn);
-                } else {
-                    const txt = document.createElement('span');
-                    txt.style.cssText = 'font-size:0.65rem; color:var(--text-muted);';
-                    txt.innerText = '+ Upload';
-                    slot.appendChild(txt);
                 }
                 grid.appendChild(slot);
             }
         }
 
-        function triggerSlotFileInput(index) {
-            activeSlotTarget = index;
+        function triggerSlotFileInput(idx) {
+            activeSlotTarget = idx;
             document.getElementById('slot-file-input').click();
         }
 
@@ -914,67 +728,63 @@
                 reader.onload = (event) => {
                     const data = event.target.result;
                     state.mediaSlots[activeSlotTarget] = data;
-                    
                     const img = new Image();
                     img.src = data;
                     img.onload = () => {
                         slotImages[activeSlotTarget] = img;
                         renderMediaSlotUI();
-                        saveToLocalStorage();
                     };
                 };
                 reader.readAsDataURL(file);
             }
         }
 
-        function clearSlotImage(index) {
-            state.mediaSlots[index] = null;
-            slotImages[index] = null;
-            renderMediaSlotUI();
-            saveToLocalStorage();
+        function triggerFileInput() { document.getElementById('image-file-input').click(); }
+        function handleFileSelect(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (evt) => {
+                    state.imageData = evt.target.result;
+                    loadedImage.src = state.imageData;
+                    loadedImage.onload = () => { imageReady = true; };
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+        function clearImage() { imageReady = false; state.imageData = null; }
+
+        function togglePlayback() {
+            state.isPlaying = !state.isPlaying;
+            document.getElementById('play-btn').innerText = state.isPlaying ? '❚❚' : '▶';
         }
 
-        // SMOOTH 60 FPS RENDER LOOP WITH SPEED MULTIPLIER
         function animationEngineLoop(timestamp) {
             if (!lastTimestamp) lastTimestamp = timestamp;
             const delta = (timestamp - lastTimestamp) / 1000;
             lastTimestamp = timestamp;
 
-            if (state.isPlaying && !isScrubbing) {
+            if (state.isPlaying) {
                 state.currentTime += delta * state.speed;
-                if (state.currentTime >= state.duration) {
-                    if (state.isRendering) {
-                        finishRenderingAndSave();
-                    } else {
-                        state.currentTime = 0;
-                    }
-                }
-                updateTimelineUI();
+                if (state.currentTime >= state.duration) state.currentTime = 0;
+                const pct = (state.currentTime / state.duration) * 100;
+                document.getElementById('playhead').style.left = `${pct}%`;
             }
 
             drawCanvasFrame();
             requestAnimationFrame(animationEngineLoop);
         }
 
-        // DRAW CANVAS FRAME (PURE BRIGHTNESS PRESERVATION & SMOOTH MULTI-IMAGE MOTION)
         function drawCanvasFrame() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.filter = 'none';
-
-            if (state.bgType === 'dark') {
-                const bgGrad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-                bgGrad.addColorStop(0, '#121216');
-                bgGrad.addColorStop(1, '#09090b');
-                ctx.fillStyle = bgGrad;
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-            } else if (state.bgType === 'white') {
-                ctx.fillStyle = '#ffffff';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-            }
+            const bgGrad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            bgGrad.addColorStop(0, '#121216');
+            bgGrad.addColorStop(1, '#09090b');
+            ctx.fillStyle = bgGrad;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
 
             const progress = (state.currentTime % state.duration) / state.duration;
 
-            // DRAW CARD HELPER (Preserves image brightness and color purity)
             function drawCard(x, y, scale = 1, skewX = 0, skewY = 0, opacity = 1, imgSource = null, slotNum = 1) {
                 ctx.save();
                 ctx.globalAlpha = Math.max(0, Math.min(1, opacity));
@@ -987,60 +797,35 @@
                     const aspect = activeImg.width / activeImg.height;
                     let drawW = 920;
                     let drawH = drawW / aspect;
-
-                    if (drawH > 560) {
-                        drawH = 560;
-                        drawW = drawH * aspect;
-                    }
-
+                    if (drawH > 560) { drawH = 560; drawW = drawH * aspect; }
                     ctx.shadowColor = 'rgba(0, 0, 0, 0.45)';
-                    ctx.shadowBlur = 35;
-                    ctx.shadowOffsetY = 18;
-
+                    ctx.shadowBlur = 35; ctx.shadowOffsetY = 18;
                     ctx.drawImage(activeImg, -drawW / 2, -drawH / 2, drawW, drawH);
                 } else {
                     ctx.fillStyle = '#1e1e24';
                     ctx.strokeStyle = '#3e3e48';
                     ctx.lineWidth = 4;
-                    const cardW = 760, cardH = 430;
-                    
-                    ctx.shadowColor = 'rgba(0,0,0,0.4)';
-                    ctx.shadowBlur = 25;
-                    ctx.shadowOffsetY = 12;
-
                     ctx.beginPath();
-                    ctx.roundRect(-cardW / 2, -cardH / 2, cardW, cardH, 20);
-                    ctx.fill();
-                    ctx.stroke();
-
-                    ctx.shadowColor = 'transparent';
+                    ctx.roundRect(-380, -215, 760, 430, 20);
+                    ctx.fill(); ctx.stroke();
                     ctx.fillStyle = '#8e8e9a';
-                    ctx.font = '600 26px -apple-system, sans-serif';
+                    ctx.font = '600 24px -apple-system, sans-serif';
                     ctx.textAlign = 'center';
-                    ctx.fillText(`Slot ${slotNum} Image Placeholder`, 0, -10);
-                    ctx.font = '400 16px -apple-system, sans-serif';
-                    ctx.fillText('Upload image to right side media slot', 0, 25);
+                    ctx.fillText(`Slot ${slotNum} Image Placeholder`, 0, 0);
                 }
                 ctx.restore();
             }
 
-            // PRESET 1: POP-UP
             if (state.preset === 'popup') {
                 const easeOutCubic = p => 1 - Math.pow(1 - p, 3);
                 const currentY = (1 - easeOutCubic(progress)) * 420;
-
                 if (state.isPlaying && progress < 0.8) {
-                    const blurTrail = (1 - easeOutCubic(progress)) * 22;
-                    drawCard(0, currentY + blurTrail, 0.9, 0, 0, 0.25);
+                    drawCard(0, currentY + ((1 - easeOutCubic(progress)) * 22), 0.9, 0, 0, 0.25);
                 }
                 drawCard(0, currentY, 0.9, 0, 0, 1.0);
-            } 
-            // PRESET 2: SHOWCASE (5 IMAGES FROM SLOTS 1 TO 5 WITH MOTION BLUR & VISIBILITY)
-            else if (state.preset === 'showcase') {
+            } else if (state.preset === 'showcase') {
                 const easeInOutQuad = p => p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
                 const smoothProgress = easeInOutQuad(progress);
-
-                // Pan distance to cycle continuously from Slot 1 through Slot 5
                 const cardSpacing = 720;
                 const startX = cardSpacing * 2;
                 const endX = -cardSpacing * 2;
@@ -1049,345 +834,18 @@
                 for (let idx = 0; idx < 5; idx++) {
                     const cardX = currentOffset + (idx - 2) * cardSpacing;
                     const slotImg = slotImages[idx] || (imageReady ? loadedImage : null);
-
-                    // Smooth card scaling and visibility
                     const distFromCenter = Math.abs(cardX);
                     const scale = Math.max(0.65, 0.82 - (distFromCenter / 2500));
                     const alpha = Math.max(0.4, 1.0 - (distFromCenter / 1600));
 
-                    // Subtle motion blur trailing effect during pan
                     if (state.isPlaying && progress > 0.05 && progress < 0.95) {
-                        const blurDirection = (smoothProgress - 0.5) * -30;
-                        drawCard(cardX + blurDirection, 0, scale, 0, 0, alpha * 0.3, slotImg, idx + 1);
+                        drawCard(cardX + ((smoothProgress - 0.5) * -30), 0, scale, 0, 0, alpha * 0.3, slotImg, idx + 1);
                     }
-
                     drawCard(cardX, 0, scale, 0, 0, alpha, slotImg, idx + 1);
                 }
-            } 
-            // PRESET 3: MANUAL CONTROL
-            else if (state.preset === 'manual') {
-                const skewX = state.yaw * Math.PI / 180;
-                const skewY = state.pitch * Math.PI / 180;
-                drawCard(0, 0, 0.85, skewX, skewY, 1.0);
+            } else if (state.preset === 'manual') {
+                drawCard(0, 0, 0.85, state.yaw * Math.PI / 180, state.pitch * Math.PI / 180, 1.0);
             }
-        }
-
-        // NAVIGATION & STATE HANDLING
-        function switchPage(pageId) {
-            state.activePage = pageId;
-            document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active-page'));
-            document.getElementById(`page-${pageId}`).classList.add('active-page');
-
-            document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
-            if (pageId === 'home') document.getElementById('nav-home').classList.add('active');
-            if (pageId === 'templates') document.getElementById('nav-templates').classList.add('active');
-
-            const header = document.getElementById('global-header');
-            header.style.display = (pageId === 'editor') ? 'none' : 'block';
-
-            saveToLocalStorage();
-        }
-
-        function setAnimationPreset(presetName) {
-            state.preset = presetName;
-            document.querySelectorAll('.control-group').forEach(el => el.classList.remove('active-preset'));
-            const activeEl = document.getElementById(`preset-${presetName}`);
-            if (activeEl) activeEl.classList.add('active-preset');
-
-            saveToLocalStorage();
-        }
-
-        function loadPresetAndOpen(presetName) {
-            setAnimationPreset(presetName);
-            switchPage('editor');
-        }
-
-        function updateManual3D() {
-            state.pitch = parseFloat(document.getElementById('pitch-slider').value);
-            state.yaw = parseFloat(document.getElementById('yaw-slider').value);
-            document.getElementById('pitch-val').innerText = `${state.pitch}°`;
-            document.getElementById('yaw-val').innerText = `${state.yaw}°`;
-            setAnimationPreset('manual');
-        }
-
-        function updateDuration(val) {
-            state.duration = parseFloat(val);
-            document.getElementById('duration-val').innerText = `${state.duration.toFixed(1)}s`;
-            updateTimelineUI();
-            saveToLocalStorage();
-        }
-
-        function updateSpeed(val) {
-            state.speed = parseFloat(val);
-            document.getElementById('speed-val').innerText = `${state.speed.toFixed(2)}x`;
-            saveToLocalStorage();
-        }
-
-        function updateBackground(val) {
-            state.bgType = val;
-            const frame = document.getElementById('canvas-frame');
-            if (val === 'transparent') {
-                frame.classList.add('bg-transparent-grid');
-            } else {
-                frame.classList.remove('bg-transparent-grid');
-            }
-            saveToLocalStorage();
-        }
-
-        function resetTransforms() {
-            state.pitch = 10;
-            state.yaw = -12;
-            state.duration = 4.0;
-            state.speed = 1.0;
-            document.getElementById('pitch-slider').value = 10;
-            document.getElementById('yaw-slider').value = -12;
-            document.getElementById('duration-slider').value = 4.0;
-            document.getElementById('speed-slider').value = 1.0;
-            document.getElementById('pitch-val').innerText = '10°';
-            document.getElementById('yaw-val').innerText = '-12°';
-            document.getElementById('duration-val').innerText = '4.0s';
-            document.getElementById('speed-val').innerText = '1.0x';
-            setAnimationPreset('popup');
-            updateBackground('dark');
-            document.getElementById('bg-select').value = 'dark';
-        }
-
-        // MAIN IMAGE HANDLING
-        function triggerFileInput() {
-            document.getElementById('image-file-input').click();
-        }
-
-        function handleFileSelect(e) {
-            const file = e.target.files[0];
-            if (file) loadFile(file);
-        }
-
-        function handleDragOver(e) {
-            e.preventDefault();
-            document.getElementById('dropzone').classList.add('dragover');
-        }
-
-        function handleDragLeave(e) {
-            e.preventDefault();
-            document.getElementById('dropzone').classList.remove('dragover');
-        }
-
-        function handleDrop(e) {
-            e.preventDefault();
-            document.getElementById('dropzone').classList.remove('dragover');
-            if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-                loadFile(e.dataTransfer.files[0]);
-            }
-        }
-
-        function loadFile(file) {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                state.imageData = event.target.result;
-                loadedImage.src = state.imageData;
-                loadedImage.onload = () => {
-                    imageReady = true;
-                    saveToLocalStorage();
-                };
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function clearImage() {
-            state.imageData = null;
-            imageReady = false;
-            loadedImage = new Image();
-            saveToLocalStorage();
-        }
-
-        // VIEWPORT ZOOM CONTROLS
-        function adjustZoom(delta) {
-            state.zoom = Math.min(Math.max(0.4, state.zoom + delta), 2.0);
-            applyZoom();
-        }
-
-        function resetZoom() {
-            state.zoom = 1.0;
-            applyZoom();
-        }
-
-        function handleWheelZoom(e) {
-            if (e.ctrlKey || e.metaKey) {
-                e.preventDefault();
-                adjustZoom(e.deltaY < 0 ? 0.05 : -0.05);
-            }
-        }
-
-        function applyZoom() {
-            document.getElementById('canvas-wrapper').style.transform = `scale(${state.zoom})`;
-            document.getElementById('zoom-val').innerText = `${Math.round(state.zoom * 100)}%`;
-        }
-
-        // TIMELINE CONTROLS & SCRUBBING
-        function togglePlayback() {
-            state.isPlaying = !state.isPlaying;
-            document.getElementById('play-btn').innerText = state.isPlaying ? '❚❚' : '▶';
-        }
-
-        function updateTimelineUI() {
-            const pct = (state.currentTime / state.duration) * 100;
-            document.getElementById('playhead').style.left = `${Math.min(100, pct)}%`;
-
-            const cur = formatTime(state.currentTime);
-            const dur = formatTime(state.duration);
-            document.getElementById('time-display').innerText = `${cur} / ${dur}`;
-
-            if (state.isRendering) {
-                document.getElementById('render-progress-bar').style.width = `${pct}%`;
-                document.getElementById('render-percent').innerText = `${Math.round(pct)}%`;
-            }
-        }
-
-        function formatTime(sec) {
-            const m = Math.floor(sec / 60).toString().padStart(2, '0');
-            const s = (sec % 60).toFixed(1).padStart(4, '0');
-            return `${m}:${s}`;
-        }
-
-        function startTimelineScrub(e) {
-            isScrubbing = true;
-            scrub(e);
-        }
-
-        function handleTimelineMove(e) {
-            if (isScrubbing) scrub(e);
-        }
-
-        function handleTimelineEnd() {
-            isScrubbing = false;
-        }
-
-        function scrub(e) {
-            const track = document.getElementById('timeline-track');
-            const rect = track.getBoundingClientRect();
-            const x = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
-            state.currentTime = (x / rect.width) * state.duration;
-            updateTimelineUI();
-        }
-
-        // EXPORT & REAL-TIME STREAM RECORDING
-        function openExportModal() {
-            document.getElementById('render-modal').classList.add('active');
-            document.getElementById('render-form').style.display = 'block';
-            document.getElementById('render-progress-box').style.display = 'none';
-        }
-
-        function closeExportModal() {
-            if (state.isRendering) return;
-            document.getElementById('render-modal').classList.remove('active');
-        }
-
-        function startRenderAndRecordProcess() {
-            state.isRendering = true;
-            state.isPlaying = true;
-            state.currentTime = 0;
-
-            document.getElementById('render-form').style.display = 'none';
-            document.getElementById('render-progress-box').style.display = 'flex';
-
-            recordedChunks = [];
-            const stream = canvas.captureStream(60);
-
-            let mimeType = 'video/webm;codecs=vp9';
-            if (!MediaRecorder.isTypeSupported(mimeType)) mimeType = 'video/webm';
-
-            mediaRecorder = new MediaRecorder(stream, { mimeType });
-            mediaRecorder.ondataavailable = (e) => {
-                if (e.data.size > 0) recordedChunks.push(e.data);
-            };
-
-            mediaRecorder.onstop = saveRecordedFile;
-            mediaRecorder.start();
-        }
-
-        function finishRenderingAndSave() {
-            state.isRendering = false;
-            state.isPlaying = false;
-            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-                mediaRecorder.stop();
-            }
-            closeExportModal();
-        }
-
-        function saveRecordedFile() {
-            const blob = new Blob(recordedChunks, { type: 'video/webm' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.style.display = 'none';
-            a.href = url;
-            a.download = `Motion_Studio_Render_${Date.now()}.webm`;
-            document.body.appendChild(a);
-            a.click();
-            setTimeout(() => {
-                document.body.removeChild(a);
-                window.URL.revokeObjectURL(url);
-            }, 100);
-        }
-
-        // LOCAL STORAGE PERSISTENCE
-        function saveToLocalStorage() {
-            localStorage.setItem('motion_studio_state', JSON.stringify({
-                preset: state.preset,
-                pitch: state.pitch,
-                yaw: state.yaw,
-                duration: state.duration,
-                speed: state.speed,
-                bgType: state.bgType,
-                imageData: state.imageData,
-                mediaSlots: state.mediaSlots
-            }));
-        }
-
-        function loadFromLocalStorage() {
-            const saved = localStorage.getItem('motion_studio_state');
-            if (!saved) return;
-            try {
-                const parsed = JSON.parse(saved);
-                state.preset = parsed.preset || 'popup';
-                state.pitch = parsed.pitch ?? 10;
-                state.yaw = parsed.yaw ?? -12;
-                state.duration = parsed.duration ?? 4.0;
-                state.speed = parsed.speed ?? 1.0;
-                state.bgType = parsed.bgType || 'dark';
-                state.imageData = parsed.imageData || null;
-                state.mediaSlots = parsed.mediaSlots || Array(10).fill(null);
-
-                if (state.imageData) {
-                    loadedImage.src = state.imageData;
-                    loadedImage.onload = () => { imageReady = true; };
-                }
-
-                state.mediaSlots.forEach((data, i) => {
-                    if (data) {
-                        const img = new Image();
-                        img.src = data;
-                        img.onload = () => { slotImages[i] = img; };
-                    }
-                });
-
-                renderMediaSlotUI();
-            } catch (err) {
-                console.error('Failed to parse saved state:', err);
-            }
-        }
-
-        function applyStateToUI() {
-            document.getElementById('pitch-slider').value = state.pitch;
-            document.getElementById('yaw-slider').value = state.yaw;
-            document.getElementById('duration-slider').value = state.duration;
-            document.getElementById('speed-slider').value = state.speed;
-            document.getElementById('pitch-val').innerText = `${state.pitch}°`;
-            document.getElementById('yaw-val').innerText = `${state.yaw}°`;
-            document.getElementById('duration-val').innerText = `${state.duration.toFixed(1)}s`;
-            document.getElementById('speed-val').innerText = `${state.speed.toFixed(2)}x`;
-            document.getElementById('bg-select').value = state.bgType;
-            setAnimationPreset(state.preset);
-            updateBackground(state.bgType);
         }
     </script>
 </body>
