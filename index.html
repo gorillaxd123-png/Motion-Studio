@@ -1,346 +1,181 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Motion Studio</title>
-  <style>
-    :root {
-      --bg-base: #121214;
-      --bg-surface: #1a1a1e;
-      --bg-panel: #222227;
-      --border-color: #2e2e35;
-      --text-main: #f0f0f5;
-      --text-muted: #8e8e9a;
-      --accent: #6366f1;
-      --accent-hover: #4f46e5;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    }
-
-    body {
-      background-color: var(--bg-base);
-      color: var(--text-main);
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-
-    /* Top Navigation Header */
-    header {
-      height: 56px;
-      background-color: var(--bg-surface);
-      border-bottom: 1px solid var(--border-color);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 20px;
-    }
-
-    .brand {
-      font-weight: 700;
-      font-size: 1.1rem;
-      letter-spacing: 0.5px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .brand-dot {
-      width: 10px;
-      height: 10px;
-      background: var(--accent);
-      border-radius: 50%;
-    }
-
-    .export-btn {
-      background-color: var(--accent);
-      color: white;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 6px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.2s ease;
-    }
-
-    .export-btn:hover {
-      background-color: var(--accent-hover);
-    }
-
-    /* Main Layout */
-    .studio-layout {
-      display: grid;
-      grid-template-columns: 240px 1fr 300px;
-      height: calc(100vh - 56px);
-    }
-
-    /* Panels Setup */
-    .panel {
-      background-color: var(--bg-surface);
-      border-right: 1px solid var(--border-color);
-      display: flex;
-      flex-direction: column;
-      padding: 16px;
-      gap: 16px;
-      overflow-y: auto;
-    }
-
-    .panel-right {
-      border-right: none;
-      border-left: 1px solid var(--border-color);
-    }
-
-    .panel-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .panel-title {
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: var(--text-muted);
-      font-weight: 700;
-    }
-
-    /* Left Sidebar: Categories */
-    .category-list {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .category-item {
-      padding: 10px 12px;
-      border-radius: 6px;
-      color: var(--text-muted);
-      cursor: pointer;
-      font-size: 0.9rem;
-      font-weight: 500;
-      transition: all 0.2s ease;
-    }
-
-    .category-item:hover, .category-item.active {
-      background-color: var(--bg-panel);
-      color: var(--text-main);
-    }
-
-    /* Center Section: Stage Preview */
-    .viewport-container {
-      background-color: var(--bg-base);
-      display: flex;
-      flex-direction: column;
-      padding: 24px;
-      gap: 16px;
-    }
-
-    .canvas-stage {
-      flex: 1;
-      background-color: var(--bg-panel);
-      border: 1px dashed var(--border-color);
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-    }
-
-    .canvas-placeholder {
-      width: 70%;
-      aspect-ratio: 16/9;
-      background-color: #16161a;
-      border: 1px solid var(--border-color);
-      border-radius: 6px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--text-muted);
-      font-size: 0.9rem;
-    }
-
-    .timeline-bar {
-      height: 48px;
-      background-color: var(--bg-surface);
-      border: 1px solid var(--border-color);
-      border-radius: 6px;
-      display: flex;
-      align-items: center;
-      padding: 0 16px;
-      gap: 12px;
-    }
-
-    .play-btn {
-      background: none;
-      border: none;
-      color: var(--text-main);
-      cursor: pointer;
-      font-size: 1rem;
-    }
-
-    .track-scrubber {
-      flex: 1;
-      height: 6px;
-      background: var(--bg-panel);
-      border-radius: 3px;
-      position: relative;
-    }
-
-    .track-progress {
-      width: 40%;
-      height: 100%;
-      background: var(--accent);
-      border-radius: 3px;
-    }
-
-    /* Right Sidebar: Image Slots */
-    .slots-list {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .slot-card {
-      background-color: var(--bg-panel);
-      border: 1px dashed var(--border-color);
-      border-radius: 8px;
-      padding: 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      cursor: pointer;
-      transition: border-color 0.2s ease, background 0.2s ease;
-    }
-
-    .slot-card:hover {
-      border-color: var(--accent);
-      background-color: #26262c;
-    }
-
-    .slot-info {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.8rem;
-    }
-
-    .slot-name {
-      font-weight: 600;
-      color: var(--text-main);
-    }
-
-    .slot-dim {
-      color: var(--text-muted);
-      font-size: 0.75rem;
-    }
-
-    .slot-dropzone {
-      height: 80px;
-      background-color: var(--bg-base);
-      border-radius: 6px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
-      color: var(--text-muted);
-      font-size: 0.75rem;
-      border: 1px solid var(--border-color);
-    }
-
-    .slot-dropzone span {
-      font-size: 1.2rem;
-    }
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Animos — the local-first animation studio</title>
+<meta name="description" content="Animos is a desktop studio for hand-drawn animation. Draw frame by frame, tween with AI, add voices and effects, and export — all running offline on your own machine." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='22' y='22' width='56' height='56' rx='9' transform='rotate(45 50 50)' fill='none' stroke='%237c5cff' stroke-width='7'/%3E%3Cpath d='M37 66 L50 38 L63 66 M44 56 L56 56' fill='none' stroke='%237c5cff' stroke-width='8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-  <header>
-    <div class="brand">
-      <div class="brand-dot"></div>
-      Motion Studio
+<!-- NAV -->
+<header class="nav" id="nav">
+  <a class="brand" href="#top" aria-label="Animos home">
+    <span class="brand-mark" aria-hidden="true">
+      <svg viewBox="0 0 100 100"><rect x="22" y="22" width="56" height="56" rx="9" transform="rotate(45 50 50)" fill="none" stroke="currentColor" stroke-width="7"/><path d="M37 66 L50 38 L63 66 M44 56 L56 56" fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </span>
+    <span class="brand-name">Animos</span>
+  </a>
+  <nav class="nav-links" aria-label="Primary">
+    <a href="#features">Features</a>
+    <a href="#specs">System</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#faq">FAQ</a>
+  </nav>
+  <a href="#" class="btn btn-solid nav-cta" data-download>Download</a>
+</header>
+
+<main id="top">
+
+  <!-- HERO -->
+  <section class="hero" id="hero">
+    <div class="hero-sticky">
+      <canvas class="hero-canvas" id="heroCanvas" aria-hidden="true"></canvas>
+      <video class="hero-video" id="heroVideo" muted playsinline loop preload="none" aria-hidden="true"></video>
+      <div class="hero-copy">
+        <p class="eyebrow">The local-first animation studio</p>
+        <h1 class="hero-title">Animate<br />Today.</h1>
+        <p class="hero-sub">Animos is a desktop studio for hand-drawn animation — draw frame by frame, tween with AI, add voices and effects, and export. Every AI feature runs offline, on your own machine.</p>
+        <div class="hero-actions">
+          <a href="#" class="btn btn-solid" data-download>Download for Windows</a>
+          <a href="#features" class="btn btn-ghost">See what's inside ↓</a>
+        </div>
+        <p class="hero-fine">Free · Windows 10/11 · ~106&nbsp;MB · no account needed to start drawing</p>
+      </div>
+      <div class="scroll-cue" aria-hidden="true"><span></span></div>
     </div>
-    <button class="export-btn">Render Video</button>
-  </header>
+  </section>
 
-  <div class="studio-layout">
-    
-    <aside class="panel">
-      <span class="panel-title">Categories</span>
-      <ul class="category-list">
-        <li class="category-item active">3D Image Cards</li>
-        <li class="category-item">Split Screen Transitions</li>
-        <li class="category-item">YouTube Overlays</li>
-        <li class="category-item">Logo Motion</li>
-        <li class="category-item">Text Masks</li>
-      </ul>
-    </aside>
+  <!-- SYSTEM SPEC STRIP -->
+  <section class="logos" aria-label="What you need to run it">
+    <p class="logos-label">Powerful AI built in — no subscription, no per-use fees. All you need to run it:</p>
+    <div class="logos-row" id="logosRow"></div>
+  </section>
 
-    <main class="viewport-container">
-      <div class="canvas-stage">
-        <div class="canvas-placeholder">
-          <span>Live Motion Preview Stage</span>
-        </div>
+  <!-- FEATURES pinned over clip 2 -->
+  <section class="signal" id="features">
+    <div class="signal-sticky">
+      <video class="signal-video" id="signalVideo" muted playsinline loop preload="none" aria-hidden="true"></video>
+      <div class="signal-scrim"></div>
+      <div class="signal-inner">
+        <p class="eyebrow light">One studio, start to finish</p>
+        <ol class="signal-steps" id="signalSteps">
+          <li data-step="0"><span class="step-k">Draw</span><span class="step-d">A full brush engine — pen, pencil, brush, eraser, fill — with hex colors, shade ladders, adjustable size and opacity, layers, blend modes, and onion skin.</span></li>
+          <li data-step="1"><span class="step-k">Animate</span><span class="step-d">A real timeline: keyframes, FPS control, true AI motion in-betweening (not cross-fades), playback effects, subtitles, and an audio track with waveform.</span></li>
+          <li data-step="2"><span class="step-k">Amplify</span><span class="step-d">On-device AI: an animation-aware assistant, a Style Coach, and image generation — all on your GPU. It even learns your style as you work.</span></li>
+        </ol>
       </div>
-      <div class="timeline-bar">
-        <button class="play-btn">▶</button>
-        <div class="track-scrubber">
-          <div class="track-progress"></div>
-        </div>
+    </div>
+  </section>
+
+  <!-- WHY LOCAL — honest stats -->
+  <section class="metrics" id="metrics">
+    <div class="metric" data-target="100" data-kind="percent">
+      <span class="metric-num">0%</span>
+      <span class="metric-label">on-device — your art and the AI never leave your machine</span>
+    </div>
+    <div class="metric" data-target="4" data-kind="count">
+      <span class="metric-num">0</span>
+      <span class="metric-label">AI tools built in — chat, image, motion, and voice</span>
+    </div>
+    <div class="metric" data-target="5" data-kind="count">
+      <span class="metric-num">0</span>
+      <span class="metric-label">export formats — WebM, GIF, PNG, PNG sequence, sprite sheet</span>
+    </div>
+  </section>
+
+  <!-- PRODUCT -->
+  <section class="product">
+    <div class="product-head">
+      <h2 class="section-title">A studio built for frames.</h2>
+      <p class="section-sub">Draw, layer, and time your animation on one screen — tools on the left, layers on the right, your frames along the bottom.</p>
+    </div>
+    <div class="browser" role="img" aria-label="Animos workspace preview">
+      <div class="browser-bar">
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        <span class="browser-url">Animos — Untitled Project</span>
       </div>
-    </main>
+      <div class="browser-body" id="dashMock"></div>
+    </div>
+  </section>
 
-    <aside class="panel panel-right">
-      <div class="panel-header">
-        <span class="panel-title">Image Slots</span>
-        <span class="slot-dim">3 Active</span>
+  <!-- SYSTEM REQUIREMENTS -->
+  <section class="specs" id="specs">
+    <div class="specs-head">
+      <h2 class="section-title">Runs on the machine you already have.</h2>
+      <p class="section-sub">Drawing, animating, and exporting are light and run almost anywhere. The built-in AI is where a modern GPU earns its keep.</p>
+    </div>
+    <div class="specs-grid">
+      <div class="spec-card">
+        <div class="spec-tag">Minimum — draw &amp; animate</div>
+        <ul class="spec-list">
+          <li><b>OS</b> Windows 10 or 11 (64-bit)</li>
+          <li><b>CPU</b> Any modern dual-core+</li>
+          <li><b>RAM</b> 8 GB</li>
+          <li><b>GPU</b> Not required — integrated graphics are fine</li>
+          <li><b>Disk</b> ~2 GB for the app</li>
+        </ul>
+        <p class="spec-note">Full drawing, timeline, effects, audio, and every export format.</p>
       </div>
-
-      <div class="slots-list">
-        <div class="slot-card">
-          <div class="slot-info">
-            <span class="slot-name">Slot 1 (Main Asset)</span>
-            <span class="slot-dim">1080x1080</span>
-          </div>
-          <div class="slot-dropzone">
-            <span>+</span>
-            <p>Upload Image</p>
-          </div>
-        </div>
-
-        <div class="slot-card">
-          <div class="slot-info">
-            <span class="slot-name">Slot 2 (Background)</span>
-            <span class="slot-dim">1920x1080</span>
-          </div>
-          <div class="slot-dropzone">
-            <span>+</span>
-            <p>Upload Image</p>
-          </div>
-        </div>
-
-        <div class="slot-card">
-          <div class="slot-info">
-            <span class="slot-name">Slot 3 (Overlay Icon)</span>
-            <span class="slot-dim">512x512</span>
-          </div>
-          <div class="slot-dropzone">
-            <span>+</span>
-            <p>Upload Image</p>
-          </div>
-        </div>
+      <div class="spec-card featured">
+        <div class="spec-tag">Recommended — for the AI features</div>
+        <ul class="spec-list">
+          <li><b>OS</b> Windows 11 (64-bit)</li>
+          <li><b>CPU</b> Modern quad-core+</li>
+          <li><b>RAM</b> 16 GB</li>
+          <li><b>GPU</b> NVIDIA RTX with 8 GB VRAM (RTX 3060 / 3070 or better)</li>
+          <li><b>Disk</b> ~20 GB (app + AI models)</li>
+        </ul>
+        <p class="spec-note">Unlocks fast image generation, motion tweening, voices, and the Style Engine — all on your own hardware, with no per-use fees.</p>
       </div>
-    </aside>
+    </div>
+  </section>
 
+  <!-- PRICING -->
+  <section class="pricing" id="pricing">
+    <div class="pricing-head">
+      <h2 class="section-title">Free to download. Upgrade when you grow.</h2>
+      <div class="toggle" id="billingToggle" role="group" aria-label="Billing period">
+        <button class="toggle-opt is-active" data-annual="false" aria-pressed="true">Monthly</button>
+        <button class="toggle-opt" data-annual="true" aria-pressed="false">Annual <span class="save">−20%</span></button>
+      </div>
+    </div>
+    <div class="tiers" id="tiers"></div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="faq" id="faq">
+    <h2 class="section-title">Questions, answered</h2>
+    <div class="faq-list" id="faqList"></div>
+  </section>
+
+  <!-- FINAL CTA over clip 3 -->
+  <section class="finalcta" id="finalcta">
+    <video class="cta-video" id="calmVideo" muted playsinline loop preload="none" aria-hidden="true"></video>
+    <div class="cta-scrim"></div>
+    <div class="cta-inner">
+      <h2 class="cta-title">Start animating today.</h2>
+      <p class="cta-sub">Download Animos and draw your first frame in minutes. No account needed to start.</p>
+      <a href="#" class="btn btn-solid btn-lg" data-download>Download for Windows</a>
+      <p class="cta-fine">Windows 10/11 · ~106&nbsp;MB · Free · macOS &amp; Linux coming soon</p>
+    </div>
+  </section>
+
+</main>
+
+<footer class="foot">
+  <div class="foot-brand">
+    <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 100 100"><rect x="22" y="22" width="56" height="56" rx="9" transform="rotate(45 50 50)" fill="none" stroke="currentColor" stroke-width="7"/><path d="M37 66 L50 38 L63 66 M44 56 L56 56" fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+    Animos
   </div>
+  <p>© 2026 Animos — the local-first animation studio. Draw anywhere, own everything.</p>
+</footer>
 
+<script type="module" src="main.js"></script>
 </body>
 </html>
