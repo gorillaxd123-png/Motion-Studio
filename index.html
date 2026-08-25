@@ -201,31 +201,32 @@
 
         .template-info { padding: 16px; }
 
-        /* --- STUDIO EDITOR --- */
+        /* --- STUDIO EDITOR LAYOUT FIXES --- */
         .editor-wrapper {
+            width: 100vw;
             height: 100vh;
-            display: flex;
-            flex-direction: column;
+            display: grid;
+            grid-template-rows: 48px 1fr 140px;
             overflow: hidden;
             font-size: 13px;
         }
 
         .app-header {
-            height: 48px;
             background: var(--bg-smooth-grey);
             border-bottom: 1px solid var(--border-grey);
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 0 16px;
+            grid-row: 1;
         }
 
         .workspace {
             display: grid;
             grid-template-columns: 280px 1fr 300px;
-            flex: 1;
-            height: calc(100vh - 48px - 140px);
+            grid-row: 2;
             overflow: hidden;
+            background: var(--bg-deep);
         }
 
         .sidebar-left, .sidebar-right {
@@ -234,13 +235,15 @@
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 14px;
+            height: 100%;
         }
 
-        .sidebar-left { border-right: 1px solid var(--border-grey); }
-        .sidebar-right { border-left: 1px solid var(--border-grey); }
+        .sidebar-left { border-right: 1px solid var(--border-grey); grid-column: 1; }
+        .sidebar-right { border-left: 1px solid var(--border-grey); grid-column: 3; }
 
         .viewport-container {
+            grid-column: 2;
             background: var(--bg-deep);
             display: flex;
             align-items: center;
@@ -248,6 +251,7 @@
             position: relative;
             overflow: hidden;
             cursor: grab;
+            height: 100%;
         }
 
         .viewport-container:active { cursor: grabbing; }
@@ -396,11 +400,12 @@
         }
 
         .timeline-bar {
-            height: 140px;
+            grid-row: 3;
             background: var(--bg-smooth-grey);
             border-top: 1px solid var(--border-grey);
             display: flex;
             flex-direction: column;
+            height: 140px;
         }
 
         .timeline-controls {
@@ -764,7 +769,7 @@
                         </select>
                     </div>
 
-                    <!-- MEDIA SLOTS SECTION UNDER RENDER BACKGROUND -->
+                    <!-- MEDIA SLOTS SECTION -->
                     <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted); margin-top:10px;">MEDIA SLOTS (5 Multi-Images)</span>
                     <div class="media-slots-grid" id="media-slots-container">
                         <div class="media-slot-item" onclick="triggerSlotUpload(0)" id="slot-0">1</div>
@@ -806,7 +811,6 @@
 
     <!-- SCRIPT LOGIC -->
     <script>
-        // CLIENT STATE
         let state = {
             activePage: 'home',
             preset: 'isoFloat',
@@ -828,7 +832,6 @@
 
         let lastTimestamp = null;
         let isScrubbing = false;
-
         let canvas, ctx;
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -893,7 +896,6 @@
             let activeImg = imageReady ? loadedImage : null;
             let currentSlot = slotImagesReady.some(r => r) ? slotImages.find(img => img !== null) : activeImg;
 
-            // 15 Distinct Animation Presets Switch Logic
             if (state.preset === 'isoFloat') {
                 ctx.rotate(cycle * 0.05);
                 ctx.translate(0, Math.sin(progress * Math.PI * 4) * 20);
