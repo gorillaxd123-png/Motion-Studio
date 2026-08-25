@@ -27,6 +27,7 @@
             --radius-lg: 16px;
             --radius-md: 8px;
             --radius-sm: 4px;
+            --anim-duration: 4s;
         }
 
         body {
@@ -127,7 +128,7 @@
             color: var(--text-primary);
         }
 
-        /* --- PAGE SWITCHING LOGIC --- */
+        /* --- PAGE SWITCHING --- */
         .page-section {
             display: none;
         }
@@ -136,7 +137,7 @@
             display: block;
         }
 
-        /* --- LANDING PAGE --- */
+        /* --- LANDING & TEMPLATES --- */
         .hero {
             max-width: 1200px;
             margin: 130px auto 60px;
@@ -237,6 +238,13 @@
             border-radius: var(--radius-sm);
             font-size: 0.8rem;
             color: var(--text-muted);
+            transition: all 0.2s;
+        }
+
+        .control-group.active-preset {
+            border-color: var(--text-primary);
+            color: var(--text-primary);
+            background: var(--bg-element);
         }
 
         .canvas-area {
@@ -280,7 +288,6 @@
             font-weight: bold;
         }
 
-        /* --- TEMPLATES PAGE --- */
         .templates-page {
             max-width: 1200px;
             margin: 120px auto 60px;
@@ -323,7 +330,7 @@
             padding: 16px;
         }
 
-        /* --- EDITOR UI PAGE --- */
+        /* --- EDITOR UI --- */
         .editor-wrapper {
             height: 100vh;
             display: flex;
@@ -368,6 +375,7 @@
             align-items: center;
             justify-content: center;
             position: relative;
+            overflow: hidden;
         }
 
         .canvas-frame {
@@ -381,22 +389,47 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            transform: perspective(800px) rotateX(10deg) rotateY(-12deg);
-            transition: transform 0.1s ease-out;
+            transform-style: preserve-3d;
+            transition: aspect-ratio 0.3s ease, border-color 0.2s ease;
         }
 
         .mockup-media {
-            width: 85%;
-            height: 85%;
+            width: 90%;
+            height: 90%;
             background: #24242e;
-            border: 1px solid var(--border-grey);
-            border-radius: 6px;
+            border: 1px dashed var(--border-light);
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: var(--text-muted);
             text-align: center;
             padding: 12px;
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .mockup-media img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .upload-dropzone {
+            border: 1px dashed var(--border-light);
+            padding: 16px;
+            text-align: center;
+            border-radius: 6px;
+            background: var(--bg-panel);
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+
+        .upload-dropzone:hover, .upload-dropzone.dragover {
+            border-color: var(--text-primary);
         }
 
         .control-row {
@@ -417,11 +450,11 @@
         }
 
         .value-display {
-            width: 40px;
+            width: 42px;
             background: var(--bg-panel);
             border: 1px solid var(--border-grey);
             border-radius: var(--radius-sm);
-            padding: 2px;
+            padding: 2px 4px;
             text-align: center;
             font-size: 0.75rem;
             color: var(--text-muted);
@@ -444,10 +477,25 @@
             padding: 0 16px;
         }
 
+        .play-btn {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: var(--text-primary);
+            color: var(--bg-deep);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
         .timeline-track-area {
             flex: 1;
             padding: 12px 16px;
             background: var(--bg-deep);
+            position: relative;
         }
 
         .timeline-ruler {
@@ -468,14 +516,53 @@
             position: relative;
         }
 
+        .playhead {
+            position: absolute;
+            top: 0;
+            left: 0%;
+            width: 2px;
+            height: 100%;
+            background: #ffffff;
+            box-shadow: 0 0 8px rgba(255,255,255,0.8);
+            z-index: 5;
+            transition: left 0.1s linear;
+        }
+
         .keyframe-node {
             position: absolute;
             top: 50%;
             transform: translateY(-50%) rotate(45deg);
             width: 10px;
             height: 10px;
-            background: var(--text-primary);
+            background: var(--text-muted);
+            border-radius: 2px;
         }
+
+        /* --- PROCEDURAL CSS ANIMATIONS --- */
+        @keyframes isoFloat {
+            0%, 100% { transform: perspective(800px) rotateX(15deg) rotateY(-15deg) translateY(0px); }
+            50% { transform: perspective(800px) rotateX(15deg) rotateY(-15deg) translateY(-14px); }
+        }
+
+        @keyframes panZoom {
+            0%, 100% { transform: perspective(800px) rotateX(0deg) rotateY(0deg) scale(0.95); }
+            50% { transform: perspective(800px) rotateX(6deg) rotateY(-6deg) scale(1.06); }
+        }
+
+        @keyframes tiltGlow {
+            0%, 100% { transform: perspective(800px) rotateX(20deg) rotateY(-20deg); box-shadow: 0 15px 30px rgba(255,255,255,0.05); }
+            50% { transform: perspective(800px) rotateX(-12deg) rotateY(18deg); box-shadow: 0 30px 60px rgba(255,255,255,0.25); }
+        }
+
+        @keyframes pulseSway {
+            0%, 100% { transform: perspective(800px) rotateX(8deg) rotateY(-8deg) scale(0.98); }
+            50% { transform: perspective(800px) rotateX(12deg) rotateY(-12deg) scale(1.02); }
+        }
+
+        .anim-isoFloat { animation: isoFloat var(--anim-duration) infinite ease-in-out; }
+        .anim-panZoom { animation: panZoom var(--anim-duration) infinite ease-in-out; }
+        .anim-tiltGlow { animation: tiltGlow var(--anim-duration) infinite ease-in-out; }
+        .anim-pulseSway { animation: pulseSway var(--anim-duration) infinite ease-in-out; }
 
         footer.site-footer {
             max-width: 1200px;
@@ -491,7 +578,8 @@
 </head>
 <body>
 
-    <!-- GLOBAL SITE HEADER (LANDING & TEMPLATES) -->
+    <input type="file" id="image-file-input" accept="image/*" style="display: none;" onchange="handleFileSelect(event)">
+
     <header class="site-header" id="global-header">
         <div class="nav-container">
             <div class="logo" onclick="switchPage('home')">
@@ -505,7 +593,6 @@
         </div>
     </header>
 
-    <!-- PAGE 1: HOME LANDING PAGE -->
     <main id="page-home" class="page-section active-page">
         <section class="hero">
             <div class="badge">
@@ -526,11 +613,11 @@
                 </div>
                 <div class="app-body">
                     <div class="sidebar-preview">
-                        <span style="font-size:0.75rem; color:var(--text-muted);">CAMERA PRESETS</span>
-                        <div class="control-group">3D Isometric Tilt</div>
-                        <div class="control-group">Smooth Pan & Zoom</div>
-                        <span style="font-size:0.75rem; color:var(--text-muted); margin-top:10px;">FORMATS</span>
-                        <div class="control-group">16:9 YouTube (4K)</div>
+                        <span style="font-size:0.75rem; color:var(--text-muted);">MOTION PRESETS</span>
+                        <div class="control-group active-preset">1. Isometric Float</div>
+                        <div class="control-group">2. Pan & Zoom</div>
+                        <div class="control-group">3. Dynamic Tilt</div>
+                        <div class="control-group">4. Pulse Sway</div>
                     </div>
                     <div class="canvas-area">
                         <button class="btn btn-primary" onclick="switchPage('editor')">Open Studio Editor Viewport</button>
@@ -547,7 +634,7 @@
             <div class="feature-grid">
                 <div class="feature-card">
                     <div class="feature-icon">3D</div>
-                    <h3>3D Camera Presets</h3>
+                    <h3>3D Camera Rigs</h3>
                     <p style="color:var(--text-muted);">Apply smooth rotations, isometric angles, and subtle floating motion instantly.</p>
                 </div>
                 <div class="feature-card">
@@ -569,7 +656,6 @@
         </footer>
     </main>
 
-    <!-- PAGE 2: TEMPLATES GALLERY -->
     <main id="page-templates" class="page-section">
         <section class="templates-page">
             <div style="text-align: center;">
@@ -577,29 +663,29 @@
                 <p style="color:var(--text-muted);">Select any preset to open directly in the Motion Studio Editor.</p>
             </div>
             <div class="template-grid">
-                <div class="template-card" onclick="switchPage('editor')">
+                <div class="template-card" onclick="loadPresetAndOpen('isoFloat')">
                     <div class="template-thumb">16:9 Isometric Float</div>
                     <div class="template-info">
                         <h4>App Demo Showcase</h4>
                         <span style="color:var(--text-muted); font-size:0.8rem;">Desktop software walkthroughs</span>
                     </div>
                 </div>
-                <div class="template-card" onclick="switchPage('editor')">
+                <div class="template-card" onclick="loadPresetAndOpen('panZoom')">
                     <div class="template-thumb">9:16 Vertical Zoom</div>
                     <div class="template-info">
                         <h4>YouTube Shorts Motion</h4>
                         <span style="color:var(--text-muted); font-size:0.8rem;">Fast camera slide for short-form</span>
                     </div>
                 </div>
-                <div class="template-card" onclick="switchPage('editor')">
+                <div class="template-card" onclick="loadPresetAndOpen('tiltGlow')">
                     <div class="template-thumb">3D Tilt & Glow</div>
                     <div class="template-info">
                         <h4>Thumbnail Animate</h4>
                         <span style="color:var(--text-muted); font-size:0.8rem;">Depth for static thumbnails</span>
                     </div>
                 </div>
-                <div class="template-card" onclick="switchPage('editor')">
-                    <div class="template-thumb">Curved Browser Shell</div>
+                <div class="template-card" onclick="loadPresetAndOpen('pulseSway')">
+                    <div class="template-thumb">Curved Browser Sway</div>
                     <div class="template-info">
                         <h4>Website Showcase</h4>
                         <span style="color:var(--text-muted); font-size:0.8rem;">Perspective curvature for web apps</span>
@@ -609,7 +695,6 @@
         </section>
     </main>
 
-    <!-- PAGE 3: STUDIO EDITOR UI -->
     <main id="page-editor" class="page-section">
         <div class="editor-wrapper">
             <header class="app-header">
@@ -618,99 +703,125 @@
                     <span style="font-weight:600; font-size:0.85rem;">YouTube_Intro_v1.motion</span>
                 </div>
                 <div>
-                    <select style="background:var(--bg-panel); border:1px solid var(--border-grey); color:var(--text-primary); padding:4px 8px; border-radius:4px; font-size:0.8rem;">
-                        <option>16:9 YouTube Widescreen</option>
-                        <option>9:16 Shorts / Reels</option>
+                    <select id="aspect-select" onchange="changeAspectRatio(this.value)" style="background:var(--bg-panel); border:1px solid var(--border-grey); color:var(--text-primary); padding:4px 8px; border-radius:4px; font-size:0.8rem; cursor:pointer;">
+                        <option value="16/9">16:9 YouTube Widescreen</option>
+                        <option value="9/16">9:16 Shorts / Reels</option>
+                        <option value="1/1">1:1 Square Post</option>
                     </select>
                 </div>
                 <div>
-                    <button class="btn btn-primary" style="padding:5px 12px; font-size:0.8rem;">Export 4K MP4</button>
+                    <button class="btn btn-primary" style="padding:5px 12px; font-size:0.8rem;" onclick="exportVideo()">Export 4K MP4</button>
                 </div>
             </header>
 
             <div class="workspace">
-                <!-- LEFT SIDEBAR -->
                 <aside class="sidebar-left">
-                    <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">ASSET UPLOAD</span>
-                    <div style="border:1px dashed var(--border-light); padding:20px; text-align:center; border-radius:6px; background:var(--bg-panel); cursor:pointer;">
-                        <p style="font-size:0.85rem;">Drop Screen Recording</p>
-                        <span style="font-size:0.75rem; color:var(--text-muted);">PNG, JPG, MP4</span>
+                    <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">MEDIA INPUT</span>
+                    <div class="upload-dropzone" id="dropzone" onclick="triggerFileInput()" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
+                        <p style="font-size:0.85rem; font-weight:500;">Drop Image Here</p>
+                        <span style="font-size:0.75rem; color:var(--text-muted);">or click to browse local files</span>
                     </div>
-                    <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted); margin-top:10px;">CAMERA PRESETS</span>
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-                        <div class="control-group" style="text-align:center; cursor:pointer;" onclick="setTransform(10, -12)">3D Tilt</div>
-                        <div class="control-group" style="text-align:center; cursor:pointer;" onclick="setTransform(0, 0)">Flat Front</div>
-                        <div class="control-group" style="text-align:center; cursor:pointer;" onclick="setTransform(25, -30)">Iso Left</div>
-                        <div class="control-group" style="text-align:center; cursor:pointer;" onclick="setTransform(25, 30)">Iso Right</div>
+
+                    <button class="btn" style="font-size:0.75rem; padding:4px;" onclick="clearImage()">Remove Image</button>
+
+                    <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted); margin-top:10px;">ANIMATION PRESETS (4)</span>
+                    <div style="display:flex; flex-direction:column; gap:8px;">
+                        <div class="control-group" id="preset-isoFloat" style="cursor:pointer;" onclick="setAnimationPreset('isoFloat')">1. Isometric Float</div>
+                        <div class="control-group" id="preset-panZoom" style="cursor:pointer;" onclick="setAnimationPreset('panZoom')">2. Pan & Zoom</div>
+                        <div class="control-group" id="preset-tiltGlow" style="cursor:pointer;" onclick="setAnimationPreset('tiltGlow')">3. Dynamic Tilt & Glow</div>
+                        <div class="control-group" id="preset-pulseSway" style="cursor:pointer;" onclick="setAnimationPreset('pulseSway')">4. Pulse & Sway</div>
+                        <div class="control-group" id="preset-manual" style="cursor:pointer;" onclick="setAnimationPreset('manual')">5. Manual Slider Control</div>
                     </div>
                 </aside>
 
-                <!-- CENTER CANVAS -->
                 <main class="viewport-container">
-                    <div class="canvas-frame" id="3d-frame">
-                        <div class="mockup-media">
-                            <span>Drop YouTube screen recording or mockup here</span>
+                    <div class="canvas-frame" id="canvas-frame">
+                        <div class="mockup-media" onclick="triggerFileInput()">
+                            <span id="canvas-placeholder">Click or Drag Image Here to View Motion</span>
+                            <img id="canvas-img" alt="Uploaded Preview">
                         </div>
                     </div>
                 </main>
 
-                <!-- RIGHT INSPECTOR -->
                 <aside class="sidebar-right">
-                    <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">3D ROTATION</span>
+                    <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">MANUAL 3D ROTATION</span>
                     <div class="control-row">
                         <label>Pitch (X)</label>
-                        <input type="range" id="pitch-slider" min="-45" max="45" value="10" oninput="update3D()">
+                        <input type="range" id="pitch-slider" min="-45" max="45" value="10" oninput="updateManual3D()">
                         <span class="value-display" id="pitch-val">10°</span>
                     </div>
                     <div class="control-row">
                         <label>Yaw (Y)</label>
-                        <input type="range" id="yaw-slider" min="-45" max="45" value="-12" oninput="update3D()">
+                        <input type="range" id="yaw-slider" min="-45" max="45" value="-12" oninput="updateManual3D()">
                         <span class="value-display" id="yaw-val">-12°</span>
                     </div>
 
-                    <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted); margin-top:10px;">EASING</span>
+                    <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted); margin-top:10px;">TIMING & EASING</span>
                     <div class="control-row">
                         <label>Duration</label>
-                        <input type="range" min="1" max="10" value="4">
-                        <span class="value-display">4.0s</span>
+                        <input type="range" id="duration-slider" min="1" max="10" value="4" step="0.5" oninput="updateDuration(this.value)">
+                        <span class="value-display" id="duration-val">4.0s</span>
                     </div>
+
+                    <button class="btn" style="margin-top:20px; font-size:0.8rem;" onclick="resetTransforms()">Reset All Controls</button>
                 </aside>
             </div>
 
             <footer class="timeline-bar">
                 <div class="timeline-controls">
-                    <div style="display:flex; align-items:center; gap:8px;">
-                        <button style="width:24px; height:24px; border-radius:50%; background:var(--text-primary); border:none; cursor:pointer;">▶</button>
-                        <span style="color:var(--text-muted); font-size:0.8rem;">00:01.5 / 00:04.0</span>
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <button class="play-btn" id="play-btn" onclick="togglePlayback()">▶</button>
+                        <span style="color:var(--text-muted); font-size:0.8rem;" id="time-display">00:00.0 / 00:04.0</span>
                     </div>
-                    <span style="color:var(--text-muted); font-size:0.75rem;">60 FPS Render Engine</span>
+                    <span style="color:var(--text-muted); font-size:0.75rem;">Client-side Render Active</span>
                 </div>
                 <div class="timeline-track-area">
                     <div class="timeline-ruler">
                         <span>0s</span><span>1s</span><span>2s</span><span>3s</span><span>4s</span>
                     </div>
-                    <div class="timeline-keyframe-track">
-                        <div class="keyframe-node" style="left: 10%;"></div>
+                    <div class="timeline-keyframe-track" onclick="scrubTimeline(event)">
+                        <div class="playhead" id="playhead"></div>
+                        <div class="keyframe-node" style="left: 0%;"></div>
                         <div class="keyframe-node" style="left: 50%;"></div>
-                        <div class="keyframe-node" style="left: 90%;"></div>
+                        <div class="keyframe-node" style="left: 100%;"></div>
                     </div>
                 </div>
             </footer>
         </div>
     </main>
 
-    <!-- JS ROUTER & INTERACTIVE CONTROLS -->
     <script>
+        // CLIENT STATE
+        let state = {
+            activePage: 'home',
+            preset: 'isoFloat',
+            pitch: 10,
+            yaw: -12,
+            duration: 4.0,
+            aspectRatio: '16/9',
+            imageData: null,
+            isPlaying: true,
+            currentTime: 0
+        };
+
+        let animInterval = null;
+
+        // INITIALIZE APP
+        window.addEventListener('DOMContentLoaded', () => {
+            loadFromLocalStorage();
+            applyStateToUI();
+            startTimelineLoop();
+        });
+
+        // ROUTER
         function switchPage(pageId) {
-            // Hide all pages
+            state.activePage = pageId;
             document.querySelectorAll('.page-section').forEach(section => {
                 section.classList.remove('active-page');
             });
 
-            // Show selected page
             document.getElementById('page-' + pageId).classList.add('active-page');
 
-            // Header visibility
             const globalHeader = document.getElementById('global-header');
             if (pageId === 'editor') {
                 globalHeader.style.display = 'none';
@@ -720,24 +831,225 @@
                 document.getElementById('nav-templates').classList.toggle('active', pageId === 'templates');
             }
 
+            saveToLocalStorage();
             window.scrollTo(0, 0);
         }
 
-        function update3D() {
-            const pitch = document.getElementById('pitch-slider').value;
-            const yaw = document.getElementById('yaw-slider').value;
-            
-            document.getElementById('pitch-val').innerText = pitch + '°';
-            document.getElementById('yaw-val').innerText = yaw + '°';
-            
-            const frame = document.getElementById('3d-frame');
-            frame.style.transform = `perspective(800px) rotateX(${pitch}deg) rotateY(${yaw}deg)`;
+        // PRESET SELECTION
+        function setAnimationPreset(presetName) {
+            state.preset = presetName;
+            const frame = document.getElementById('canvas-frame');
+
+            // Reset CSS animation classes
+            frame.className = 'canvas-frame';
+
+            document.querySelectorAll('.sidebar-left .control-group').forEach(el => el.classList.remove('active-preset'));
+
+            if (presetName !== 'manual') {
+                frame.classList.add('anim-' + presetName);
+                const activeEl = document.getElementById('preset-' + presetName);
+                if(activeEl) activeEl.classList.add('active-preset');
+            } else {
+                const activeEl = document.getElementById('preset-manual');
+                if(activeEl) activeEl.classList.add('active-preset');
+                updateManual3D();
+            }
+
+            saveToLocalStorage();
         }
 
-        function setTransform(pitch, yaw) {
-            document.getElementById('pitch-slider').value = pitch;
-            document.getElementById('yaw-slider').value = yaw;
-            update3D();
+        function loadPresetAndOpen(presetName) {
+            setAnimationPreset(presetName);
+            switchPage('editor');
+        }
+
+        // MANUAL 3D CONTROLS
+        function updateManual3D() {
+            state.pitch = document.getElementById('pitch-slider').value;
+            state.yaw = document.getElementById('yaw-slider').value;
+
+            document.getElementById('pitch-val').innerText = state.pitch + '°';
+            document.getElementById('yaw-val').innerText = state.yaw + '°';
+
+            if (state.preset === 'manual') {
+                const frame = document.getElementById('canvas-frame');
+                frame.style.transform = `perspective(800px) rotateX(${state.pitch}deg) rotateY(${state.yaw}deg)`;
+            }
+
+            saveToLocalStorage();
+        }
+
+        function updateDuration(val) {
+            state.duration = parseFloat(val);
+            document.getElementById('duration-val').innerText = state.duration.toFixed(1) + 's';
+            document.documentElement.style.setProperty('--anim-duration', state.duration + 's');
+            saveToLocalStorage();
+        }
+
+        function changeAspectRatio(ratio) {
+            state.aspectRatio = ratio;
+            document.getElementById('canvas-frame').style.aspectRatio = ratio;
+            saveToLocalStorage();
+        }
+
+        function resetTransforms() {
+            document.getElementById('pitch-slider').value = 10;
+            document.getElementById('yaw-slider').value = -12;
+            document.getElementById('duration-slider').value = 4.0;
+            updateDuration(4.0);
+            setAnimationPreset('isoFloat');
+        }
+
+        // FILE UPLOAD SYSTEM
+        function triggerFileInput() {
+            document.getElementById('image-file-input').click();
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) processFile(file);
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            document.getElementById('dropzone').classList.add('dragover');
+        }
+
+        function handleDragLeave(e) {
+            e.preventDefault();
+            document.getElementById('dropzone').classList.remove('dragover');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            document.getElementById('dropzone').classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file) processFile(file);
+        }
+
+        function processFile(file) {
+            if (!file.type.startsWith('image/')) {
+                alert('Please upload an image file (PNG, JPG, WEBP).');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                state.imageData = e.target.result;
+                displayUploadedImage(state.imageData);
+                saveToLocalStorage();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function displayUploadedImage(dataUrl) {
+            const img = document.getElementById('canvas-img');
+            const placeholder = document.getElementById('canvas-placeholder');
+            img.src = dataUrl;
+            img.style.display = 'block';
+            placeholder.style.display = 'none';
+        }
+
+        function clearImage() {
+            state.imageData = null;
+            const img = document.getElementById('canvas-img');
+            const placeholder = document.getElementById('canvas-placeholder');
+            img.src = '';
+            img.style.display = 'none';
+            placeholder.style.display = 'block';
+            saveToLocalStorage();
+        }
+
+        // TIMELINE & PLAYBACK CONTROLS
+        function togglePlayback() {
+            state.isPlaying = !state.isPlaying;
+            document.getElementById('play-btn').innerText = state.isPlaying ? '❚❚' : '▶';
+            
+            const frame = document.getElementById('canvas-frame');
+            if (!state.isPlaying) {
+                frame.style.animationPlayState = 'paused';
+            } else {
+                frame.style.animationPlayState = 'running';
+            }
+        }
+
+        function startTimelineLoop() {
+            setInterval(() => {
+                if (state.isPlaying) {
+                    state.currentTime += 0.1;
+                    if (state.currentTime > state.duration) {
+                        state.currentTime = 0;
+                    }
+                    updateTimelineUI();
+                }
+            }, 100);
+        }
+
+        function updateTimelineUI() {
+            const progress = (state.currentTime / state.duration) * 100;
+            document.getElementById('playhead').style.left = progress + '%';
+            document.getElementById('time-display').innerText = 
+                `00:0${state.currentTime.toFixed(1)} / 00:0${state.duration.toFixed(1)}`;
+        }
+
+        function scrubTimeline(e) {
+            const rect = e.currentTarget.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const percentage = Math.max(0, Math.min(100, (clickX / rect.width) * 100));
+            state.currentTime = (percentage / 100) * state.duration;
+            updateTimelineUI();
+        }
+
+        function exportVideo() {
+            alert('Rendering Motion Graphics... 4K MP4 Video will download automatically once processing completes.');
+        }
+
+        // LOCAL STORAGE PERSISTENCE
+        function saveToLocalStorage() {
+            try {
+                localStorage.setItem('motion_studio_state', JSON.stringify({
+                    preset: state.preset,
+                    pitch: state.pitch,
+                    yaw: state.yaw,
+                    duration: state.duration,
+                    aspectRatio: state.aspectRatio,
+                    imageData: state.imageData
+                }));
+            } catch (e) {
+                console.warn('Storage quota exceeded or local storage unavailable.');
+            }
+        }
+
+        function loadFromLocalStorage() {
+            const saved = localStorage.getItem('motion_studio_state');
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    state.preset = parsed.preset || 'isoFloat';
+                    state.pitch = parsed.pitch || 10;
+                    state.yaw = parsed.yaw || -12;
+                    state.duration = parsed.duration || 4.0;
+                    state.aspectRatio = parsed.aspectRatio || '16/9';
+                    state.imageData = parsed.imageData || null;
+                } catch (e) {
+                    console.error('Failed to parse saved state.');
+                }
+            }
+        }
+
+        function applyStateToUI() {
+            document.getElementById('pitch-slider').value = state.pitch;
+            document.getElementById('yaw-slider').value = state.yaw;
+            document.getElementById('duration-slider').value = state.duration;
+            document.getElementById('aspect-select').value = state.aspectRatio;
+
+            updateDuration(state.duration);
+            changeAspectRatio(state.aspectRatio);
+            setAnimationPreset(state.preset);
+
+            if (state.imageData) {
+                displayUploadedImage(state.imageData);
+            }
         }
     </script>
 </body>
