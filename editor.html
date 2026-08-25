@@ -1,1 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editor — Motion Studio</title>
+    <style>
+        /* --- DESIGN SYSTEM & SMOOTH GREY THEME --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            user-select: none;
+        }
 
+        :root {
+            --bg-deep: #0e0e10;
+            --bg-smooth-grey: #161619;
+            --bg-panel: #1e1e24;
+            --bg-element: #26262e;
+            --bg-element-hover: #30303a;
+            --border-grey: #2e2e36;
+            --border-light: #3e3e48;
+            --text-primary: #f4f4f5;
+            --text-muted: #8e8e9a;
+            --accent-glow: #ffffff;
+            --radius-md: 8px;
+            --radius-sm: 4px;
+        }
+
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-primary);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            font-size: 13px;
+        }
+
+        /* --- TOP APP NAVBAR --- */
+        .app-header {
+            height: 48px;
+            background: var(--bg-smooth-grey);
+            border-bottom: 1px solid var(--border-grey);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            z-index: 10;
+        }
+
+        .header-left, .header-center, .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-badge {
+            width: 20px;
+            height: 20px;
+            background: var(--text-primary);
+            border-radius: 4px;
+        }
+
+        .project-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+        }
+
+        .nav-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 6px 10px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+        }
+
+        .nav-btn:hover {
+            color: var(--text-primary);
+            background: var(--bg-element);
+        }
+
+        .aspect-selector {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-grey);
+            color: var(--text-primary);
+            padding: 5px 12px;
+            border-radius: var(--radius-sm);
+            font-size: 0.8rem;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .btn-export {
+            background: var(--text-primary);
+            color: var(--bg-deep);
+            border: none;
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .btn-export:hover {
+            opacity: 0.9;
+        }
+
+        /* --- EDITOR WORKSPACE LAYOUT --- */
+        .workspace {
+            display: grid;
+            grid-template-columns: 280px 1fr 300px;
+            flex: 1;
+            height: calc(100vh - 48px - 140px);
+            overflow: hidden;
+        }
+
+        /* --- LEFT SIDEBAR: MEDIA & PRESETS --- */
+        .sidebar-left {
+            background: var(--bg-smooth-grey);
+            border-right: 1px solid var(--border-grey);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tab-menu {
+            display: flex;
+            border-bottom: 1px solid var(--border-grey);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-weight: 500;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+        }
+
+        .tab-btn.active {
+            color: var(--text-primary);
+            border-bottom-color: var(--text-primary);
+            background: var(--bg-panel);
+        }
+
+        .panel-content {
+            padding: 16px;
+            overflow-y: auto;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .upload-dropzone {
+            border: 1px dashed var(--border-light);
+            background: var(--bg-panel);
+            border-radius: var(--radius-md);
+            padding: 24px 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+
+        .upload-dropzone:hover {
+            border-color: var(--text-muted);
+        }
+
+        .preset-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .preset-card {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-grey);
+            border-radius: var(--radius-sm);
+            aspect-ratio: 16/9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .preset-card:hover {
+            border-color: var(--border-light);
+            color: var(--text-primary);
+            background: var(--bg-element);
+        }
+
+        /* --- CENTER CANVAS AREA --- */
+        .viewport-container {
+            background: var(--bg-deep);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 20px;
+        }
+
+        .viewport-toolbar {
+            position: absolute;
+            top: 16px;
+            background: var(--bg-panel);
+            border: 1px solid var(--border-grey);
+            border-radius: var(--radius-md);
+            padding: 4px 8px;
+            display: flex;
+            gap: 8px;
+            z-index: 5;
+        }
+
+        .tool-icon {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 4px 8px;
+            cursor: pointer;
+            border-radius: var(--radius-sm);
+        }
+
+        .tool-icon:hover {
+            color: var(--text-primary);
+            background: var(--bg-element);
+        }
+
+        /* 3D Motion Frame Canvas Mockup */
+        .canvas-frame {
+            width: 70%;
+            max-width: 680px;
+            aspect-ratio: 16 / 9;
+            background: linear-gradient(135deg, #1f1f26 0%, #111115 100%);
+            border-radius: 12px;
+            border: 1px solid var(--border-light);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transform: perspective(800px) rotateX(10deg) rotateY(-12deg);
+            transition: transform 0.3s ease;
+        }
+
+        .mockup-media {
+            width: 85%;
+            height: 85%;
+            background: #24242e;
+            border: 1px solid var(--border-grey);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+        }
+
+        /* --- RIGHT SIDEBAR: MOTION INSPECTOR --- */
+        .sidebar-right {
+            background: var(--bg-smooth-grey);
+            border-left: 1px solid var(--border-grey);
+            padding: 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .inspector-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .group-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text-muted);
+            font-weight: 700;
+        }
+
+        .control-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .control-row label {
+            color: var(--text-primary);
+            font-size: 0.8rem;
+        }
+
+        .control-row input[type="range"] {
+            flex: 1;
+            accent-color: var(--text-primary);
+            background: var(--bg-element);
+            height: 4px;
+            border-radius: 2px;
+        }
+
+        .value-display {
+            width: 40px;
+            background: var(--bg-panel);
+            border: 1px solid var(--border-grey);
+            border-radius: var(--radius-sm);
+            padding: 2px 4px;
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* --- BOTTOM TIMELINE BAR --- */
+        .timeline-bar {
+            height: 140px;
+            background: var(--bg-smooth-grey);
+            border-top: 1px solid var(--border-grey);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .timeline-controls {
+            height: 36px;
+            border-bottom: 1px solid var(--border-grey);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+        }
+
+        .playback-btns {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .play-btn {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: var(--text-primary);
+            color: var(--bg-deep);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .timeline-track-area {
+            flex: 1;
+            padding: 12px 16px;
+            position: relative;
+            background: var(--bg-deep);
+        }
+
+        .timeline-ruler {
+            height: 20px;
+            border-bottom: 1px solid var(--border-grey);
+            display: flex;
+            justify-content: space-between;
+            color: var(--text-muted);
+            font-size: 0.7rem;
+        }
+
+        .timeline-keyframe-track {
+            margin-top: 10px;
+            height: 32px;
+            background: var(--bg-panel);
+            border: 1px solid var(--border-grey);
+            border-radius: var(--radius-sm);
+            position: relative;
+        }
+
+        .keyframe-node {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%) rotate(45deg);
+            width: 10px;
+            height: 10px;
+            background: var(--text-primary);
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TOP NAVBAR -->
+    <header class="app-header">
+        <div class="header-left">
+            <a href="index.html" class="nav-btn">← Home</a>
+            <div class="logo-badge"></div>
+            <span class="project-title">YouTube_Intro_v1.motion</span>
+        </div>
+
+        <div class="header-center">
+            <select class="aspect-selector">
+                <option>16:9 YouTube Widescreen</option>
+                <option>9:16 Shorts / Reels</option>
+                <option>1:1 Square Post</option>
+            </select>
+        </div>
+
+        <div class="header-right">
+            <button class="nav-btn">Presets</button>
+            <button class="btn-export">Export 4K MP4</button>
+        </div>
+    </header>
+
+    <!-- WORKSPACE (3-COLUMN LAYOUT) -->
+    <div class="workspace">
+        
+        <!-- LEFT: MEDIA & TEMPLATE PRESETS -->
+        <aside class="sidebar-left">
+            <div class="tab-menu">
+                <button class="tab-btn active">Assets</button>
+                <button class="tab-btn">Templates</button>
+            </div>
+            <div class="panel-content">
+                <div class="upload-dropzone">
+                    <p style="color: var(--text-primary); font-weight: 500; margin-bottom: 4px;">Drop Image / Video</p>
+                    <p style="color: var(--text-muted); font-size: 0.75rem;">Supports PNG, JPG, MP4</p>
+                </div>
+
+                <span class="group-title">Camera Presets</span>
+                <div class="preset-grid">
+                    <div class="preset-card">3D Isometric</div>
+                    <div class="preset-card">Smooth Zoom</div>
+                    <div class="preset-card">Curved Shell</div>
+                    <div class="preset-card">Float Loop</div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- CENTER: 3D VIEWPORT CANVAS -->
+        <main class="viewport-container">
+            <div class="viewport-toolbar">
+                <button class="tool-icon">100%</button>
+                <button class="tool-icon">Reset View</button>
+                <button class="tool-icon">Grid</button>
+            </div>
+
+            <!-- ANIMATED CANVAS PREVIEW -->
+            <div class="canvas-frame">
+                <div class="mockup-media">
+                    <span>Drop screen recording or UI mockup here</span>
+                </div>
+            </div>
+        </main>
+
+        <!-- RIGHT: MOTION & CAMERA CONTROLS -->
+        <aside class="sidebar-right">
+            <div class="inspector-group">
+                <span class="group-title">3D Transform</span>
+                <div class="control-row">
+                    <label>Pitch (X)</label>
+                    <input type="range" min="-45" max="45" value="10">
+                    <span class="value-display">10°</span>
+                </div>
+                <div class="control-row">
+                    <label>Yaw (Y)</label>
+                    <input type="range" min="-45" max="45" value="-12">
+                    <span class="value-display">-12°</span>
+                </div>
+                <div class="control-row">
+                    <label>Depth (Z)</label>
+                    <input type="range" min="0" max="100" value="40">
+                    <span class="value-display">40px</span>
+                </div>
+            </div>
+
+            <div class="inspector-group">
+                <span class="group-title">Shadow & Background</span>
+                <div class="control-row">
+                    <label>Blur Radius</label>
+                    <input type="range" min="0" max="100" value="60">
+                    <span class="value-display">60px</span>
+                </div>
+                <div class="control-row">
+                    <label>Shadow Opacity</label>
+                    <input type="range" min="0" max="100" value="70">
+                    <span class="value-display">70%</span>
+                </div>
+            </div>
+
+            <div class="inspector-group">
+                <span class="group-title">Easing & Speed</span>
+                <div class="control-row">
+                    <label>Duration</label>
+                    <input type="range" min="1" max="10" value="4">
+                    <span class="value-display">4.0s</span>
+                </div>
+            </div>
+        </aside>
+
+    </div>
+
+    <!-- BOTTOM TIMELINE BAR -->
+    <footer class="timeline-bar">
+        <div class="timeline-controls">
+            <div class="playback-btns">
+                <button class="play-btn">▶</button>
+                <span style="color: var(--text-muted); font-size: 0.8rem;">00:01.5 / 00:04.0</span>
+            </div>
+            <span style="color: var(--text-muted); font-size: 0.75rem;">60 FPS Render Ready</span>
+        </div>
+        <div class="timeline-track-area">
+            <div class="timeline-ruler">
+                <span>0s</span>
+                <span>1s</span>
+                <span>2s</span>
+                <span>3s</span>
+                <span>4s</span>
+            </div>
+            <div class="timeline-keyframe-track">
+                <div class="keyframe-node" style="left: 10%;"></div>
+                <div class="keyframe-node" style="left: 45%;"></div>
+                <div class="keyframe-node" style="left: 90%;"></div>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>
