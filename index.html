@@ -692,18 +692,11 @@
                         <span style="color:var(--text-muted); font-size:0.8rem;">Smooth glass refractions & liquid glare</span>
                     </div>
                 </div>
-                <div class="template-card" onclick="loadPresetAndOpen('grid10')">
-                    <div class="template-thumb">10 Thumbnail Grid</div>
-                    <div class="template-info">
-                        <h4>3D YouTube Showcase</h4>
-                        <span style="color:var(--text-muted); font-size:0.8rem;">10 Slots spread across 3D perspective</span>
-                    </div>
-                </div>
                 <div class="template-card" onclick="loadPresetAndOpen('shine')">
                     <div class="template-thumb">Shine Effect</div>
                     <div class="template-info">
-                        <h4>Specular Light Sweep</h4>
-                        <span style="color:var(--text-muted); font-size:0.8rem;">Smooth clean light sheen animation</span>
+                        <h4>Bright Line Sweep</h4>
+                        <span style="color:var(--text-muted); font-size:0.8rem;">Bright pure-white horizontal line shine</span>
                     </div>
                 </div>
             </div>
@@ -742,9 +735,8 @@
                         <div class="control-group active-preset" id="preset-popup" style="cursor:pointer;" onclick="setAnimationPreset('popup')">1. Pop-up</div>
                         <div class="control-group" id="preset-showcase" style="cursor:pointer;" onclick="setAnimationPreset('showcase')">2. Showcase (Slots 1 to 5)</div>
                         <div class="control-group" id="preset-liquid" style="cursor:pointer;" onclick="setAnimationPreset('liquid')">3. Apple "Liquid Glass"</div>
-                        <div class="control-group" id="preset-grid10" style="cursor:pointer;" onclick="setAnimationPreset('grid10')">4. 3D YouTube Showcase (10 Slots)</div>
-                        <div class="control-group" id="preset-shine" style="cursor:pointer;" onclick="setAnimationPreset('shine')">5. Shine Effect</div>
-                        <div class="control-group" id="preset-manual" style="cursor:pointer;" onclick="setAnimationPreset('manual')">6. Manual Slider Control</div>
+                        <div class="control-group" id="preset-shine" style="cursor:pointer;" onclick="setAnimationPreset('shine')">4. Bright Line Shine Effect</div>
+                        <div class="control-group" id="preset-manual" style="cursor:pointer;" onclick="setAnimationPreset('manual')">5. Manual Slider Control</div>
                     </div>
                 </aside>
 
@@ -978,7 +970,7 @@
             requestAnimationFrame(animationEngineLoop);
         }
 
-        // DRAW CANVAS FRAME (PURE BRIGHTNESS PRESERVATION & SMOOTH MULTI-IMAGE MOTION)
+        // DRAW CANVAS FRAME
         function drawCanvasFrame() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.filter = 'none';
@@ -996,7 +988,7 @@
 
             const progress = (state.currentTime % state.duration) / state.duration;
 
-            // DRAW CARD HELPER (Preserves image brightness and color purity)
+            // DRAW CARD HELPER
             function drawCard(x, y, scale = 1, skewX = 0, skewY = 0, opacity = 1, imgSource = null, slotNum = 1, overlayEffect = null, explicitDim = null) {
                 ctx.save();
                 ctx.globalAlpha = Math.max(0, Math.min(1, opacity));
@@ -1073,20 +1065,21 @@
                     ctx.lineWidth = 2;
                     ctx.stroke();
                 } else if (overlayEffect === 'shine') {
-                    // SMOOTH CLEAN SHINE EFFECT
-                    const shinePos = -drawW + (progress * drawW * 2.5);
+                    // BRIGHT PURE-WHITE HORIZONTAL LINE SHINE EFFECT (LEFT TO RIGHT)
                     ctx.save();
                     ctx.beginPath();
                     ctx.roundRect(-drawW / 2, -drawH / 2, drawW, drawH, 16);
                     ctx.clip();
 
-                    const sGrad = ctx.createLinearGradient(shinePos - 120, -drawH, shinePos + 120, drawH);
-                    sGrad.addColorStop(0, 'rgba(255, 255, 255, 0)');
-                    sGrad.addColorStop(0.5, 'rgba(255, 255, 255, 0.45)');
-                    sGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+                    const lineX = -drawW / 2 + (progress * drawW);
+                    const lineWidth = 30; // Crisp line width
 
-                    ctx.fillStyle = sGrad;
-                    ctx.fillRect(-drawW / 2, -drawH / 2, drawW, drawH);
+                    // Solid bright white sharp vertical line sweeping horizontally left to right
+                    ctx.fillStyle = '#ffffff';
+                    ctx.shadowColor = '#ffffff';
+                    ctx.shadowBlur = 12;
+                    ctx.fillRect(lineX - (lineWidth / 2), -drawH / 2, lineWidth, drawH);
+
                     ctx.restore();
                 }
 
@@ -1135,32 +1128,11 @@
                 const floatY = Math.sin(progress * Math.PI * 2) * 12;
                 drawCard(0, floatY, 0.88, 0, 0, 1.0, null, 1, 'liquid');
             }
-            // PRESET 4: 3D MULTIPLE YOUTUBE THUMBNAIL SHOWCASE (10 IMAGES SPREAD OUT IN PREVIEW)
-            else if (state.preset === 'grid10') {
-                const panX = Math.sin(progress * Math.PI * 2) * 80;
-                const gridPositions = [
-                    { x: -550, y: -260, scale: 0.38, skewX: 0.12 },
-                    { x: -180, y: -280, scale: 0.40, skewX: 0.08 },
-                    { x: 180,  y: -280, scale: 0.40, skewX: -0.08 },
-                    { x: 550,  y: -260, scale: 0.38, skewX: -0.12 },
-                    { x: -620, y: 30,   scale: 0.42, skewX: 0.15 },
-                    { x: 620,  y: 30,   scale: 0.42, skewX: -0.15 },
-                    { x: -500, y: 300,  scale: 0.38, skewX: 0.10 },
-                    { x: -160, y: 310,  scale: 0.40, skewX: 0.05 },
-                    { x: 160,  y: 310,  scale: 0.40, skewX: -0.05 },
-                    { x: 500,  y: 300,  scale: 0.38, skewX: -0.10 }
-                ];
-
-                gridPositions.forEach((pos, idx) => {
-                    const slotImg = slotImages[idx] || (imageReady ? loadedImage : null);
-                    drawCard(pos.x + panX * (idx % 2 === 0 ? 0.4 : -0.4), pos.y, pos.scale, pos.skewX, 0, 0.95, slotImg, idx + 1, null, { w: 480, h: 270 });
-                });
-            }
-            // PRESET 5: SHINE EFFECT (SINGLE IMAGE CLEAN SPECULAR LIGHT SWEEP)
+            // PRESET 4: SHINE EFFECT (BRIGHT WHITE HORIZONTAL LINE SWEEP LEFT TO RIGHT)
             else if (state.preset === 'shine') {
                 drawCard(0, 0, 0.88, 0, 0, 1.0, null, 1, 'shine');
             }
-            // PRESET 6: MANUAL CONTROL
+            // PRESET 5: MANUAL CONTROL
             else if (state.preset === 'manual') {
                 const skewX = state.yaw * Math.PI / 180;
                 const skewY = state.pitch * Math.PI / 180;
@@ -1394,7 +1366,7 @@
                 mimeType = 'video/mp4';
             }
             if (!MediaRecorder.isTypeSupported(mimeType)) {
-                mimeType = 'video/webm'; // Fallback container for browser rendering support if mp4 container is restricted
+                mimeType = 'video/webm';
             }
 
             mediaRecorder = new MediaRecorder(stream, { mimeType });
