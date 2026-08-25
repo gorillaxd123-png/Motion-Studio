@@ -1,52 +1,358 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ANIMA OS — Billing</title>
-  <style>
-    :root { color-scheme: light dark; }
-    body {
-      margin: 0; min-height: 100vh; display: flex; align-items: center;
-      justify-content: center; font-family: system-ui, -apple-system, sans-serif;
-      background: #0a0a0a; color: #f0f0f0;
-    }
-    .card {
-      max-width: 380px; text-align: center; padding: 40px 28px;
-      background: #16161a; border: 1px solid #2a2a30; border-radius: 16px;
-    }
-    .logo {
-      width: 48px; height: 48px; margin: 0 auto 18px; border-radius: 12px;
-      background: #4a90d9; color: #fff; font-weight: 800; font-size: 24px;
-      display: flex; align-items: center; justify-content: center;
-    }
-    h1 { font-size: 18px; margin: 0 0 8px; }
-    p { font-size: 14px; line-height: 1.6; color: #a0a0aa; margin: 0; }
-    .ok .logo { background: #22a06b; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Motion Studio | Motion Graphics for Creators</title>
+    <style>
+        /* --- CORE DESIGN SYSTEM --- */
+        :root {
+            --bg-main: #121214;
+            --bg-card: #1c1c20;
+            --bg-card-hover: #26262b;
+            --border-color: #2e2e35;
+            --text-primary: #f0f0f5;
+            --text-secondary: #9090a0;
+            --accent-gray: #3a3a42;
+            --accent-glow: #ffffff10;
+            --font-stack: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            font-family: var(--font-stack);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* --- NAVIGATION --- */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 5%;
+            border-bottom: 1px solid var(--border-color);
+            background: rgba(18, 18, 20, 0.8);
+            backdrop-filter: blur(12px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-icon {
+            width: 14px;
+            height: 14px;
+            background: #fff;
+            border-radius: 3px;
+            display: inline-block;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--text-primary);
+        }
+
+        .btn-primary {
+            background: var(--text-primary);
+            color: var(--bg-main);
+            padding: 0.6rem 1.2rem;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.88rem;
+            text-decoration: none;
+            transition: transform 0.2s, opacity 0.2s;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        /* --- HERO SECTION --- */
+        .hero {
+            padding: 6rem 5% 4rem;
+            text-align: center;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            line-height: 1.1;
+            font-weight: 700;
+            letter-spacing: -1.5px;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero p {
+            color: var(--text-secondary);
+            font-size: 1.15rem;
+            margin-bottom: 2.5rem;
+            max-width: 650px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-cta {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .btn-secondary {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            padding: 0.6rem 1.2rem;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            font-weight: 600;
+            font-size: 0.88rem;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-card-hover);
+        }
+
+        /* --- DEMO CANVAS / PREVIEW --- */
+        .preview-container {
+            max-width: 1100px;
+            margin: 2rem auto 6rem;
+            padding: 0 5%;
+        }
+
+        .mockup-window {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            aspect-ratio: 16 / 9;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mockup-header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            gap: 8px;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--accent-gray);
+        }
+
+        .preview-placeholder {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* --- FEATURES GRID --- */
+        .features {
+            padding: 5rem 5%;
+            max-width: 1200px;
+            margin: 0 auto;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 3.5rem;
+        }
+
+        .section-title h2 {
+            font-size: 2rem;
+            letter-spacing: -0.5px;
+        }
+
+        .section-title p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-top: 0.5rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 2rem;
+            border-radius: 10px;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            border-color: var(--accent-gray);
+        }
+
+        .card-icon {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .card p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            padding: 3rem 5%;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .hero h1 { font-size: 2.2rem; }
+            footer { flex-direction: column; gap: 1rem; text-align: center; }
+        }
+    </style>
 </head>
 <body>
-  <div class="card" id="card">
-    <div class="logo">A</div>
-    <h1 id="title">Finishing up…</h1>
-    <p id="msg">One moment.</p>
-  </div>
-  <script>
-    // The subscription activates via PayPal's webhook, not this page — so this
-    // just reassures the user and tells them to head back to the app, where the
-    // plan unlocks automatically.
-    var status = new URLSearchParams(location.search).get("status");
-    var card = document.getElementById("card");
-    var title = document.getElementById("title");
-    var msg = document.getElementById("msg");
-    if (status === "cancel") {
-      title.textContent = "Checkout cancelled";
-      msg.textContent = "No charge was made. You can return to ANIMA OS and try again anytime.";
-    } else {
-      card.className = "card ok";
-      title.textContent = "Payment received — thank you!";
-      msg.textContent = "Your plan unlocks in ANIMA OS automatically within a few seconds. You can close this tab and return to the app.";
-    }
-  </script>
+
+    <!-- NAVIGATION -->
+    <nav>
+        <div class="logo">
+            <span class="logo-icon"></span> Motion Studio
+        </div>
+        <ul class="nav-links">
+            <li><a href="#templates">Templates</a></li>
+            <li><a href="#features">Features</a></li>
+            <li><a href="#pricing">Pricing</a></li>
+        </ul>
+        <a href="#" class="btn-primary">Launch App</a>
+    </nav>
+
+    <!-- HERO -->
+    <section class="hero">
+        <span class="badge">Designed for YouTube Creators</span>
+        <h1>High-impact motion graphics made effortless.</h1>
+        <p>Create lower thirds, callouts, titles, and screen animations directly in your browser. Export ready-to-use overlay assets in seconds.</p>
+        <div class="hero-cta">
+            <a href="#" class="btn-primary">Start Creating Free</a>
+            <a href="#demo" class="btn-secondary">Watch Demo</a>
+        </div>
+    </section>
+
+    <!-- APP PREVIEW MOCKUP -->
+    <div class="preview-container" id="demo">
+        <div class="mockup-window">
+            <div class="mockup-header">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+            <div class="preview-placeholder">
+                <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.91 11.672a.375.375 0 010 .656l-5.603 3.113a.375.375 0 01-.557-.328V8.887c0-.286.307-.466.557-.327l5.603 3.112z"></path>
+                </svg>
+                <span>Interactive Canvas & Timeline Preview</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- FEATURES SECTION -->
+    <section class="features" id="features">
+        <div class="section-title">
+            <h2>Built for YouTube Workflow</h2>
+            <p>Everything you need to level up video production quality without Premiere/After Effects hassle.</p>
+        </div>
+        <div class="grid">
+            <div class="card">
+                <div class="card-icon">⚡</div>
+                <h3>YouTube Callouts</h3>
+                <p>Pre-designed animated subscribe buttons, social tags, and notification popups ready to drag and drop.</p>
+            </div>
+            <div class="card">
+                <div class="card-icon">🎬</div>
+                <h3>Smooth Camera Pans</h3>
+                <p>Animate static website screenshots and app UI with realistic depth, tilt, and motion curves.</p>
+            </div>
+            <div class="card">
+                <div class="card-icon">📦</div>
+                <h3>Alpha Channel Exports</h3>
+                <p>Export directly as transparent ProRes or WebM files to overlay seamlessly on video timelines.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <div>&copy; 2026 Motion Studio Inc. All rights reserved.</div>
+        <div>Built for modern video editors & creators.</div>
+    </footer>
+
 </body>
 </html>
