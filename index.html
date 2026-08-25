@@ -617,25 +617,18 @@
                 <p style="color:var(--text-muted);">Select any preset to open directly in the Motion Studio Editor.</p>
             </div>
             <div class="template-grid">
-                <div class="template-card" onclick="loadPresetAndOpen('isoFloat')">
-                    <div class="template-thumb">16:9 Isometric Float</div>
+                <div class="template-card" onclick="loadPresetAndOpen('popup')">
+                    <div class="template-thumb">Pop-up Motion</div>
                     <div class="template-info">
                         <h4>App Demo Showcase</h4>
-                        <span style="color:var(--text-muted); font-size:0.8rem;">Desktop software walkthroughs</span>
+                        <span style="color:var(--text-muted); font-size:0.8rem;">Bottom to center motion blur slide</span>
                     </div>
                 </div>
-                <div class="template-card" onclick="loadPresetAndOpen('panZoom')">
-                    <div class="template-thumb">16:9 Pan & Zoom</div>
+                <div class="template-card" onclick="loadPresetAndOpen('showcase')">
+                    <div class="template-thumb">Showcase Motion</div>
                     <div class="template-info">
-                        <h4>Camera Movement Motion</h4>
-                        <span style="color:var(--text-muted); font-size:0.8rem;">Smooth focal slide</span>
-                    </div>
-                </div>
-                <div class="template-card" onclick="loadPresetAndOpen('tiltGlow')">
-                    <div class="template-thumb">3D Tilt & Glow</div>
-                    <div class="template-info">
-                        <h4>Thumbnail Animate</h4>
-                        <span style="color:var(--text-muted); font-size:0.8rem;">Depth for static thumbnails</span>
+                        <h4>5 Card Showcase</h4>
+                        <span style="color:var(--text-muted); font-size:0.8rem;">Horizontal sequence pan</span>
                     </div>
                 </div>
             </div>
@@ -671,11 +664,9 @@
 
                     <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted); margin-top:10px;">ANIMATION PRESETS</span>
                     <div style="display:flex; flex-direction:column; gap:8px;">
-                        <div class="control-group" id="preset-isoFloat" style="cursor:pointer;" onclick="setAnimationPreset('isoFloat')">1. Isometric Float</div>
-                        <div class="control-group" id="preset-panZoom" style="cursor:pointer;" onclick="setAnimationPreset('panZoom')">2. Pan & Zoom</div>
-                        <div class="control-group" id="preset-tiltGlow" style="cursor:pointer;" onclick="setAnimationPreset('tiltGlow')">3. Dynamic Tilt & Glow</div>
-                        <div class="control-group" id="preset-pulseSway" style="cursor:pointer;" onclick="setAnimationPreset('pulseSway')">4. Pulse & Sway</div>
-                        <div class="control-group" id="preset-manual" style="cursor:pointer;" onclick="setAnimationPreset('manual')">5. Manual Slider Control</div>
+                        <div class="control-group active-preset" id="preset-popup" style="cursor:pointer;" onclick="setAnimationPreset('popup')">1. Pop-up</div>
+                        <div class="control-group" id="preset-showcase" style="cursor:pointer;" onclick="setAnimationPreset('showcase')">2. Showcase (5 Cards)</div>
+                        <div class="control-group" id="preset-manual" style="cursor:pointer;" onclick="setAnimationPreset('manual')">3. Manual Slider Control</div>
                     </div>
                 </aside>
 
@@ -762,7 +753,7 @@
         // CLIENT STATE
         let state = {
             activePage: 'home',
-            preset: 'isoFloat',
+            preset: 'popup',
             pitch: 10,
             yaw: -12,
             duration: 4.0,
@@ -827,7 +818,6 @@
 
         // DRAW CANVAS FRAME AT LOCKED 16:9 RATIO
         function drawCanvasFrame() {
-            // Clear canvas completely
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
             // Handle Render Background according to Inspector setting
@@ -840,84 +830,119 @@
             } else if (state.bgType === 'white') {
                 ctx.fillStyle = '#ffffff';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
-            } else if (state.bgType === 'transparent') {
-                // ClearRect leaves full transparency for transparent recording outputs
             }
 
-            // Compute Motion Transform based on preset and currentTime
             const progress = (state.currentTime % state.duration) / state.duration;
-            const cycle = Math.sin(progress * Math.PI * 2);
 
-            ctx.save();
-            ctx.translate(canvas.width / 2, canvas.height / 2);
+            // Helper function to render a single thumbnail card
+            function drawCard(x, y, scale = 1, skewX = 0, skewY = 0, opacity = 1) {
+                ctx.save();
+                ctx.globalAlpha = opacity;
+                ctx.translate(canvas.width / 2 + x, canvas.height / 2 + y);
+                ctx.transform(scale, skewY, skewX, scale, 0, 0);
 
-            let skewX = 0, skewY = 0, scale = 1.0, offsetX = 0, offsetY = 0;
+                if (imageReady) {
+                    const aspect = loadedImage.width / loadedImage.height;
+                    let drawW = 1000;
+                    let drawH = drawW / aspect;
 
-            if (state.preset === 'isoFloat') {
-                skewX = (state.yaw * Math.PI / 180) + (cycle * 0.05);
-                skewY = (state.pitch * Math.PI / 180) + (Math.cos(progress * Math.PI * 2) * 0.03);
-                offsetY = cycle * 20;
-                scale = 0.85 + (cycle * 0.02);
-            } else if (state.preset === 'panZoom') {
-                scale = 0.8 + (progress * 0.3);
-                offsetX = (progress - 0.5) * 80;
-                offsetY = Math.sin(progress * Math.PI) * -30;
-            } else if (state.preset === 'tiltGlow') {
-                skewX = Math.sin(progress * Math.PI * 2) * 0.15;
-                skewY = Math.cos(progress * Math.PI * 2) * 0.1;
-                scale = 0.9;
-            } else if (state.preset === 'pulseSway') {
-                scale = 0.85 + Math.sin(progress * Math.PI * 4) * 0.04;
-                skewX = Math.sin(progress * Math.PI * 2) * 0.05;
-            } else if (state.preset === 'manual') {
-                skewX = state.yaw * Math.PI / 180;
-                skewY = state.pitch * Math.PI / 180;
-                scale = 0.85;
-            }
+                    if (drawH > 600) {
+                        drawH = 600;
+                        drawW = drawH * aspect;
+                    }
 
-            ctx.transform(scale, skewY, skewX, scale, offsetX, offsetY);
+                    ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
+                    ctx.shadowBlur = 40;
+                    ctx.shadowOffsetY = 25;
 
-            if (imageReady) {
-                const aspect = loadedImage.width / loadedImage.height;
-                let drawW = 1200;
-                let drawH = drawW / aspect;
+                    ctx.drawImage(loadedImage, -drawW / 2, -drawH / 2, drawW, drawH);
+                } else {
+                    ctx.fillStyle = '#1e1e24';
+                    ctx.strokeStyle = '#3e3e48';
+                    ctx.lineWidth = 4;
+                    const cardW = 800, cardH = 450;
+                    
+                    ctx.shadowColor = 'rgba(0,0,0,0.5)';
+                    ctx.shadowBlur = 30;
+                    ctx.shadowOffsetY = 15;
 
-                if (drawH > 700) {
-                    drawH = 700;
-                    drawW = drawH * aspect;
+                    ctx.beginPath();
+                    ctx.roundRect(-cardW / 2, -cardH / 2, cardW, cardH, 20);
+                    ctx.fill();
+                    ctx.stroke();
+
+                    ctx.shadowColor = 'transparent';
+                    ctx.fillStyle = '#8e8e9a';
+                    ctx.font = '600 28px -apple-system, sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('Click or Drag & Drop Media to Motion Preview', 0, -10);
                 }
-
-                ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
-                ctx.shadowBlur = 40;
-                ctx.shadowOffsetY = 25;
-
-                ctx.drawImage(loadedImage, -drawW / 2, -drawH / 2, drawW, drawH);
-            } else {
-                // Default Canvas Placeholder Card
-                ctx.fillStyle = '#1e1e24';
-                ctx.strokeStyle = '#3e3e48';
-                ctx.lineWidth = 4;
-                const cardW = 900, cardH = 500;
-                
-                ctx.shadowColor = 'rgba(0,0,0,0.5)';
-                ctx.shadowBlur = 30;
-                ctx.shadowOffsetY = 15;
-
-                ctx.beginPath();
-                ctx.roundRect(-cardW / 2, -cardH / 2, cardW, cardH, 20);
-                ctx.fill();
-                ctx.stroke();
-
-                ctx.shadowColor = 'transparent';
-                ctx.fillStyle = '#8e8e9a';
-                ctx.font = '600 28px -apple-system, sans-serif';
-                ctx.textAlign = 'center';
-                ctx.fillText('Click or Drag & Drop Media to Motion Preview', 0, -10);
-                ctx.font = '400 18px -apple-system, sans-serif';
-                ctx.fillText('Supports PNG, JPG, WEBP, and SVG', 0, 30);
+                ctx.restore();
             }
 
-            ctx.restore();
+            // Motion blur velocity sampler
+            function getVelocities(p) {
+                const delta = 0.005;
+                const pPrev = Math.max(0, p - delta);
+                const pNext = Math.min(1, p + delta);
+                return { pPrev, pNext };
+            }
+
+            // PRESET 1: POP-UP (Bottom to Center with Smooth Cubic Easing)
+            if (state.preset === 'popup') {
+                const easeOutCubic = p => 1 - Math.pow(1 - p, 3);
+                const currentY = (1 - easeOutCubic(progress)) * 750;
+                
+                const { pPrev, pNext } = getVelocities(progress);
+                const yPrev = (1 - easeOutCubic(pPrev)) * 750;
+                const yNext = (1 - easeOutCubic(pNext)) * 750;
+                const velocityY = (yNext - yPrev) * 1.5;
+
+                const samples = Math.min(Math.abs(Math.round(velocityY / 4)), 10);
+                if (samples > 1 && state.isPlaying) {
+                    for (let i = 0; i < samples; i++) {
+                        const offset = (i / samples - 0.5) * velocityY;
+                        drawCard(0, currentY + offset, 0.9, 0, 0, 1 / samples);
+                    }
+                } else {
+                    drawCard(0, currentY, 0.9, 0, 0, 1);
+                }
+            } 
+            // PRESET 2: SHOWCASE (5 Cards Sliding Left to Right)
+            else if (state.preset === 'showcase') {
+                const easeInOutQuad = p => p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
+                const smoothProgress = easeInOutQuad(progress);
+
+                const totalDistance = 3600;
+                const currentX = -1800 + (smoothProgress * totalDistance);
+
+                const { pPrev, pNext } = getVelocities(progress);
+                const xPrev = -1800 + (easeInOutQuad(pPrev) * totalDistance);
+                const xNext = -1800 + (easeInOutQuad(pNext) * totalDistance);
+                const velocityX = (xNext - xPrev) * 1.2;
+
+                const samples = Math.min(Math.abs(Math.round(velocityX / 8)), 8);
+                const cardSpacing = 950;
+
+                for (let idx = 0; idx < 5; idx++) {
+                    const baseCardX = currentX + (idx * cardSpacing);
+                    
+                    if (samples > 1 && state.isPlaying) {
+                        for (let s = 0; s < samples; s++) {
+                            const blurOffset = (s / samples - 0.5) * velocityX;
+                            drawCard(baseCardX + blurOffset, 0, 0.65, 0, 0, 1 / samples);
+                        }
+                    } else {
+                        drawCard(baseCardX, 0, 0.65, 0, 0, 1);
+                    }
+                }
+            } 
+            // PRESET 3: MANUAL CONTROL
+            else if (state.preset === 'manual') {
+                const skewX = state.yaw * Math.PI / 180;
+                const skewY = state.pitch * Math.PI / 180;
+                drawCard(0, 0, 0.85, skewX, skewY, 1);
+            }
         }
 
         // NAVIGATION & STATE HANDLING
@@ -986,7 +1011,7 @@
             document.getElementById('pitch-val').innerText = '10°';
             document.getElementById('yaw-val').innerText = '-12°';
             document.getElementById('duration-val').innerText = '4.0s';
-            setAnimationPreset('isoFloat');
+            setAnimationPreset('popup');
             updateBackground('dark');
             document.getElementById('bg-select').value = 'dark';
         }
@@ -1186,7 +1211,7 @@
             if (!saved) return;
             try {
                 const parsed = JSON.parse(saved);
-                state.preset = parsed.preset || 'isoFloat';
+                state.preset = parsed.preset || 'popup';
                 state.pitch = parsed.pitch ?? 10;
                 state.yaw = parsed.yaw ?? -12;
                 state.duration = parsed.duration ?? 4.0;
