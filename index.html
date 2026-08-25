@@ -201,32 +201,31 @@
 
         .template-info { padding: 16px; }
 
-        /* --- STUDIO EDITOR LAYOUT FIXES --- */
+        /* --- STUDIO EDITOR --- */
         .editor-wrapper {
-            width: 100vw;
             height: 100vh;
-            display: grid;
-            grid-template-rows: 48px 1fr 140px;
+            display: flex;
+            flex-direction: column;
             overflow: hidden;
             font-size: 13px;
         }
 
         .app-header {
+            height: 48px;
             background: var(--bg-smooth-grey);
             border-bottom: 1px solid var(--border-grey);
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 0 16px;
-            grid-row: 1;
         }
 
         .workspace {
             display: grid;
             grid-template-columns: 280px 1fr 300px;
-            grid-row: 2;
+            flex: 1;
+            height: calc(100vh - 48px - 140px);
             overflow: hidden;
-            background: var(--bg-deep);
         }
 
         .sidebar-left, .sidebar-right {
@@ -235,15 +234,13 @@
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 14px;
-            height: 100%;
+            gap: 16px;
         }
 
-        .sidebar-left { border-right: 1px solid var(--border-grey); grid-column: 1; }
-        .sidebar-right { border-left: 1px solid var(--border-grey); grid-column: 3; }
+        .sidebar-left { border-right: 1px solid var(--border-grey); }
+        .sidebar-right { border-left: 1px solid var(--border-grey); }
 
         .viewport-container {
-            grid-column: 2;
             background: var(--bg-deep);
             display: flex;
             align-items: center;
@@ -251,7 +248,6 @@
             position: relative;
             overflow: hidden;
             cursor: grab;
-            height: 100%;
         }
 
         .viewport-container:active { cursor: grabbing; }
@@ -306,6 +302,12 @@
             justify-content: center;
             overflow: hidden;
             position: relative;
+        }
+
+        .canvas-frame.bg-transparent-grid {
+            background-image: linear-gradient(45deg, #1c1c24 25%, transparent 25%), linear-gradient(-45deg, #1c1c24 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #1c1c24 75%), linear-gradient(-45deg, transparent 75%, #1c1c24 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
         }
 
         #render-canvas {
@@ -367,45 +369,12 @@
             color: var(--text-muted);
         }
 
-        .media-slots-grid {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 6px;
-            margin-top: 6px;
-        }
-
-        .media-slot-item {
-            aspect-ratio: 1;
-            background: var(--bg-panel);
-            border: 1px dashed var(--border-light);
-            border-radius: var(--radius-sm);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .media-slot-item:hover { border-color: var(--text-primary); color: var(--text-primary); }
-        .media-slot-item img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            position: absolute;
-            top: 0;
-            left: 0;
-        }
-
         .timeline-bar {
-            grid-row: 3;
+            height: 140px;
             background: var(--bg-smooth-grey);
             border-top: 1px solid var(--border-grey);
             display: flex;
             flex-direction: column;
-            height: 140px;
         }
 
         .timeline-controls {
@@ -565,9 +534,8 @@
 </head>
 <body>
 
-    <!-- HIDDEN FILE INPUTS -->
+    <!-- HIDDEN FILE INPUT -->
     <input type="file" id="image-file-input" accept="image/*" style="display: none;" onchange="handleFileSelect(event)">
-    <input type="file" id="slot-file-input" accept="image/*" style="display: none;" onchange="handleSlotFileSelect(event)">
 
     <!-- RENDER & RECORDING MODAL -->
     <div class="render-modal-overlay" id="render-modal">
@@ -630,10 +598,10 @@
     <main id="page-home" class="page-section active-page">
         <section class="hero">
             <div class="badge">
-                <span class="badge-dot"></span> 15 Multi-Slot 60 FPS Animation Presets
+                <span class="badge-dot"></span> 60 FPS Smooth Canvas Recording
             </div>
             <h1>Cinematic Motion Graphics.<br>Real-Time Viewport Recorder.</h1>
-            <p>Turn raw thumbnails, screenshots, and multiple artwork slots into slick 16:9 videos recorded directly live from your screen engine.</p>
+            <p>Turn raw thumbnails, screenshots, and artwork into slick 16:9 videos recorded directly live from your screen engine.</p>
             <div class="hero-cta">
                 <button class="btn btn-primary" onclick="switchPage('editor')">Start Creating Free</button>
                 <button class="btn" onclick="switchPage('templates')">Explore Templates</button>
@@ -701,24 +669,13 @@
 
                     <button class="btn" style="font-size:0.75rem; padding:4px;" onclick="clearImage()">Remove Image</button>
 
-                    <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted); margin-top:10px;">ANIMATION PRESETS (15)</span>
-                    <div style="display:flex; flex-direction:column; gap:6px;">
+                    <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted); margin-top:10px;">ANIMATION PRESETS</span>
+                    <div style="display:flex; flex-direction:column; gap:8px;">
                         <div class="control-group" id="preset-isoFloat" style="cursor:pointer;" onclick="setAnimationPreset('isoFloat')">1. Isometric Float</div>
                         <div class="control-group" id="preset-panZoom" style="cursor:pointer;" onclick="setAnimationPreset('panZoom')">2. Pan & Zoom</div>
                         <div class="control-group" id="preset-tiltGlow" style="cursor:pointer;" onclick="setAnimationPreset('tiltGlow')">3. Dynamic Tilt & Glow</div>
                         <div class="control-group" id="preset-pulseSway" style="cursor:pointer;" onclick="setAnimationPreset('pulseSway')">4. Pulse & Sway</div>
-                        <div class="control-group" id="preset-carouselSlide" style="cursor:pointer;" onclick="setAnimationPreset('carouselSlide')">5. Carousel Slide (Multi)</div>
-                        <div class="control-group" id="preset-cardFlip3D" style="cursor:pointer;" onclick="setAnimationPreset('cardFlip3D')">6. 3D Card Flip (Multi)</div>
-                        <div class="control-group" id="preset-gridMatrix" style="cursor:pointer;" onclick="setAnimationPreset('gridMatrix')">7. Grid Matrix (Multi)</div>
-                        <div class="control-group" id="preset-spiralVortex" style="cursor:pointer;" onclick="setAnimationPreset('spiralVortex')">8. Spiral Vortex</div>
-                        <div class="control-group" id="preset-waveCascade" style="cursor:pointer;" onclick="setAnimationPreset('waveCascade')">9. Wave Cascade (Multi)</div>
-                        <div class="control-group" id="preset-glitchPulse" style="cursor:pointer;" onclick="setAnimationPreset('glitchPulse')">10. Digital Glitch Pulse</div>
-                        <div class="control-group" id="preset-orbitCircle" style="cursor:pointer;" onclick="setAnimationPreset('orbitCircle')">11. Orbiting Circle</div>
-                        <div class="control-group" id="preset-zoomTunnel" style="cursor:pointer;" onclick="setAnimationPreset('zoomTunnel')">12. Depth Zoom Tunnel</div>
-                        <div class="control-group" id="preset-elasticBounce" style="cursor:pointer;" onclick="setAnimationPreset('elasticBounce')">13. Elastic Bounce Spring</div>
-                        <div class="control-group" id="preset-flipBook" style="cursor:pointer;" onclick="setAnimationPreset('flipBook')">14. FlipBook Pages (Multi)</div>
-                        <div class="control-group" id="preset-cinematicFade" style="cursor:pointer;" onclick="setAnimationPreset('cinematicFade')">15. Cinematic Fade Cross</div>
-                        <div class="control-group" id="preset-manual" style="cursor:pointer;" onclick="setAnimationPreset('manual')">Manual Slider Control</div>
+                        <div class="control-group" id="preset-manual" style="cursor:pointer;" onclick="setAnimationPreset('manual')">5. Manual Slider Control</div>
                     </div>
                 </aside>
 
@@ -759,6 +716,7 @@
                         <span class="value-display" id="duration-val">4.0s</span>
                     </div>
 
+                    <!-- BACKGROUND SELECTION UNDER TIMING & EASING -->
                     <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted); margin-top:10px;">RENDER BACKGROUND</span>
                     <div class="control-row">
                         <label>Canvas Bg</label>
@@ -767,16 +725,6 @@
                             <option value="white">Solid White</option>
                             <option value="transparent">Transparent (No Bg)</option>
                         </select>
-                    </div>
-
-                    <!-- MEDIA SLOTS SECTION -->
-                    <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted); margin-top:10px;">MEDIA SLOTS (5 Multi-Images)</span>
-                    <div class="media-slots-grid" id="media-slots-container">
-                        <div class="media-slot-item" onclick="triggerSlotUpload(0)" id="slot-0">1</div>
-                        <div class="media-slot-item" onclick="triggerSlotUpload(1)" id="slot-1">2</div>
-                        <div class="media-slot-item" onclick="triggerSlotUpload(2)" id="slot-2">3</div>
-                        <div class="media-slot-item" onclick="triggerSlotUpload(3)" id="slot-3">4</div>
-                        <div class="media-slot-item" onclick="triggerSlotUpload(4)" id="slot-4">5</div>
                     </div>
 
                     <button class="btn" style="margin-top:20px; font-size:0.8rem;" onclick="resetTransforms()">Reset All Controls</button>
@@ -811,6 +759,7 @@
 
     <!-- SCRIPT LOGIC -->
     <script>
+        // CLIENT STATE
         let state = {
             activePage: 'home',
             preset: 'isoFloat',
@@ -818,7 +767,8 @@
             yaw: -12,
             duration: 4.0,
             zoom: 1.0,
-            bgType: 'dark',
+            bgType: 'dark', // 'dark', 'white', or 'transparent'
+            imageData: null,
             isPlaying: true,
             isRendering: false,
             currentTime: 0
@@ -826,16 +776,17 @@
 
         let loadedImage = new Image();
         let imageReady = false;
-        let slotImages = [null, null, null, null, null];
-        let slotImagesReady = [false, false, false, false, false];
-        let activeSlotIndexForUpload = 0;
-
         let lastTimestamp = null;
         let isScrubbing = false;
+
         let canvas, ctx;
+        let mediaRecorder = null;
+        let recordedChunks = [];
 
         window.addEventListener('DOMContentLoaded', () => {
             canvas = document.getElementById('render-canvas');
+            
+            // Utilize client GPU power: High precision 16:9 canvas dimensions (1920x1080)
             canvas.width = 1920;
             canvas.height = 1080;
 
@@ -852,6 +803,7 @@
             requestAnimationFrame(animationEngineLoop);
         });
 
+        // SMOOTH 60 FPS RENDER LOOP
         function animationEngineLoop(timestamp) {
             if (!lastTimestamp) lastTimestamp = timestamp;
             const delta = (timestamp - lastTimestamp) / 1000;
@@ -873,9 +825,12 @@
             requestAnimationFrame(animationEngineLoop);
         }
 
+        // DRAW CANVAS FRAME AT LOCKED 16:9 RATIO
         function drawCanvasFrame() {
+            // Clear canvas completely
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+            // Handle Render Background according to Inspector setting
             if (state.bgType === 'dark') {
                 const bgGrad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
                 bgGrad.addColorStop(0, '#121216');
@@ -885,190 +840,229 @@
             } else if (state.bgType === 'white') {
                 ctx.fillStyle = '#ffffff';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
+            } else if (state.bgType === 'transparent') {
+                // ClearRect leaves full transparency for transparent recording outputs
             }
 
+            // Compute Motion Transform based on preset and currentTime
             const progress = (state.currentTime % state.duration) / state.duration;
             const cycle = Math.sin(progress * Math.PI * 2);
 
             ctx.save();
             ctx.translate(canvas.width / 2, canvas.height / 2);
 
-            let activeImg = imageReady ? loadedImage : null;
-            let currentSlot = slotImagesReady.some(r => r) ? slotImages.find(img => img !== null) : activeImg;
+            let skewX = 0, skewY = 0, scale = 1.0, offsetX = 0, offsetY = 0;
 
             if (state.preset === 'isoFloat') {
-                ctx.rotate(cycle * 0.05);
-                ctx.translate(0, Math.sin(progress * Math.PI * 4) * 20);
-                drawSingleImage(currentSlot, 900, 500);
+                skewX = (state.yaw * Math.PI / 180) + (cycle * 0.05);
+                skewY = (state.pitch * Math.PI / 180) + (Math.cos(progress * Math.PI * 2) * 0.03);
+                offsetY = cycle * 20;
+                scale = 0.85 + (cycle * 0.02);
             } else if (state.preset === 'panZoom') {
-                let scale = 1.0 + progress * 0.3;
-                ctx.scale(scale, scale);
-                ctx.translate(Math.cos(progress * Math.PI * 2) * 50, 0);
-                drawSingleImage(currentSlot, 900, 500);
+                scale = 0.8 + (progress * 0.3);
+                offsetX = (progress - 0.5) * 80;
+                offsetY = Math.sin(progress * Math.PI) * -30;
             } else if (state.preset === 'tiltGlow') {
-                ctx.transform(1, cycle * 0.1, 0, 1, 0, 0);
-                drawSingleImage(currentSlot, 900, 500);
+                skewX = Math.sin(progress * Math.PI * 2) * 0.15;
+                skewY = Math.cos(progress * Math.PI * 2) * 0.1;
+                scale = 0.9;
             } else if (state.preset === 'pulseSway') {
-                let pScale = 0.9 + Math.abs(cycle) * 0.15;
-                ctx.scale(pScale, pScale);
-                ctx.translate(Math.sin(progress * Math.PI * 2) * 40, 0);
-                drawSingleImage(currentSlot, 900, 500);
-            } else if (state.preset === 'carouselSlide') {
-                let validSlots = slotImages.filter((img, idx) => slotImagesReady[idx]);
-                if (validSlots.length === 0 && imageReady) validSlots = [loadedImage];
-                if (validSlots.length > 0) {
-                    let activeIdx = Math.floor(progress * validSlots.length) % validSlots.length;
-                    drawSingleImage(validSlots[activeIdx], 900, 500);
-                } else {
-                    drawPlaceholderBox();
+                scale = 0.85 + Math.sin(progress * Math.PI * 4) * 0.04;
+                skewX = Math.sin(progress * Math.PI * 2) * 0.05;
+            } else if (state.preset === 'manual') {
+                skewX = state.yaw * Math.PI / 180;
+                skewY = state.pitch * Math.PI / 180;
+                scale = 0.85;
+            }
+
+            ctx.transform(scale, skewY, skewX, scale, offsetX, offsetY);
+
+            if (imageReady) {
+                const aspect = loadedImage.width / loadedImage.height;
+                let drawW = 1200;
+                let drawH = drawW / aspect;
+
+                if (drawH > 700) {
+                    drawH = 700;
+                    drawW = drawH * aspect;
                 }
-            } else if (state.preset === 'cardFlip3D') {
-                let flipAngle = progress * Math.PI * 2;
-                ctx.scale(Math.cos(flipAngle), 1);
-                drawSingleImage(currentSlot, 900, 500);
-            } else if (state.preset === 'gridMatrix') {
-                ctx.scale(0.5, 0.5);
-                ctx.translate(-400 + progress * 100, -200);
-                drawSingleImage(currentSlot, 800, 450);
-                ctx.translate(900, 0);
-                drawSingleImage(currentSlot, 800, 450);
-            } else if (state.preset === 'spiralVortex') {
-                ctx.rotate(progress * Math.PI * 4);
-                let sc = 0.2 + progress * 0.8;
-                ctx.scale(sc, sc);
-                drawSingleImage(currentSlot, 900, 500);
-            } else if (state.preset === 'waveCascade') {
-                let waveY = Math.sin(progress * Math.PI * 6) * 60;
-                ctx.translate(0, waveY);
-                drawSingleImage(currentSlot, 900, 500);
-            } else if (state.preset === 'glitchPulse') {
-                let glitchX = (Math.random() - 0.5) * 15 * cycle;
-                ctx.translate(glitchX, 0);
-                drawSingleImage(currentSlot, 900, 500);
-            } else if (state.preset === 'orbitCircle') {
-                let rad = 80;
-                ctx.translate(Math.cos(progress * Math.PI * 2) * rad, Math.sin(progress * Math.PI * 2) * rad);
-                drawSingleImage(currentSlot, 900, 500);
-            } else if (state.preset === 'zoomTunnel') {
-                let tScale = 0.5 + (progress * 1.5);
-                ctx.scale(tScale, tScale);
-                drawSingleImage(currentSlot, 900, 500);
-            } else if (state.preset === 'elasticBounce') {
-                let bounce = Math.abs(Math.sin(progress * Math.PI * 5)) * (1 - progress);
-                ctx.scale(1 + bounce * 0.3, 1 - bounce * 0.2);
-                drawSingleImage(currentSlot, 900, 500);
-            } else if (state.preset === 'flipBook') {
-                let pageVal = Math.floor(progress * 5) % 5;
-                let imgToDraw = slotImagesReady[pageVal] ? slotImages[pageVal] : currentSlot;
-                drawSingleImage(imgToDraw, 900, 500);
-            } else if (state.preset === 'cinematicFade') {
-                ctx.globalAlpha = Math.abs(Math.sin(progress * Math.PI));
-                drawSingleImage(currentSlot, 900, 500);
+
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
+                ctx.shadowBlur = 40;
+                ctx.shadowOffsetY = 25;
+
+                ctx.drawImage(loadedImage, -drawW / 2, -drawH / 2, drawW, drawH);
             } else {
-                ctx.rotate((state.yaw * Math.PI) / 180);
-                drawSingleImage(currentSlot, 900, 500);
+                // Default Canvas Placeholder Card
+                ctx.fillStyle = '#1e1e24';
+                ctx.strokeStyle = '#3e3e48';
+                ctx.lineWidth = 4;
+                const cardW = 900, cardH = 500;
+                
+                ctx.shadowColor = 'rgba(0,0,0,0.5)';
+                ctx.shadowBlur = 30;
+                ctx.shadowOffsetY = 15;
+
+                ctx.beginPath();
+                ctx.roundRect(-cardW / 2, -cardH / 2, cardW, cardH, 20);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.shadowColor = 'transparent';
+                ctx.fillStyle = '#8e8e9a';
+                ctx.font = '600 28px -apple-system, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('Click or Drag & Drop Media to Motion Preview', 0, -10);
+                ctx.font = '400 18px -apple-system, sans-serif';
+                ctx.fillText('Supports PNG, JPG, WEBP, and SVG', 0, 30);
             }
 
             ctx.restore();
         }
 
-        function drawSingleImage(img, w, h) {
-            if (img && img.complete) {
-                ctx.drawImage(img, -w / 2, -h / 2, w, h);
-            } else {
-                drawPlaceholderBox();
-            }
-        }
+        // NAVIGATION & STATE HANDLING
+        function switchPage(pageId) {
+            state.activePage = pageId;
+            document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active-page'));
+            document.getElementById(`page-${pageId}`).classList.add('active-page');
 
-        function drawPlaceholderBox() {
-            ctx.fillStyle = '#26262e';
-            ctx.fillRect(-320, -180, 640, 360);
-            ctx.fillStyle = '#8e8e9a';
-            ctx.font = '24px sans-serif';
-            ctx.textAlign = 'center';
-            ctx.fillText('No Image / Media Loaded', 0, 10);
+            document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+            if (pageId === 'home') document.getElementById('nav-home').classList.add('active');
+            if (pageId === 'templates') document.getElementById('nav-templates').classList.add('active');
+
+            const header = document.getElementById('global-header');
+            header.style.display = (pageId === 'editor') ? 'none' : 'block';
+
+            saveToLocalStorage();
         }
 
         function setAnimationPreset(presetName) {
             state.preset = presetName;
-            document.querySelectorAll('.sidebar-left .control-group').forEach(el => el.classList.remove('active-preset'));
-            const activeEl = document.getElementById('preset-' + presetName);
+            document.querySelectorAll('.control-group').forEach(el => el.classList.remove('active-preset'));
+            const activeEl = document.getElementById(`preset-${presetName}`);
             if (activeEl) activeEl.classList.add('active-preset');
+
+            saveToLocalStorage();
         }
 
-        function triggerSlotUpload(slotIndex) {
-            activeSlotIndexForUpload = slotIndex;
-            document.getElementById('slot-file-input').click();
-        }
-
-        function handleSlotFileSelect(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const img = new Image();
-                img.onload = function() {
-                    slotImages[activeSlotIndexForUpload] = img;
-                    slotImagesReady[activeSlotIndexForUpload] = true;
-                    const slotDiv = document.getElementById('slot-' + activeSlotIndexForUpload);
-                    slotDiv.innerHTML = `<img src="${e.target.result}">`;
-                }
-                img.src = e.target.result;
-            }
-            reader.readAsDataURL(file);
-        }
-
-        function triggerFileInput() { document.getElementById('image-file-input').click(); }
-        function handleFileSelect(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                loadedImage.onload = function() { imageReady = true; };
-                loadedImage.src = e.target.result;
-            }
-            reader.readAsDataURL(file);
-        }
-
-        function clearImage() {
-            imageReady = false;
-            loadedImage = new Image();
-        }
-
-        function switchPage(pageId) {
-            document.querySelectorAll('.page-section').forEach(sec => sec.classList.remove('active-page'));
-            document.getElementById('page-' + pageId).classList.add('active-page');
-            state.activePage = pageId;
+        function loadPresetAndOpen(presetName) {
+            setAnimationPreset(presetName);
+            switchPage('editor');
         }
 
         function updateManual3D() {
             state.pitch = parseFloat(document.getElementById('pitch-slider').value);
             state.yaw = parseFloat(document.getElementById('yaw-slider').value);
-            document.getElementById('pitch-val').innerText = state.pitch + '°';
-            document.getElementById('yaw-val').innerText = state.yaw + '°';
+            document.getElementById('pitch-val').innerText = `${state.pitch}°`;
+            document.getElementById('yaw-val').innerText = `${state.yaw}°`;
+            setAnimationPreset('manual');
         }
 
         function updateDuration(val) {
             state.duration = parseFloat(val);
-            document.getElementById('duration-val').innerText = state.duration.toFixed(1) + 's';
+            document.getElementById('duration-val').innerText = `${state.duration.toFixed(1)}s`;
+            updateTimelineUI();
+            saveToLocalStorage();
         }
 
-        function updateBackground(bgVal) {
-            state.bgType = bgVal;
+        function updateBackground(val) {
+            state.bgType = val;
+            const frame = document.getElementById('canvas-frame');
+            if (val === 'transparent') {
+                frame.classList.add('bg-transparent-grid');
+            } else {
+                frame.classList.remove('bg-transparent-grid');
+            }
+            saveToLocalStorage();
         }
 
+        function resetTransforms() {
+            state.pitch = 10;
+            state.yaw = -12;
+            state.duration = 4.0;
+            document.getElementById('pitch-slider').value = 10;
+            document.getElementById('yaw-slider').value = -12;
+            document.getElementById('duration-slider').value = 4.0;
+            document.getElementById('pitch-val').innerText = '10°';
+            document.getElementById('yaw-val').innerText = '-12°';
+            document.getElementById('duration-val').innerText = '4.0s';
+            setAnimationPreset('isoFloat');
+            updateBackground('dark');
+            document.getElementById('bg-select').value = 'dark';
+        }
+
+        // IMAGE FILE HANDLING
+        function triggerFileInput() {
+            document.getElementById('image-file-input').click();
+        }
+
+        function handleFileSelect(e) {
+            const file = e.target.files[0];
+            if (file) loadFile(file);
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            document.getElementById('dropzone').classList.add('dragover');
+        }
+
+        function handleDragLeave(e) {
+            e.preventDefault();
+            document.getElementById('dropzone').classList.remove('dragover');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            document.getElementById('dropzone').classList.remove('dragover');
+            if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                loadFile(e.dataTransfer.files[0]);
+            }
+        }
+
+        function loadFile(file) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                state.imageData = event.target.result;
+                loadedImage.src = state.imageData;
+                loadedImage.onload = () => {
+                    imageReady = true;
+                    saveToLocalStorage();
+                };
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function clearImage() {
+            state.imageData = null;
+            imageReady = false;
+            loadedImage = new Image();
+            saveToLocalStorage();
+        }
+
+        // VIEWPORT ZOOM CONTROLS
         function adjustZoom(delta) {
-            state.zoom = Math.max(0.5, Math.min(2.5, state.zoom + delta));
-            document.getElementById('zoom-val').innerText = Math.round(state.zoom * 100) + '%';
-            document.getElementById('canvas-wrapper').style.transform = `scale(${state.zoom})`;
+            state.zoom = Math.min(Math.max(0.4, state.zoom + delta), 2.0);
+            applyZoom();
         }
 
         function resetZoom() {
             state.zoom = 1.0;
-            document.getElementById('zoom-val').innerText = '100%';
-            document.getElementById('canvas-wrapper').style.transform = 'scale(1)';
+            applyZoom();
         }
 
+        function handleWheelZoom(e) {
+            if (e.ctrlKey || e.metaKey) {
+                e.preventDefault();
+                adjustZoom(e.deltaY < 0 ? 0.05 : -0.05);
+            }
+        }
+
+        function applyZoom() {
+            document.getElementById('canvas-wrapper').style.transform = `scale(${state.zoom})`;
+            document.getElementById('zoom-val').innerText = `${Math.round(state.zoom * 100)}%`;
+        }
+
+        // TIMELINE CONTROLS & SCRUBBING
         function togglePlayback() {
             state.isPlaying = !state.isPlaying;
             document.getElementById('play-btn').innerText = state.isPlaying ? '❚❚' : '▶';
@@ -1076,103 +1070,148 @@
 
         function updateTimelineUI() {
             const pct = (state.currentTime / state.duration) * 100;
-            document.getElementById('playhead').style.left = pct + '%';
-            const mins = Math.floor(state.currentTime / 60).toString().padStart(2, '0');
-            const secs = (state.currentTime % 60).toFixed(1).padStart(4, '0');
-            document.getElementById('time-display').innerText = `00:${mins}:${secs} / 00:04.0`;
+            document.getElementById('playhead').style.left = `${Math.min(100, pct)}%`;
+
+            const cur = formatTime(state.currentTime);
+            const dur = formatTime(state.duration);
+            document.getElementById('time-display').innerText = `${cur} / ${dur}`;
+
+            if (state.isRendering) {
+                document.getElementById('render-progress-bar').style.width = `${pct}%`;
+                document.getElementById('render-percent').innerText = `${Math.round(pct)}%`;
+            }
+        }
+
+        function formatTime(sec) {
+            const m = Math.floor(sec / 60).toString().padStart(2, '0');
+            const s = (sec % 60).toFixed(1).padStart(4, '0');
+            return `${m}:${s}`;
         }
 
         function startTimelineScrub(e) {
             isScrubbing = true;
-            handleTimelineScrubMove(e);
+            scrub(e);
         }
 
         function handleTimelineMove(e) {
-            if (!isScrubbing) return;
-            handleTimelineScrubMove(e);
+            if (isScrubbing) scrub(e);
         }
 
-        function handleTimelineScrubMove(e) {
+        function handleTimelineEnd() {
+            isScrubbing = false;
+        }
+
+        function scrub(e) {
             const track = document.getElementById('timeline-track');
             const rect = track.getBoundingClientRect();
-            let offsetX = e.clientX - rect.left;
-            let pct = Math.max(0, Math.min(1, offsetX / rect.width));
-            state.currentTime = pct * state.duration;
+            const x = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
+            state.currentTime = (x / rect.width) * state.duration;
             updateTimelineUI();
         }
 
-        function handleTimelineEnd() { isScrubbing = false; }
-        function openExportModal() { document.getElementById('render-modal').classList.add('active'); }
-        function closeExportModal() { document.getElementById('render-modal').classList.remove('active'); }
+        // EXPORT & REAL-TIME STREAM RECORDING
+        function openExportModal() {
+            document.getElementById('render-modal').classList.add('active');
+            document.getElementById('render-form').style.display = 'block';
+            document.getElementById('render-progress-box').style.display = 'none';
+        }
+
+        function closeExportModal() {
+            if (state.isRendering) return;
+            document.getElementById('render-modal').classList.remove('active');
+        }
 
         function startRenderAndRecordProcess() {
-            document.getElementById('render-form').style.display = 'none';
-            const progressBox = document.getElementById('render-progress-box');
-            progressBox.style.display = 'flex';
             state.isRendering = true;
-            state.currentTime = 0;
             state.isPlaying = true;
+            state.currentTime = 0;
 
-            let progressInterval = setInterval(() => {
-                let pct = Math.round((state.currentTime / state.duration) * 100);
-                if (pct > 100) pct = 100;
-                document.getElementById('render-percent').innerText = pct + '%';
-                document.getElementById('render-progress-bar').style.width = pct + '%';
-            }, 50);
+            document.getElementById('render-form').style.display = 'none';
+            document.getElementById('render-progress-box').style.display = 'flex';
 
-            window._renderIntervalRef = progressInterval;
+            recordedChunks = [];
+            const stream = canvas.captureStream(60);
+
+            const format = document.getElementById('export-format').value;
+            let mimeType = 'video/webm;codecs=vp9';
+            if (!MediaRecorder.isTypeSupported(mimeType)) mimeType = 'video/webm';
+
+            mediaRecorder = new MediaRecorder(stream, { mimeType });
+            mediaRecorder.ondataavailable = (e) => {
+                if (e.data.size > 0) recordedChunks.push(e.data);
+            };
+
+            mediaRecorder.onstop = saveRecordedFile;
+            mediaRecorder.start();
         }
 
         function finishRenderingAndSave() {
             state.isRendering = false;
-            clearInterval(window._renderIntervalRef);
-            document.getElementById('render-status-text').innerText = 'Rendering Complete!';
-            document.getElementById('render-percent').innerText = '100%';
-            document.getElementById('render-progress-bar').style.width = '100%';
-
-            setTimeout(() => {
-                closeExportModal();
-                document.getElementById('render-form').style.display = 'block';
-                document.getElementById('render-progress-box').style.display = 'none';
-                document.getElementById('render-status-text').innerText = 'Recording 60 FPS Stream...';
-            }, 1500);
+            state.isPlaying = false;
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+            }
+            closeExportModal();
         }
 
-        function resetTransforms() {
-            state.pitch = 10;
-            state.yaw = -12;
-            document.getElementById('pitch-slider').value = 10;
-            document.getElementById('yaw-slider').value = -12;
-            updateManual3D();
+        function saveRecordedFile() {
+            const blob = new Blob(recordedChunks, { type: 'video/webm' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = `Motion_Studio_Render_${Date.now()}.webm`;
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(() => {
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            }, 100);
+        }
+
+        // LOCAL STORAGE PERSISTENCE
+        function saveToLocalStorage() {
+            localStorage.setItem('motion_studio_state', JSON.stringify({
+                preset: state.preset,
+                pitch: state.pitch,
+                yaw: state.yaw,
+                duration: state.duration,
+                bgType: state.bgType,
+                imageData: state.imageData
+            }));
         }
 
         function loadFromLocalStorage() {
-            setAnimationPreset('isoFloat');
-        }
+            const saved = localStorage.getItem('motion_studio_state');
+            if (!saved) return;
+            try {
+                const parsed = JSON.parse(saved);
+                state.preset = parsed.preset || 'isoFloat';
+                state.pitch = parsed.pitch ?? 10;
+                state.yaw = parsed.yaw ?? -12;
+                state.duration = parsed.duration ?? 4.0;
+                state.bgType = parsed.bgType || 'dark';
+                state.imageData = parsed.imageData || null;
 
-        function loadPresetAndOpen(presetName) {
-            switchPage('editor');
-            setAnimationPreset(presetName);
-        }
-
-        function handleDragOver(e) { e.preventDefault(); e.currentTarget.classList.add('dragover'); }
-        function handleDragLeave(e) { e.currentTarget.classList.remove('dragover'); }
-        function handleDrop(e) {
-            e.preventDefault();
-            e.currentTarget.classList.remove('dragover');
-            const file = e.dataTransfer.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(ev) {
-                    loadedImage.onload = function() { imageReady = true; };
-                    loadedImage.src = ev.target.result;
+                if (state.imageData) {
+                    loadedImage.src = state.imageData;
+                    loadedImage.onload = () => { imageReady = true; };
                 }
-                reader.readAsDataURL(file);
+            } catch (err) {
+                console.error('Failed to parse saved state:', err);
             }
         }
 
         function applyStateToUI() {
-            updateManual3D();
+            document.getElementById('pitch-slider').value = state.pitch;
+            document.getElementById('yaw-slider').value = state.yaw;
+            document.getElementById('duration-slider').value = state.duration;
+            document.getElementById('pitch-val').innerText = `${state.pitch}°`;
+            document.getElementById('yaw-val').innerText = `${state.yaw}°`;
+            document.getElementById('duration-val').innerText = `${state.duration.toFixed(1)}s`;
+            document.getElementById('bg-select').value = state.bgType;
+            setAnimationPreset(state.preset);
+            updateBackground(state.bgType);
         }
     </script>
 </body>
