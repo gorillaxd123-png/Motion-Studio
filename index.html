@@ -1,112 +1,281 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Motion Studio</title>
   <style>
-    body {
+    :root {
+      --bg-base: #121214;
+      --bg-surface: #1a1a1e;
+      --bg-panel: #222227;
+      --border-color: #2e2e35;
+      --text-main: #f0f0f5;
+      --text-muted: #8e8e9a;
+      --accent: #6366f1;
+      --accent-hover: #4f46e5;
+    }
+
+    * {
+      box-sizing: border-box;
       margin: 0;
-      font-family: Arial, sans-serif;
-      background: #2f2f2f; /* smooth grey background */
-      color: #fff;
-      display: flex;
-      height: 100vh;
-    }
-
-    /* Sidebar for categories */
-    .sidebar {
-      width: 20%;
-      background: #3a3a3a;
-      padding: 20px;
-      box-sizing: border-box;
-    }
-    .sidebar h2 {
-      margin-top: 0;
-      font-size: 1.2em;
-      border-bottom: 1px solid #555;
-      padding-bottom: 10px;
-    }
-    .sidebar ul {
-      list-style: none;
       padding: 0;
-    }
-    .sidebar ul li {
-      margin: 10px 0;
-      cursor: pointer;
-      transition: color 0.3s;
-    }
-    .sidebar ul li:hover {
-      color: #00bcd4;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
 
-    /* Preview section */
-    .preview {
-      width: 50%;
-      padding: 20px;
-      box-sizing: border-box;
-      text-align: center;
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
     }
-    .preview h1 {
-      margin-top: 0;
-      font-size: 2em;
+
+    /* Top Navigation Header */
+    header {
+      height: 56px;
+      background-color: var(--bg-surface);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
     }
-    .preview-box {
-      background: #444;
-      height: 70%;
+
+    .brand {
+      font-weight: 700;
+      font-size: 1.1rem;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-dot {
+      width: 10px;
+      height: 10px;
+      background: var(--accent);
+      border-radius: 50%;
+    }
+
+    .export-btn {
+      background-color: var(--accent);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .export-btn:hover {
+      background-color: var(--accent-hover);
+    }
+
+    /* Main Studio 3-Column Layout */
+    .studio-layout {
+      display: grid;
+      grid-template-columns: 240px 1fr 280px;
+      height: calc(100vh - 56px);
+    }
+
+    /* Panels Setup */
+    .panel {
+      background-color: var(--bg-surface);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      padding: 16px;
+      gap: 16px;
+    }
+
+    .panel-right {
+      border-right: none;
+      border-left: 1px solid var(--border-color);
+    }
+
+    .panel-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      font-weight: 700;
+    }
+
+    /* Left Sidebar: Categories */
+    .category-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .category-item {
+      padding: 10px 12px;
+      border-radius: 6px;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+
+    .category-item:hover, .category-item.active {
+      background-color: var(--bg-panel);
+      color: var(--text-main);
+    }
+
+    /* Center Section: Preview Stage */
+    .viewport-container {
+      background-color: var(--bg-base);
+      display: flex;
+      flex-direction: column;
+      padding: 24px;
+      gap: 16px;
+    }
+
+    .canvas-stage {
+      flex: 1;
+      background-color: var(--bg-panel);
+      border: 1px dashed var(--border-color);
+      border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
-      border-radius: 8px;
+      position: relative;
     }
 
-    /* Media section */
-    .media {
-      width: 30%;
-      background: #3a3a3a;
-      padding: 20px;
-      box-sizing: border-box;
-    }
-    .media h2 {
-      margin-top: 0;
-      font-size: 1.2em;
-      border-bottom: 1px solid #555;
-      padding-bottom: 10px;
-    }
-    .media-item {
-      background: #444;
-      margin: 10px 0;
-      padding: 10px;
+    .canvas-placeholder {
+      width: 65%;
+      aspect-ratio: 16/9;
+      background-color: #16161a;
+      border: 1px solid var(--border-color);
       border-radius: 6px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .timeline-bar {
+      height: 48px;
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      gap: 12px;
+    }
+
+    .play-btn {
+      background: none;
+      border: none;
+      color: var(--text-main);
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    .track-scrubber {
+      flex: 1;
+      height: 6px;
+      background: var(--bg-panel);
+      border-radius: 3px;
+      position: relative;
+    }
+
+    .track-progress {
+      width: 35%;
+      height: 100%;
+      background: var(--accent);
+      border-radius: 3px;
+    }
+
+    /* Right Sidebar: Media Library */
+    .media-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .media-card {
+      aspect-ratio: 1;
+      background-color: var(--bg-panel);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: transform 0.15s ease;
+    }
+
+    .media-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--accent);
+      color: var(--text-main);
     }
   </style>
 </head>
 <body>
-  <!-- Categories Sidebar -->
-  <div class="sidebar">
-    <h2>Categories</h2>
-    <ul>
-      <li>Intro Animations</li>
-      <li>Transitions</li>
-      <li>Lower Thirds</li>
-      <li>End Screens</li>
-    </ul>
-  </div>
 
-  <!-- Preview Section -->
-  <div class="preview">
-    <h1>Motion Studio</h1>
-    <div class="preview-box">
-      <p>Preview Area</p>
+  <header>
+    <div class="brand">
+      <div class="brand-dot"></div>
+      Motion Studio
     </div>
+    <button class="export-btn">Render Video</button>
+  </header>
+
+  <div class="studio-layout">
+    
+    <!-- LEFT PANEL: CATEGORIES -->
+    <aside class="panel">
+      <span class="panel-title">Categories</span>
+      <ul class="category-list">
+        <li class="category-item active">Text Animations</li>
+        <li class="category-item">Lower Thirds</li>
+        <li class="category-item">YouTube Overlays</li>
+        <li class="category-item">Transitions</li>
+        <li class="category-item">Callouts</li>
+        <li class="category-item">Logo Reveals</li>
+      </ul>
+    </aside>
+
+    <!-- CENTER PANEL: PREVIEW -->
+    <main class="viewport-container">
+      <div class="canvas-stage">
+        <div class="canvas-placeholder">
+          <span>1920 x 1080 Preview Stage</span>
+        </div>
+      </div>
+      <div class="timeline-bar">
+        <button class="play-btn">▶</button>
+        <div class="track-scrubber">
+          <div class="track-progress"></div>
+        </div>
+      </div>
+    </main>
+
+    <!-- RIGHT PANEL: MEDIA ASSETS -->
+    <aside class="panel panel-right">
+      <span class="panel-title">Media & Presets</span>
+      <div class="media-grid">
+        <div class="media-card">Bounce Title</div>
+        <div class="media-card">Glitch Transition</div>
+        <div class="media-card">Sub Button</div>
+        <div class="media-card">Popup Card</div>
+        <div class="media-card">Swipe Left</div>
+        <div class="media-card">Zoom Blur</div>
+      </div>
+    </aside>
+
   </div>
 
-  <!-- Media Section -->
-  <div class="media">
-    <h2>Media</h2>
-    <div class="media-item">Sample Animation 1</div>
-    <div class="media-item">Sample Animation 2</div>
-    <div class="media-item">Sample Animation 3</div>
-  </div>
 </body>
 </html>
-
