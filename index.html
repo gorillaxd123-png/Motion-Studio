@@ -12,7 +12,6 @@
             box-sizing: border-box;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             user-select: none;
-            cursor: none; /* Hide standard cursor */
         }
 
         :root {
@@ -28,22 +27,6 @@
             --radius-lg: 16px;
             --radius-md: 8px;
             --radius-sm: 4px;
-        }
-
-        /* --- GLOWING BLUE BALL CURSOR --- */
-        #custom-cursor {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 16px;
-            height: 16px;
-            background: #00d2ff;
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 99999;
-            box-shadow: 0 0 12px #00d2ff, 0 0 24px #00d2ff, 0 0 36px rgba(0, 210, 255, 0.6);
-            transform: translate(-50%, -50%);
-            transition: transform 0.1s ease-out;
         }
 
         body {
@@ -64,7 +47,7 @@
             border-radius: var(--radius-md);
             font-size: 0.9rem;
             font-weight: 500;
-            cursor: none;
+            cursor: pointer;
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -112,7 +95,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            cursor: none;
+            cursor: pointer;
         }
 
         .logo-icon {
@@ -131,7 +114,7 @@
         .nav-links a {
             color: var(--text-muted);
             font-size: 0.9rem;
-            cursor: none;
+            cursor: pointer;
             transition: color 0.2s ease;
         }
 
@@ -196,7 +179,7 @@
             border: 1px solid var(--border-grey);
             border-radius: var(--radius-md);
             overflow: hidden;
-            cursor: none;
+            cursor: pointer;
             transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
@@ -264,10 +247,8 @@
             justify-content: center;
             position: relative;
             overflow: hidden;
-            cursor: none;
+            cursor: default;
         }
-
-        .viewport-container:active { cursor: none; }
 
         .viewport-controls {
             position: absolute;
@@ -287,7 +268,7 @@
             background: transparent;
             border: none;
             color: var(--text-primary);
-            cursor: none;
+            cursor: pointer;
             font-size: 1rem;
             width: 24px;
             height: 24px;
@@ -331,7 +312,7 @@
             width: 100%;
             height: 100%;
             object-fit: contain;
-            cursor: none;
+            cursor: pointer;
         }
 
         .upload-dropzone {
@@ -340,7 +321,7 @@
             text-align: center;
             border-radius: 6px;
             background: var(--bg-panel);
-            cursor: none;
+            cursor: pointer;
             transition: border-color 0.2s, background-color 0.2s;
         }
 
@@ -373,7 +354,7 @@
         }
 
         .control-row label { color: var(--text-primary); font-size: 0.8rem; }
-        .control-row input[type="range"] { flex: 1; accent-color: var(--text-primary); cursor: none; }
+        .control-row input[type="range"] { flex: 1; accent-color: var(--text-primary); cursor: pointer; }
 
         .value-display {
             width: 48px;
@@ -403,7 +384,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            cursor: none;
+            cursor: pointer;
             position: relative;
             overflow: hidden;
             transition: border-color 0.2s;
@@ -437,7 +418,7 @@
             border-radius: 3px;
             display: none;
             z-index: 3;
-            cursor: none;
+            cursor: pointer;
         }
 
         .media-slot:hover .slot-clear { display: block; }
@@ -466,7 +447,7 @@
             background: var(--text-primary);
             color: var(--bg-deep);
             border: none;
-            cursor: none;
+            cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -481,7 +462,7 @@
             padding: 12px 16px;
             background: var(--bg-deep);
             position: relative;
-            cursor: none;
+            cursor: pointer;
         }
 
         .timeline-ruler {
@@ -580,7 +561,7 @@
             border-radius: var(--radius-md);
             font-size: 0.9rem;
             outline: none;
-            cursor: none;
+            cursor: pointer;
         }
 
         .progress-container {
@@ -608,9 +589,6 @@
 </head>
 <body>
 
-    <!-- GLOWING BLUE BALL CURSOR ELEMENT -->
-    <div id="custom-cursor"></div>
-
     <!-- HIDDEN MULTI FILE INPUT -->
     <input type="file" id="image-file-input" accept="image/*" style="display: none;" onchange="handleFileSelect(event)">
     <input type="file" id="slot-file-input" accept="image/*" style="display: none;" onchange="handleSlotFileSelect(event)">
@@ -634,9 +612,7 @@
                 <div class="form-group" style="margin-bottom: 20px;">
                     <label>Save File Format</label>
                     <select id="export-format">
-                        <option value="webm" selected>Web Video (.webm / 60 FPS)</option>
-                        <option value="mp3">Audio File (.mp3)</option>
-                        <option value="mp4">Video Track (.mp4)</option>
+                        <option value="mp4" selected>Video Track (.mp4)</option>
                     </select>
                 </div>
 
@@ -709,6 +685,27 @@
                         <span style="color:var(--text-muted); font-size:0.8rem;">Smooth 5-Image Slot Sequence Pan</span>
                     </div>
                 </div>
+                <div class="template-card" onclick="loadPresetAndOpen('liquid')">
+                    <div class="template-thumb">Liquid Glass</div>
+                    <div class="template-info">
+                        <h4>Apple Liquid Glass</h4>
+                        <span style="color:var(--text-muted); font-size:0.8rem;">Smooth glass refractions & liquid glare</span>
+                    </div>
+                </div>
+                <div class="template-card" onclick="loadPresetAndOpen('grid10')">
+                    <div class="template-thumb">10 Thumbnail Grid</div>
+                    <div class="template-info">
+                        <h4>3D YouTube Showcase</h4>
+                        <span style="color:var(--text-muted); font-size:0.8rem;">10 Slots spread across 3D perspective</span>
+                    </div>
+                </div>
+                <div class="template-card" onclick="loadPresetAndOpen('shine')">
+                    <div class="template-thumb">Shine Effect</div>
+                    <div class="template-info">
+                        <h4>Specular Light Sweep</h4>
+                        <span style="color:var(--text-muted); font-size:0.8rem;">Smooth clean light sheen animation</span>
+                    </div>
+                </div>
             </div>
         </section>
     </main>
@@ -742,9 +739,12 @@
 
                     <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted); margin-top:10px;">ANIMATION PRESETS</span>
                     <div style="display:flex; flex-direction:column; gap:8px;">
-                        <div class="control-group active-preset" id="preset-popup" style="cursor:none;" onclick="setAnimationPreset('popup')">1. Pop-up</div>
-                        <div class="control-group" id="preset-showcase" style="cursor:none;" onclick="setAnimationPreset('showcase')">2. Showcase (Slots 1 to 5)</div>
-                        <div class="control-group" id="preset-manual" style="cursor:none;" onclick="setAnimationPreset('manual')">3. Manual Slider Control</div>
+                        <div class="control-group active-preset" id="preset-popup" style="cursor:pointer;" onclick="setAnimationPreset('popup')">1. Pop-up</div>
+                        <div class="control-group" id="preset-showcase" style="cursor:pointer;" onclick="setAnimationPreset('showcase')">2. Showcase (Slots 1 to 5)</div>
+                        <div class="control-group" id="preset-liquid" style="cursor:pointer;" onclick="setAnimationPreset('liquid')">3. Apple "Liquid Glass"</div>
+                        <div class="control-group" id="preset-grid10" style="cursor:pointer;" onclick="setAnimationPreset('grid10')">4. 3D YouTube Showcase (10 Slots)</div>
+                        <div class="control-group" id="preset-shine" style="cursor:pointer;" onclick="setAnimationPreset('shine')">5. Shine Effect</div>
+                        <div class="control-group" id="preset-manual" style="cursor:pointer;" onclick="setAnimationPreset('manual')">6. Manual Slider Control</div>
                     </div>
                 </aside>
 
@@ -788,7 +788,7 @@
                     <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted); margin-top:10px;">RENDER BACKGROUND</span>
                     <div class="control-row">
                         <label>Canvas Bg</label>
-                        <select id="bg-select" onchange="updateBackground(this.value)" style="background:var(--bg-panel); border:1px solid var(--border-grey); color:var(--text-primary); padding:6px 8px; border-radius:4px; font-size:0.8rem; cursor:none;">
+                        <select id="bg-select" onchange="updateBackground(this.value)" style="background:var(--bg-panel); border:1px solid var(--border-grey); color:var(--text-primary); padding:6px 8px; border-radius:4px; font-size:0.8rem; cursor:pointer;">
                             <option value="dark" selected>Dark Studio</option>
                             <option value="white">Solid White</option>
                             <option value="transparent">Transparent (No Bg)</option>
@@ -840,27 +840,6 @@
 
     <!-- SCRIPT LOGIC -->
     <script>
-        // SMOOTH GLOWING BLUE CURSOR LOGIC
-        const cursorDot = document.getElementById('custom-cursor');
-        let cursorX = window.innerWidth / 2;
-        let cursorY = window.innerHeight / 2;
-        let targetX = cursorX;
-        let targetY = cursorY;
-
-        window.addEventListener('mousemove', (e) => {
-            targetX = e.clientX;
-            targetY = e.clientY;
-        });
-
-        function animateCursor() {
-            cursorX += (targetX - cursorX) * 0.2;
-            cursorY += (targetY - cursorY) * 0.2;
-            cursorDot.style.left = `${cursorX}px`;
-            cursorDot.style.top = `${cursorY}px`;
-            requestAnimationFrame(animateCursor);
-        }
-        animateCursor();
-
         // CLIENT STATE
         let state = {
             activePage: 'home',
@@ -1018,24 +997,31 @@
             const progress = (state.currentTime % state.duration) / state.duration;
 
             // DRAW CARD HELPER (Preserves image brightness and color purity)
-            function drawCard(x, y, scale = 1, skewX = 0, skewY = 0, opacity = 1, imgSource = null, slotNum = 1) {
+            function drawCard(x, y, scale = 1, skewX = 0, skewY = 0, opacity = 1, imgSource = null, slotNum = 1, overlayEffect = null, explicitDim = null) {
                 ctx.save();
                 ctx.globalAlpha = Math.max(0, Math.min(1, opacity));
                 ctx.translate(canvas.width / 2 + x, canvas.height / 2 + y);
                 ctx.transform(scale, skewY, skewX, scale, 0, 0);
 
                 const activeImg = imgSource || (imageReady ? loadedImage : null);
+                let drawW = 920;
+                let drawH = 560;
 
-                if (activeImg) {
+                if (explicitDim) {
+                    drawW = explicitDim.w;
+                    drawH = explicitDim.h;
+                } else if (activeImg) {
                     const aspect = activeImg.width / activeImg.height;
-                    let drawW = 920;
-                    let drawH = drawW / aspect;
+                    drawW = 920;
+                    drawH = drawW / aspect;
 
                     if (drawH > 560) {
                         drawH = 560;
                         drawW = drawH * aspect;
                     }
+                }
 
+                if (activeImg) {
                     ctx.shadowColor = 'rgba(0, 0, 0, 0.45)';
                     ctx.shadowBlur = 35;
                     ctx.shadowOffsetY = 18;
@@ -1045,7 +1031,8 @@
                     ctx.fillStyle = '#1e1e24';
                     ctx.strokeStyle = '#3e3e48';
                     ctx.lineWidth = 4;
-                    const cardW = 760, cardH = 430;
+                    const cardW = explicitDim ? explicitDim.w : 760;
+                    const cardH = explicitDim ? explicitDim.h : 430;
                     
                     ctx.shadowColor = 'rgba(0,0,0,0.4)';
                     ctx.shadowBlur = 25;
@@ -1058,12 +1045,51 @@
 
                     ctx.shadowColor = 'transparent';
                     ctx.fillStyle = '#8e8e9a';
-                    ctx.font = '600 26px -apple-system, sans-serif';
+                    ctx.font = '600 24px -apple-system, sans-serif';
                     ctx.textAlign = 'center';
-                    ctx.fillText(`Slot ${slotNum} Image Placeholder`, 0, -10);
-                    ctx.font = '400 16px -apple-system, sans-serif';
-                    ctx.fillText('Upload image to right side media slot', 0, 25);
+                    ctx.fillText(`Slot ${slotNum}`, 0, -10);
+                    ctx.font = '400 14px -apple-system, sans-serif';
+                    ctx.fillText('Thumbnail Media', 0, 20);
                 }
+
+                // OVERLAY EFFECTS FOR SINGLE IMAGE ENHANCEMENT
+                if (overlayEffect === 'liquid') {
+                    // APPLE "LIQUID GLASS" EFFECT
+                    const liquidWave = Math.sin(progress * Math.PI * 2) * 40;
+                    const lGrad = ctx.createLinearGradient(-drawW/2 + liquidWave, -drawH/2, drawW/2 + liquidWave, drawH/2);
+                    lGrad.addColorStop(0, 'rgba(255, 255, 255, 0.0)');
+                    lGrad.addColorStop(0.35, 'rgba(255, 255, 255, 0.05)');
+                    lGrad.addColorStop(0.5, 'rgba(255, 255, 255, 0.35)');
+                    lGrad.addColorStop(0.65, 'rgba(255, 255, 255, 0.05)');
+                    lGrad.addColorStop(1, 'rgba(255, 255, 255, 0.0)');
+
+                    ctx.fillStyle = lGrad;
+                    ctx.beginPath();
+                    ctx.roundRect(-drawW / 2, -drawH / 2, drawW, drawH, 16);
+                    ctx.fill();
+
+                    // Soft inner glass rim accent
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                } else if (overlayEffect === 'shine') {
+                    // SMOOTH CLEAN SHINE EFFECT
+                    const shinePos = -drawW + (progress * drawW * 2.5);
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.roundRect(-drawW / 2, -drawH / 2, drawW, drawH, 16);
+                    ctx.clip();
+
+                    const sGrad = ctx.createLinearGradient(shinePos - 120, -drawH, shinePos + 120, drawH);
+                    sGrad.addColorStop(0, 'rgba(255, 255, 255, 0)');
+                    sGrad.addColorStop(0.5, 'rgba(255, 255, 255, 0.45)');
+                    sGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+
+                    ctx.fillStyle = sGrad;
+                    ctx.fillRect(-drawW / 2, -drawH / 2, drawW, drawH);
+                    ctx.restore();
+                }
+
                 ctx.restore();
             }
 
@@ -1078,12 +1104,11 @@
                 }
                 drawCard(0, currentY, 0.9, 0, 0, 1.0);
             } 
-            // PRESET 2: SHOWCASE (5 IMAGES FROM SLOTS 1 TO 5 WITH MOTION BLUR & VISIBILITY)
+            // PRESET 2: SHOWCASE (5 IMAGES FROM SLOTS 1 TO 5)
             else if (state.preset === 'showcase') {
                 const easeInOutQuad = p => p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
                 const smoothProgress = easeInOutQuad(progress);
 
-                // Pan distance to cycle continuously from Slot 1 through Slot 5
                 const cardSpacing = 720;
                 const startX = cardSpacing * 2;
                 const endX = -cardSpacing * 2;
@@ -1093,12 +1118,10 @@
                     const cardX = currentOffset + (idx - 2) * cardSpacing;
                     const slotImg = slotImages[idx] || (imageReady ? loadedImage : null);
 
-                    // Smooth card scaling and visibility
                     const distFromCenter = Math.abs(cardX);
                     const scale = Math.max(0.65, 0.82 - (distFromCenter / 2500));
                     const alpha = Math.max(0.4, 1.0 - (distFromCenter / 1600));
 
-                    // Subtle motion blur trailing effect during pan
                     if (state.isPlaying && progress > 0.05 && progress < 0.95) {
                         const blurDirection = (smoothProgress - 0.5) * -30;
                         drawCard(cardX + blurDirection, 0, scale, 0, 0, alpha * 0.3, slotImg, idx + 1);
@@ -1106,8 +1129,38 @@
 
                     drawCard(cardX, 0, scale, 0, 0, alpha, slotImg, idx + 1);
                 }
-            } 
-            // PRESET 3: MANUAL CONTROL
+            }
+            // PRESET 3: APPLE "LIQUID GLASS" (SINGLE IMAGE SMOOTH CLEAN EFFECT)
+            else if (state.preset === 'liquid') {
+                const floatY = Math.sin(progress * Math.PI * 2) * 12;
+                drawCard(0, floatY, 0.88, 0, 0, 1.0, null, 1, 'liquid');
+            }
+            // PRESET 4: 3D MULTIPLE YOUTUBE THUMBNAIL SHOWCASE (10 IMAGES SPREAD OUT IN PREVIEW)
+            else if (state.preset === 'grid10') {
+                const panX = Math.sin(progress * Math.PI * 2) * 80;
+                const gridPositions = [
+                    { x: -550, y: -260, scale: 0.38, skewX: 0.12 },
+                    { x: -180, y: -280, scale: 0.40, skewX: 0.08 },
+                    { x: 180,  y: -280, scale: 0.40, skewX: -0.08 },
+                    { x: 550,  y: -260, scale: 0.38, skewX: -0.12 },
+                    { x: -620, y: 30,   scale: 0.42, skewX: 0.15 },
+                    { x: 620,  y: 30,   scale: 0.42, skewX: -0.15 },
+                    { x: -500, y: 300,  scale: 0.38, skewX: 0.10 },
+                    { x: -160, y: 310,  scale: 0.40, skewX: 0.05 },
+                    { x: 160,  y: 310,  scale: 0.40, skewX: -0.05 },
+                    { x: 500,  y: 300,  scale: 0.38, skewX: -0.10 }
+                ];
+
+                gridPositions.forEach((pos, idx) => {
+                    const slotImg = slotImages[idx] || (imageReady ? loadedImage : null);
+                    drawCard(pos.x + panX * (idx % 2 === 0 ? 0.4 : -0.4), pos.y, pos.scale, pos.skewX, 0, 0.95, slotImg, idx + 1, null, { w: 480, h: 270 });
+                });
+            }
+            // PRESET 5: SHINE EFFECT (SINGLE IMAGE CLEAN SPECULAR LIGHT SWEEP)
+            else if (state.preset === 'shine') {
+                drawCard(0, 0, 0.88, 0, 0, 1.0, null, 1, 'shine');
+            }
+            // PRESET 6: MANUAL CONTROL
             else if (state.preset === 'manual') {
                 const skewX = state.yaw * Math.PI / 180;
                 const skewY = state.pitch * Math.PI / 180;
@@ -1313,7 +1366,7 @@
             updateTimelineUI();
         }
 
-        // EXPORT & REAL-TIME STREAM RECORDING
+        // EXPORT & REAL-TIME STREAM RECORDING (.MP4 ONLY)
         function openExportModal() {
             document.getElementById('render-modal').classList.add('active');
             document.getElementById('render-form').style.display = 'block';
@@ -1336,8 +1389,13 @@
             recordedChunks = [];
             const stream = canvas.captureStream(60);
 
-            let mimeType = 'video/webm;codecs=vp9';
-            if (!MediaRecorder.isTypeSupported(mimeType)) mimeType = 'video/webm';
+            let mimeType = 'video/mp4;codecs=avc1';
+            if (!MediaRecorder.isTypeSupported(mimeType)) {
+                mimeType = 'video/mp4';
+            }
+            if (!MediaRecorder.isTypeSupported(mimeType)) {
+                mimeType = 'video/webm'; // Fallback container for browser rendering support if mp4 container is restricted
+            }
 
             mediaRecorder = new MediaRecorder(stream, { mimeType });
             mediaRecorder.ondataavailable = (e) => {
@@ -1358,12 +1416,12 @@
         }
 
         function saveRecordedFile() {
-            const blob = new Blob(recordedChunks, { type: 'video/webm' });
+            const blob = new Blob(recordedChunks, { type: 'video/mp4' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.style.display = 'none';
             a.href = url;
-            a.download = `Motion_Studio_Render_${Date.now()}.webm`;
+            a.download = `Motion_Studio_Render_${Date.now()}.mp4`;
             document.body.appendChild(a);
             a.click();
             setTimeout(() => {
