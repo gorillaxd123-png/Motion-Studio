@@ -15,6 +15,11 @@
       --accent: #0071e3;
       --text-main: #0f172a;
       --text-muted: #64748b;
+
+      /* Button Colors */
+      --btn-discord: #5865F2;
+      --btn-youtube: #FF0000;
+      --btn-portfolio: #FFFFFF;
     }
 
     * {
@@ -99,7 +104,7 @@
       align-items: center;
     }
 
-    /* Shiny Button Effect */
+    /* Shiny Button Effect Base */
     .btn-shine {
       position: relative;
       padding: 10px 22px;
@@ -141,6 +146,30 @@
     .btn-shine:hover {
       transform: translateY(-2px);
       box-shadow: 0 8px 20px rgba(0, 113, 227, 0.35);
+    }
+
+    /* Color Specific Button Classes */
+    .btn-discord {
+      background: var(--btn-discord);
+    }
+    .btn-discord:hover {
+      box-shadow: 0 8px 20px rgba(88, 101, 242, 0.4);
+    }
+
+    .btn-youtube {
+      background: var(--btn-youtube);
+    }
+    .btn-youtube:hover {
+      box-shadow: 0 8px 20px rgba(255, 0, 0, 0.4);
+    }
+
+    .btn-portfolio {
+      background: var(--btn-portfolio);
+      color: var(--text-main);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+    }
+    .btn-portfolio:hover {
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
     }
 
     /* Hero Section */
@@ -289,9 +318,9 @@
     </div>
     <div class="nav-buttons">
       <button class="btn-shine interactive">Create New</button>
-      <a href="https://discord.gg/bWrm9ybEbB" target="_blank" rel="noopener noreferrer" class="btn-shine interactive">Discord</a>
-      <a href="https://www.youtube.com/@krushnaxd133" target="_blank" rel="noopener noreferrer" class="btn-shine interactive">YouTube</a>
-      <a href="https://krushna-portfolio-seven.vercel.app/" target="_blank" rel="noopener noreferrer" class="btn-shine interactive">Portfolio</a>
+      <a href="https://discord.gg/bWrm9ybEbB" target="_blank" rel="noopener noreferrer" class="btn-shine btn-discord interactive">Discord</a>
+      <a href="https://www.youtube.com/@krushnaxd133" target="_blank" rel="noopener noreferrer" class="btn-shine btn-youtube interactive">YouTube</a>
+      <a href="https://krushna-portfolio-seven.vercel.app/" target="_blank" rel="noopener noreferrer" class="btn-shine btn-portfolio interactive">Portfolio</a>
     </div>
   </nav>
 
