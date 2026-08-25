@@ -12,7 +12,7 @@
             box-sizing: border-box;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             user-select: none;
-            cursor: none; /* Hide default cursor */
+            cursor: none; /* Hide standard cursor */
         }
 
         :root {
@@ -30,7 +30,7 @@
             --radius-sm: 4px;
         }
 
-        /* --- GLOWING BLUE CURSOR DOT --- */
+        /* --- GLOWING BLUE BALL CURSOR --- */
         #custom-cursor {
             position: fixed;
             top: 0;
@@ -239,7 +239,7 @@
 
         .workspace {
             display: grid;
-            grid-template-columns: 280px 1fr 300px;
+            grid-template-columns: 280px 1fr 320px;
             flex: 1;
             height: calc(100vh - 48px - 140px);
             overflow: hidden;
@@ -376,7 +376,7 @@
         .control-row input[type="range"] { flex: 1; accent-color: var(--text-primary); cursor: none; }
 
         .value-display {
-            width: 44px;
+            width: 48px;
             background: var(--bg-panel);
             border: 1px solid var(--border-grey);
             border-radius: var(--radius-sm);
@@ -385,6 +385,62 @@
             font-size: 0.75rem;
             color: var(--text-muted);
         }
+
+        /* --- MEDIA SLOTS PANEL --- */
+        .media-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-top: 6px;
+        }
+
+        .media-slot {
+            background: var(--bg-panel);
+            border: 1px dashed var(--border-grey);
+            border-radius: var(--radius-sm);
+            height: 52px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: none;
+            position: relative;
+            overflow: hidden;
+            transition: border-color 0.2s;
+        }
+
+        .media-slot:hover { border-color: var(--text-primary); }
+        .media-slot.has-image { border-style: solid; border-color: var(--border-light); }
+        .media-slot img { width: 100%; height: 100%; object-fit: cover; }
+
+        .slot-badge {
+            position: absolute;
+            top: 2px;
+            left: 4px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            background: rgba(0,0,0,0.6);
+            padding: 1px 4px;
+            border-radius: 3px;
+            color: var(--text-primary);
+            z-index: 2;
+        }
+
+        .slot-clear {
+            position: absolute;
+            top: 2px;
+            right: 4px;
+            font-size: 0.65rem;
+            background: rgba(0,0,0,0.7);
+            color: #ff5555;
+            padding: 0 4px;
+            border-radius: 3px;
+            display: none;
+            z-index: 3;
+            cursor: none;
+        }
+
+        .media-slot:hover .slot-clear { display: block; }
 
         .timeline-bar {
             height: 140px;
@@ -552,11 +608,12 @@
 </head>
 <body>
 
-    <!-- GLOWING BLUE CURSOR DOT ELEMENT -->
+    <!-- GLOWING BLUE BALL CURSOR ELEMENT -->
     <div id="custom-cursor"></div>
 
-    <!-- HIDDEN FILE INPUT -->
+    <!-- HIDDEN MULTI FILE INPUT -->
     <input type="file" id="image-file-input" accept="image/*" style="display: none;" onchange="handleFileSelect(event)">
+    <input type="file" id="slot-file-input" accept="image/*" style="display: none;" onchange="handleSlotFileSelect(event)">
 
     <!-- RENDER & RECORDING MODAL -->
     <div class="render-modal-overlay" id="render-modal">
@@ -638,25 +695,18 @@
                 <p style="color:var(--text-muted);">Select any preset to open directly in the Motion Studio Editor.</p>
             </div>
             <div class="template-grid">
-                <div class="template-card" onclick="loadPresetAndOpen('isoFloat')">
-                    <div class="template-thumb">16:9 Isometric Float</div>
+                <div class="template-card" onclick="loadPresetAndOpen('popup')">
+                    <div class="template-thumb">Pop-up Motion</div>
                     <div class="template-info">
                         <h4>App Demo Showcase</h4>
-                        <span style="color:var(--text-muted); font-size:0.8rem;">Desktop software walkthroughs</span>
+                        <span style="color:var(--text-muted); font-size:0.8rem;">Bottom to center motion blur slide</span>
                     </div>
                 </div>
-                <div class="template-card" onclick="loadPresetAndOpen('panZoom')">
-                    <div class="template-thumb">16:9 Pan & Zoom</div>
+                <div class="template-card" onclick="loadPresetAndOpen('showcase')">
+                    <div class="template-thumb">Showcase Motion</div>
                     <div class="template-info">
-                        <h4>Camera Movement Motion</h4>
-                        <span style="color:var(--text-muted); font-size:0.8rem;">Smooth focal slide</span>
-                    </div>
-                </div>
-                <div class="template-card" onclick="loadPresetAndOpen('tiltGlow')">
-                    <div class="template-thumb">3D Tilt & Glow</div>
-                    <div class="template-info">
-                        <h4>Thumbnail Animate</h4>
-                        <span style="color:var(--text-muted); font-size:0.8rem;">Depth for static thumbnails</span>
+                        <h4>5 Card Showcase</h4>
+                        <span style="color:var(--text-muted); font-size:0.8rem;">Smooth 5-Image Slot Sequence Pan</span>
                     </div>
                 </div>
             </div>
@@ -682,21 +732,19 @@
             <div class="workspace">
                 <!-- LEFT SIDEBAR -->
                 <aside class="sidebar-left">
-                    <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">MEDIA INPUT</span>
+                    <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">MAIN MEDIA INPUT</span>
                     <div class="upload-dropzone" id="dropzone" onclick="triggerFileInput()" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
-                        <p style="font-size:0.85rem; font-weight:500;">Drop Image Here</p>
+                        <p style="font-size:0.85rem; font-weight:500;">Drop Main Image Here</p>
                         <span style="font-size:0.75rem; color:var(--text-muted);">or click to browse local files</span>
                     </div>
 
-                    <button class="btn" style="font-size:0.75rem; padding:4px;" onclick="clearImage()">Remove Image</button>
+                    <button class="btn" style="font-size:0.75rem; padding:4px;" onclick="clearImage()">Remove Main Image</button>
 
                     <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted); margin-top:10px;">ANIMATION PRESETS</span>
                     <div style="display:flex; flex-direction:column; gap:8px;">
-                        <div class="control-group" id="preset-isoFloat" style="cursor:none;" onclick="setAnimationPreset('isoFloat')">1. Isometric Float</div>
-                        <div class="control-group" id="preset-panZoom" style="cursor:none;" onclick="setAnimationPreset('panZoom')">2. Pan & Zoom</div>
-                        <div class="control-group" id="preset-tiltGlow" style="cursor:none;" onclick="setAnimationPreset('tiltGlow')">3. Dynamic Tilt & Glow</div>
-                        <div class="control-group" id="preset-pulseSway" style="cursor:none;" onclick="setAnimationPreset('pulseSway')">4. Pulse & Sway</div>
-                        <div class="control-group" id="preset-manual" style="cursor:none;" onclick="setAnimationPreset('manual')">5. Manual Slider Control</div>
+                        <div class="control-group active-preset" id="preset-popup" style="cursor:none;" onclick="setAnimationPreset('popup')">1. Pop-up</div>
+                        <div class="control-group" id="preset-showcase" style="cursor:none;" onclick="setAnimationPreset('showcase')">2. Showcase (Slots 1 to 5)</div>
+                        <div class="control-group" id="preset-manual" style="cursor:none;" onclick="setAnimationPreset('manual')">3. Manual Slider Control</div>
                     </div>
                 </aside>
 
@@ -737,7 +785,6 @@
                         <span class="value-display" id="duration-val">4.0s</span>
                     </div>
 
-                    <!-- BACKGROUND SELECTION UNDER TIMING & EASING -->
                     <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted); margin-top:10px;">RENDER BACKGROUND</span>
                     <div class="control-row">
                         <label>Canvas Bg</label>
@@ -746,6 +793,19 @@
                             <option value="white">Solid White</option>
                             <option value="transparent">Transparent (No Bg)</option>
                         </select>
+                    </div>
+
+                    <!-- SPEED CONTROL DIRECTLY UNDER RENDER BACKGROUND -->
+                    <div class="control-row" style="margin-top: 6px;">
+                        <label>Speed</label>
+                        <input type="range" id="speed-slider" min="0.25" max="3.0" value="1.0" step="0.25" oninput="updateSpeed(this.value)">
+                        <span class="value-display" id="speed-val">1.0x</span>
+                    </div>
+
+                    <!-- MEDIA SLOTS (10 SLOTS) -->
+                    <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted); margin-top:10px;">MEDIA (10 SLOTS)</span>
+                    <div class="media-grid" id="media-slots-grid">
+                        <!-- Generates 10 slots dynamically via JavaScript -->
                     </div>
 
                     <button class="btn" style="margin-top:20px; font-size:0.8rem;" onclick="resetTransforms()">Reset All Controls</button>
@@ -793,7 +853,6 @@
         });
 
         function animateCursor() {
-            // Smooth lerp (linear interpolation) for trailing fluid motion
             cursorX += (targetX - cursorX) * 0.2;
             cursorY += (targetY - cursorY) * 0.2;
             cursorDot.style.left = `${cursorX}px`;
@@ -805,19 +864,23 @@
         // CLIENT STATE
         let state = {
             activePage: 'home',
-            preset: 'isoFloat',
+            preset: 'popup',
             pitch: 10,
             yaw: -12,
             duration: 4.0,
+            speed: 1.0,
             zoom: 1.0,
-            bgType: 'dark', // 'dark', 'white', or 'transparent'
+            bgType: 'dark',
             imageData: null,
             isPlaying: true,
             isRendering: false,
-            currentTime: 0
+            currentTime: 0,
+            mediaSlots: Array(10).fill(null)
         };
 
         let loadedImage = new Image();
+        let slotImages = Array(10).fill(null);
+        let activeSlotTarget = null;
         let imageReady = false;
         let lastTimestamp = null;
         let isScrubbing = false;
@@ -828,8 +891,6 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             canvas = document.getElementById('render-canvas');
-            
-            // Utilize client GPU power: High precision 16:9 canvas dimensions (1920x1080)
             canvas.width = 1920;
             canvas.height = 1080;
 
@@ -837,6 +898,7 @@
             ctx.imageSmoothingEnabled = true;
             ctx.imageSmoothingQuality = 'high';
 
+            renderMediaSlotUI();
             loadFromLocalStorage();
             applyStateToUI();
 
@@ -846,14 +908,83 @@
             requestAnimationFrame(animationEngineLoop);
         });
 
-        // SMOOTH 60 FPS RENDER LOOP
+        // MEDIA SLOTS GENERATOR & CONTROLS
+        function renderMediaSlotUI() {
+            const grid = document.getElementById('media-slots-grid');
+            grid.innerHTML = '';
+            for (let i = 0; i < 10; i++) {
+                const slot = document.createElement('div');
+                slot.className = `media-slot ${state.mediaSlots[i] ? 'has-image' : ''}`;
+                slot.onclick = () => triggerSlotFileInput(i);
+
+                const badge = document.createElement('div');
+                badge.className = 'slot-badge';
+                badge.innerText = `Slot ${i + 1}`;
+                slot.appendChild(badge);
+
+                if (state.mediaSlots[i]) {
+                    const img = document.createElement('img');
+                    img.src = state.mediaSlots[i];
+                    slot.appendChild(img);
+
+                    const clearBtn = document.createElement('div');
+                    clearBtn.className = 'slot-clear';
+                    clearBtn.innerText = '✕';
+                    clearBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        clearSlotImage(i);
+                    };
+                    slot.appendChild(clearBtn);
+                } else {
+                    const txt = document.createElement('span');
+                    txt.style.cssText = 'font-size:0.65rem; color:var(--text-muted);';
+                    txt.innerText = '+ Upload';
+                    slot.appendChild(txt);
+                }
+                grid.appendChild(slot);
+            }
+        }
+
+        function triggerSlotFileInput(index) {
+            activeSlotTarget = index;
+            document.getElementById('slot-file-input').click();
+        }
+
+        function handleSlotFileSelect(e) {
+            const file = e.target.files[0];
+            if (file && activeSlotTarget !== null) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const data = event.target.result;
+                    state.mediaSlots[activeSlotTarget] = data;
+                    
+                    const img = new Image();
+                    img.src = data;
+                    img.onload = () => {
+                        slotImages[activeSlotTarget] = img;
+                        renderMediaSlotUI();
+                        saveToLocalStorage();
+                    };
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function clearSlotImage(index) {
+            state.mediaSlots[index] = null;
+            slotImages[index] = null;
+            renderMediaSlotUI();
+            saveToLocalStorage();
+        }
+
+        // SMOOTH 60 FPS RENDER LOOP WITH SPEED MULTIPLIER
         function animationEngineLoop(timestamp) {
             if (!lastTimestamp) lastTimestamp = timestamp;
             const delta = (timestamp - lastTimestamp) / 1000;
             lastTimestamp = timestamp;
 
             if (state.isPlaying && !isScrubbing) {
-                state.currentTime += delta;
+                state.currentTime += delta * state.speed;
                 if (state.currentTime >= state.duration) {
                     if (state.isRendering) {
                         finishRenderingAndSave();
@@ -868,12 +999,11 @@
             requestAnimationFrame(animationEngineLoop);
         }
 
-        // DRAW CANVAS FRAME AT LOCKED 16:9 RATIO
+        // DRAW CANVAS FRAME (PURE BRIGHTNESS PRESERVATION & SMOOTH MULTI-IMAGE MOTION)
         function drawCanvasFrame() {
-            // Clear canvas completely
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.filter = 'none';
 
-            // Handle Render Background according to Inspector setting
             if (state.bgType === 'dark') {
                 const bgGrad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
                 bgGrad.addColorStop(0, '#121216');
@@ -883,84 +1013,106 @@
             } else if (state.bgType === 'white') {
                 ctx.fillStyle = '#ffffff';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
-            } else if (state.bgType === 'transparent') {
-                // ClearRect leaves full transparency for transparent recording outputs
             }
 
-            // Compute Motion Transform based on preset and currentTime
             const progress = (state.currentTime % state.duration) / state.duration;
-            const cycle = Math.sin(progress * Math.PI * 2);
 
-            ctx.save();
-            ctx.translate(canvas.width / 2, canvas.height / 2);
+            // DRAW CARD HELPER (Preserves image brightness and color purity)
+            function drawCard(x, y, scale = 1, skewX = 0, skewY = 0, opacity = 1, imgSource = null, slotNum = 1) {
+                ctx.save();
+                ctx.globalAlpha = Math.max(0, Math.min(1, opacity));
+                ctx.translate(canvas.width / 2 + x, canvas.height / 2 + y);
+                ctx.transform(scale, skewY, skewX, scale, 0, 0);
 
-            let skewX = 0, skewY = 0, scale = 1.0, offsetX = 0, offsetY = 0;
+                const activeImg = imgSource || (imageReady ? loadedImage : null);
 
-            if (state.preset === 'isoFloat') {
-                skewX = (state.yaw * Math.PI / 180) + (cycle * 0.05);
-                skewY = (state.pitch * Math.PI / 180) + (Math.cos(progress * Math.PI * 2) * 0.03);
-                offsetY = cycle * 20;
-                scale = 0.85 + (cycle * 0.02);
-            } else if (state.preset === 'panZoom') {
-                scale = 0.8 + (progress * 0.3);
-                offsetX = (progress - 0.5) * 80;
-                offsetY = Math.sin(progress * Math.PI) * -30;
-            } else if (state.preset === 'tiltGlow') {
-                skewX = Math.sin(progress * Math.PI * 2) * 0.15;
-                skewY = Math.cos(progress * Math.PI * 2) * 0.1;
-                scale = 0.9;
-            } else if (state.preset === 'pulseSway') {
-                scale = 0.85 + Math.sin(progress * Math.PI * 4) * 0.04;
-                skewX = Math.sin(progress * Math.PI * 2) * 0.05;
-            } else if (state.preset === 'manual') {
-                skewX = state.yaw * Math.PI / 180;
-                skewY = state.pitch * Math.PI / 180;
-                scale = 0.85;
-            }
+                if (activeImg) {
+                    const aspect = activeImg.width / activeImg.height;
+                    let drawW = 920;
+                    let drawH = drawW / aspect;
 
-            ctx.transform(scale, skewY, skewX, scale, offsetX, offsetY);
+                    if (drawH > 560) {
+                        drawH = 560;
+                        drawW = drawH * aspect;
+                    }
 
-            if (imageReady) {
-                const aspect = loadedImage.width / loadedImage.height;
-                let drawW = 1200;
-                let drawH = drawW / aspect;
+                    ctx.shadowColor = 'rgba(0, 0, 0, 0.45)';
+                    ctx.shadowBlur = 35;
+                    ctx.shadowOffsetY = 18;
 
-                if (drawH > 700) {
-                    drawH = 700;
-                    drawW = drawH * aspect;
+                    ctx.drawImage(activeImg, -drawW / 2, -drawH / 2, drawW, drawH);
+                } else {
+                    ctx.fillStyle = '#1e1e24';
+                    ctx.strokeStyle = '#3e3e48';
+                    ctx.lineWidth = 4;
+                    const cardW = 760, cardH = 430;
+                    
+                    ctx.shadowColor = 'rgba(0,0,0,0.4)';
+                    ctx.shadowBlur = 25;
+                    ctx.shadowOffsetY = 12;
+
+                    ctx.beginPath();
+                    ctx.roundRect(-cardW / 2, -cardH / 2, cardW, cardH, 20);
+                    ctx.fill();
+                    ctx.stroke();
+
+                    ctx.shadowColor = 'transparent';
+                    ctx.fillStyle = '#8e8e9a';
+                    ctx.font = '600 26px -apple-system, sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(`Slot ${slotNum} Image Placeholder`, 0, -10);
+                    ctx.font = '400 16px -apple-system, sans-serif';
+                    ctx.fillText('Upload image to right side media slot', 0, 25);
                 }
-
-                ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
-                ctx.shadowBlur = 40;
-                ctx.shadowOffsetY = 25;
-
-                ctx.drawImage(loadedImage, -drawW / 2, -drawH / 2, drawW, drawH);
-            } else {
-                // Default Canvas Placeholder Card
-                ctx.fillStyle = '#1e1e24';
-                ctx.strokeStyle = '#3e3e48';
-                ctx.lineWidth = 4;
-                const cardW = 900, cardH = 500;
-                
-                ctx.shadowColor = 'rgba(0,0,0,0.5)';
-                ctx.shadowBlur = 30;
-                ctx.shadowOffsetY = 15;
-
-                ctx.beginPath();
-                ctx.roundRect(-cardW / 2, -cardH / 2, cardW, cardH, 20);
-                ctx.fill();
-                ctx.stroke();
-
-                ctx.shadowColor = 'transparent';
-                ctx.fillStyle = '#8e8e9a';
-                ctx.font = '600 28px -apple-system, sans-serif';
-                ctx.textAlign = 'center';
-                ctx.fillText('Click or Drag & Drop Media to Motion Preview', 0, -10);
-                ctx.font = '400 18px -apple-system, sans-serif';
-                ctx.fillText('Supports PNG, JPG, WEBP, and SVG', 0, 30);
+                ctx.restore();
             }
 
-            ctx.restore();
+            // PRESET 1: POP-UP
+            if (state.preset === 'popup') {
+                const easeOutCubic = p => 1 - Math.pow(1 - p, 3);
+                const currentY = (1 - easeOutCubic(progress)) * 420;
+
+                if (state.isPlaying && progress < 0.8) {
+                    const blurTrail = (1 - easeOutCubic(progress)) * 22;
+                    drawCard(0, currentY + blurTrail, 0.9, 0, 0, 0.25);
+                }
+                drawCard(0, currentY, 0.9, 0, 0, 1.0);
+            } 
+            // PRESET 2: SHOWCASE (5 IMAGES FROM SLOTS 1 TO 5 WITH MOTION BLUR & VISIBILITY)
+            else if (state.preset === 'showcase') {
+                const easeInOutQuad = p => p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
+                const smoothProgress = easeInOutQuad(progress);
+
+                // Pan distance to cycle continuously from Slot 1 through Slot 5
+                const cardSpacing = 720;
+                const startX = cardSpacing * 2;
+                const endX = -cardSpacing * 2;
+                const currentOffset = startX - (smoothProgress * (startX - endX));
+
+                for (let idx = 0; idx < 5; idx++) {
+                    const cardX = currentOffset + (idx - 2) * cardSpacing;
+                    const slotImg = slotImages[idx] || (imageReady ? loadedImage : null);
+
+                    // Smooth card scaling and visibility
+                    const distFromCenter = Math.abs(cardX);
+                    const scale = Math.max(0.65, 0.82 - (distFromCenter / 2500));
+                    const alpha = Math.max(0.4, 1.0 - (distFromCenter / 1600));
+
+                    // Subtle motion blur trailing effect during pan
+                    if (state.isPlaying && progress > 0.05 && progress < 0.95) {
+                        const blurDirection = (smoothProgress - 0.5) * -30;
+                        drawCard(cardX + blurDirection, 0, scale, 0, 0, alpha * 0.3, slotImg, idx + 1);
+                    }
+
+                    drawCard(cardX, 0, scale, 0, 0, alpha, slotImg, idx + 1);
+                }
+            } 
+            // PRESET 3: MANUAL CONTROL
+            else if (state.preset === 'manual') {
+                const skewX = state.yaw * Math.PI / 180;
+                const skewY = state.pitch * Math.PI / 180;
+                drawCard(0, 0, 0.85, skewX, skewY, 1.0);
+            }
         }
 
         // NAVIGATION & STATE HANDLING
@@ -1008,6 +1160,12 @@
             saveToLocalStorage();
         }
 
+        function updateSpeed(val) {
+            state.speed = parseFloat(val);
+            document.getElementById('speed-val').innerText = `${state.speed.toFixed(2)}x`;
+            saveToLocalStorage();
+        }
+
         function updateBackground(val) {
             state.bgType = val;
             const frame = document.getElementById('canvas-frame');
@@ -1023,18 +1181,21 @@
             state.pitch = 10;
             state.yaw = -12;
             state.duration = 4.0;
+            state.speed = 1.0;
             document.getElementById('pitch-slider').value = 10;
             document.getElementById('yaw-slider').value = -12;
             document.getElementById('duration-slider').value = 4.0;
+            document.getElementById('speed-slider').value = 1.0;
             document.getElementById('pitch-val').innerText = '10°';
             document.getElementById('yaw-val').innerText = '-12°';
             document.getElementById('duration-val').innerText = '4.0s';
-            setAnimationPreset('isoFloat');
+            document.getElementById('speed-val').innerText = '1.0x';
+            setAnimationPreset('popup');
             updateBackground('dark');
             document.getElementById('bg-select').value = 'dark';
         }
 
-        // IMAGE FILE HANDLING
+        // MAIN IMAGE HANDLING
         function triggerFileInput() {
             document.getElementById('image-file-input').click();
         }
@@ -1175,7 +1336,6 @@
             recordedChunks = [];
             const stream = canvas.captureStream(60);
 
-            const format = document.getElementById('export-format').value;
             let mimeType = 'video/webm;codecs=vp9';
             if (!MediaRecorder.isTypeSupported(mimeType)) mimeType = 'video/webm';
 
@@ -1219,8 +1379,10 @@
                 pitch: state.pitch,
                 yaw: state.yaw,
                 duration: state.duration,
+                speed: state.speed,
                 bgType: state.bgType,
-                imageData: state.imageData
+                imageData: state.imageData,
+                mediaSlots: state.mediaSlots
             }));
         }
 
@@ -1229,17 +1391,29 @@
             if (!saved) return;
             try {
                 const parsed = JSON.parse(saved);
-                state.preset = parsed.preset || 'isoFloat';
+                state.preset = parsed.preset || 'popup';
                 state.pitch = parsed.pitch ?? 10;
                 state.yaw = parsed.yaw ?? -12;
                 state.duration = parsed.duration ?? 4.0;
+                state.speed = parsed.speed ?? 1.0;
                 state.bgType = parsed.bgType || 'dark';
                 state.imageData = parsed.imageData || null;
+                state.mediaSlots = parsed.mediaSlots || Array(10).fill(null);
 
                 if (state.imageData) {
                     loadedImage.src = state.imageData;
                     loadedImage.onload = () => { imageReady = true; };
                 }
+
+                state.mediaSlots.forEach((data, i) => {
+                    if (data) {
+                        const img = new Image();
+                        img.src = data;
+                        img.onload = () => { slotImages[i] = img; };
+                    }
+                });
+
+                renderMediaSlotUI();
             } catch (err) {
                 console.error('Failed to parse saved state:', err);
             }
@@ -1249,9 +1423,11 @@
             document.getElementById('pitch-slider').value = state.pitch;
             document.getElementById('yaw-slider').value = state.yaw;
             document.getElementById('duration-slider').value = state.duration;
+            document.getElementById('speed-slider').value = state.speed;
             document.getElementById('pitch-val').innerText = `${state.pitch}°`;
             document.getElementById('yaw-val').innerText = `${state.yaw}°`;
             document.getElementById('duration-val').innerText = `${state.duration.toFixed(1)}s`;
+            document.getElementById('speed-val').innerText = `${state.speed.toFixed(2)}x`;
             document.getElementById('bg-select').value = state.bgType;
             setAnimationPreset(state.preset);
             updateBackground(state.bgType);
