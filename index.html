@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Motion Studio — Motion Graphics for YouTube</title>
+    <title>Motion Studio — Motion Graphics Editor & Renderer</title>
     <style>
         /* --- DESIGN SYSTEM & SMOOTH GREY THEME --- */
         * {
@@ -27,7 +27,6 @@
             --radius-lg: 16px;
             --radius-md: 8px;
             --radius-sm: 4px;
-            --anim-duration: 4s;
         }
 
         body {
@@ -40,7 +39,6 @@
 
         a { color: inherit; text-decoration: none; }
 
-        /* --- BUTTONS & NAVIGATION --- */
         .btn {
             background: var(--bg-element);
             color: var(--text-primary);
@@ -70,9 +68,7 @@
             font-weight: 600;
         }
 
-        .btn-primary:hover {
-            background: #d4d4d8;
-        }
+        .btn-primary:hover { background: #d4d4d8; }
 
         header.site-header {
             position: fixed;
@@ -122,11 +118,8 @@
             transition: color 0.2s ease;
         }
 
-        .nav-links a:hover, .nav-links a.active {
-            color: var(--text-primary);
-        }
+        .nav-links a:hover, .nav-links a.active { color: var(--text-primary); }
 
-        /* --- PAGE SWITCHING --- */
         .page-section { display: none; }
         .page-section.active-page { display: block; }
 
@@ -151,12 +144,7 @@
             margin-bottom: 24px;
         }
 
-        .badge-dot {
-            width: 8px;
-            height: 8px;
-            background: #a1a1aa;
-            border-radius: 50%;
-        }
+        .badge-dot { width: 8px; height: 8px; background: #a1a1aa; border-radius: 50%; }
 
         .hero h1 {
             font-size: 3.5rem;
@@ -177,95 +165,6 @@
         }
 
         .hero-cta { display: flex; justify-content: center; gap: 16px; }
-
-        .app-preview {
-            max-width: 1000px;
-            margin: 60px auto 0;
-            background: var(--bg-smooth-grey);
-            border: 1px solid var(--border-grey);
-            border-radius: var(--radius-lg);
-            overflow: hidden;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
-        }
-
-        .window-header {
-            background: #121214;
-            padding: 12px 18px;
-            border-bottom: 1px solid var(--border-grey);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--border-grey); }
-
-        .app-body {
-            display: grid;
-            grid-template-columns: 240px 1fr;
-            min-height: 420px;
-        }
-
-        .sidebar-preview {
-            background: var(--bg-smooth-grey);
-            border-right: 1px solid var(--border-grey);
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-            text-align: left;
-        }
-
-        .control-group {
-            background: var(--bg-panel);
-            border: 1px solid var(--border-grey);
-            padding: 10px;
-            border-radius: var(--radius-sm);
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .control-group.active-preset {
-            border-color: var(--text-primary);
-            color: var(--text-primary);
-            background: var(--bg-element);
-        }
-
-        .canvas-area {
-            background: var(--bg-deep);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 30px;
-        }
-
-        .features { max-width: 1200px; margin: 100px auto; padding: 0 24px; }
-        .feature-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 24px;
-            margin-top: 40px;
-        }
-
-        .feature-card {
-            background: var(--bg-smooth-grey);
-            border: 1px solid var(--border-grey);
-            border-radius: var(--radius-lg);
-            padding: 32px;
-        }
-
-        .feature-icon {
-            width: 40px;
-            height: 40px;
-            background: var(--bg-panel);
-            border: 1px solid var(--border-grey);
-            border-radius: var(--radius-md);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 20px;
-            font-weight: bold;
-        }
 
         .templates-page { max-width: 1200px; margin: 120px auto 60px; padding: 0 24px; }
         .template-grid {
@@ -387,48 +286,30 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: transform 0.15s ease-out;
+            transition: transform 0.1s ease-out;
             will-change: transform;
         }
 
         .canvas-frame {
-            width: 520px;
+            width: 540px;
             aspect-ratio: 16 / 9;
-            background: linear-gradient(135deg, #1f1f26 0%, #111115 100%);
+            background: #111115;
             border-radius: 12px;
             border: 1px solid var(--border-light);
             box-shadow: 0 30px 60px rgba(0,0,0,0.7);
             display: flex;
             align-items: center;
             justify-content: center;
-            transform-style: preserve-3d;
-            transition: aspect-ratio 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s;
-            will-change: transform;
-        }
-
-        .mockup-media {
-            width: 90%;
-            height: 90%;
-            background: #24242e;
-            border: 1px dashed var(--border-light);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-muted);
-            text-align: center;
-            padding: 12px;
             overflow: hidden;
             position: relative;
-            cursor: pointer;
         }
 
-        .mockup-media img {
+        #render-canvas {
             width: 100%;
             height: 100%;
-            object-fit: cover;
-            border-radius: 6px;
-            display: none;
+            object-fit: contain;
+            background: #16161c;
+            cursor: pointer;
         }
 
         .upload-dropzone {
@@ -443,6 +324,22 @@
 
         .upload-dropzone:hover, .upload-dropzone.dragover {
             border-color: var(--text-primary);
+            background: var(--bg-element);
+        }
+
+        .control-group {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-grey);
+            padding: 10px;
+            border-radius: var(--radius-sm);
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .control-group.active-preset {
+            border-color: var(--text-primary);
+            color: var(--text-primary);
             background: var(--bg-element);
         }
 
@@ -562,7 +459,7 @@
             pointer-events: none;
         }
 
-        /* --- RENDERING MODAL WITH BACKGROUND BLUR --- */
+        /* --- BLURRED RENDERING MODAL --- */
         .render-modal-overlay {
             position: fixed;
             top: 0;
@@ -584,7 +481,7 @@
             background: var(--bg-smooth-grey);
             border: 1px solid var(--border-light);
             border-radius: var(--radius-lg);
-            width: 420px;
+            width: 440px;
             padding: 32px;
             box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8);
             display: flex;
@@ -610,7 +507,7 @@
         .progress-container {
             display: none;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
         }
 
         .progress-bar-bg {
@@ -626,44 +523,7 @@
             width: 0%;
             height: 100%;
             background: var(--text-primary);
-            transition: width 0.1s linear;
-        }
-
-        /* --- PROCEDURAL CSS ANIMATIONS --- */
-        @keyframes isoFloat {
-            0%, 100% { transform: perspective(800px) rotateX(15deg) rotateY(-15deg) translateY(0px); }
-            50% { transform: perspective(800px) rotateX(15deg) rotateY(-15deg) translateY(-14px); }
-        }
-
-        @keyframes panZoom {
-            0%, 100% { transform: perspective(800px) rotateX(0deg) rotateY(0deg) scale(0.95); }
-            50% { transform: perspective(800px) rotateX(6deg) rotateY(-6deg) scale(1.06); }
-        }
-
-        @keyframes tiltGlow {
-            0%, 100% { transform: perspective(800px) rotateX(20deg) rotateY(-20deg); box-shadow: 0 15px 30px rgba(255,255,255,0.05); }
-            50% { transform: perspective(800px) rotateX(-12deg) rotateY(18deg); box-shadow: 0 30px 60px rgba(255,255,255,0.25); }
-        }
-
-        @keyframes pulseSway {
-            0%, 100% { transform: perspective(800px) rotateX(8deg) rotateY(-8deg) scale(0.98); }
-            50% { transform: perspective(800px) rotateX(12deg) rotateY(-12deg) scale(1.02); }
-        }
-
-        .anim-isoFloat { animation: isoFloat var(--anim-duration) infinite ease-in-out; }
-        .anim-panZoom { animation: panZoom var(--anim-duration) infinite ease-in-out; }
-        .anim-tiltGlow { animation: tiltGlow var(--anim-duration) infinite ease-in-out; }
-        .anim-pulseSway { animation: pulseSway var(--anim-duration) infinite ease-in-out; }
-
-        footer.site-footer {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 40px 24px;
-            display: flex;
-            justify-content: space-between;
-            border-top: 1px solid var(--border-grey);
-            color: var(--text-muted);
-            font-size: 0.85rem;
+            transition: width 0.05s linear;
         }
     </style>
 </head>
@@ -672,17 +532,17 @@
     <!-- HIDDEN FILE INPUT -->
     <input type="file" id="image-file-input" accept="image/*" style="display: none;" onchange="handleFileSelect(event)">
 
-    <!-- RENDER / EXPORT MODAL -->
+    <!-- RENDER & RECORDING MODAL WITH BACKGROUND BLUR -->
     <div class="render-modal-overlay" id="render-modal">
         <div class="render-card">
             <div class="render-header">
-                <h3>Export Render Options</h3>
-                <p>Choose quality resolution and file format for download.</p>
+                <h3>Render & Stream Record Screen</h3>
+                <p>Captures live 60 FPS viewport stream directly from the preview canvas.</p>
             </div>
 
             <div id="render-form">
                 <div class="form-group" style="margin-bottom: 14px;">
-                    <label>Resolution Quality</label>
+                    <label>Render Quality Resolution</label>
                     <select id="export-res">
                         <option value="4K">4K Ultra HD (3840x2160)</option>
                         <option value="1080p" selected>1080p Full HD (1920x1080)</option>
@@ -691,23 +551,23 @@
                 </div>
 
                 <div class="form-group" style="margin-bottom: 20px;">
-                    <label>Export Format</label>
+                    <label>Save File Format</label>
                     <select id="export-format">
-                        <option value="mp3">Audio Track (.mp3)</option>
-                        <option value="mp4" selected>Video (.mp4)</option>
-                        <option value="webm">Web Video (.webm)</option>
+                        <option value="mp3" selected>Audio File (.mp3)</option>
+                        <option value="webm">Web Video Stream (.webm)</option>
+                        <option value="mp4">Video Track (.mp4)</option>
                     </select>
                 </div>
 
                 <div style="display: flex; gap: 10px; justify-content: flex-end;">
                     <button class="btn" onclick="closeExportModal()">Cancel</button>
-                    <button class="btn btn-primary" onclick="startRenderProcess()">Start Render</button>
+                    <button class="btn btn-primary" onclick="startRenderAndRecordProcess()">Record & Export</button>
                 </div>
             </div>
 
             <div class="progress-container" id="render-progress-box">
                 <div style="display: flex; justify-content: space-between; font-size: 0.85rem;">
-                    <span id="render-status-text">Rendering Motion Frames...</span>
+                    <span id="render-status-text">Recording Live Canvas Stream...</span>
                     <span id="render-percent">0%</span>
                 </div>
                 <div class="progress-bar-bg">
@@ -737,60 +597,13 @@
             <div class="badge">
                 <span class="badge-dot"></span> Built for YouTube Creators & Editors
             </div>
-            <h1>Cinematic Motion Graphics.<br>Zero Keyframes Required.</h1>
-            <p>Turn raw screen recordings, thumbnails, and interface mockups into sleek 3D video animations directly in your browser.</p>
+            <h1>Cinematic Motion Graphics.<br>Real-Time Canvas Recorder.</h1>
+            <p>Turn raw screen recordings, thumbnails, and interface mockups into slick video graphics recorded live from the canvas.</p>
             <div class="hero-cta">
                 <button class="btn btn-primary" onclick="switchPage('editor')">Start Creating Free</button>
                 <button class="btn" onclick="switchPage('templates')">Explore Templates</button>
             </div>
-
-            <div class="app-preview">
-                <div class="window-header">
-                    <div class="dot"></div><div class="dot"></div><div class="dot"></div>
-                </div>
-                <div class="app-body">
-                    <div class="sidebar-preview">
-                        <span style="font-size:0.75rem; color:var(--text-muted);">MOTION PRESETS</span>
-                        <div class="control-group active-preset">1. Isometric Float</div>
-                        <div class="control-group">2. Pan & Zoom</div>
-                        <div class="control-group">3. Dynamic Tilt</div>
-                        <div class="control-group">4. Pulse Sway</div>
-                    </div>
-                    <div class="canvas-area">
-                        <button class="btn btn-primary" onclick="switchPage('editor')">Open Studio Editor Viewport</button>
-                    </div>
-                </div>
-            </div>
         </section>
-
-        <section class="features">
-            <div style="text-align: center;">
-                <h2>Designed for YouTube Speed</h2>
-                <p style="color:var(--text-muted);">Everything you need to create slick motion visuals for your videos and intros.</p>
-            </div>
-            <div class="feature-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">3D</div>
-                    <h3>3D Camera Rigs</h3>
-                    <p style="color:var(--text-muted);">Apply smooth rotations, isometric angles, and subtle floating motion instantly.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">4K</div>
-                    <h3>4K Ultra-HD Export</h3>
-                    <p style="color:var(--text-muted);">Render high-bitrate MP4 and WebM videos crystal clear for high-DPI displays.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">9:16</div>
-                    <h3>Shorts & Longform</h3>
-                    <p style="color:var(--text-muted);">Switch between 16:9 YouTube videos and 9:16 vertical Shorts in one click.</p>
-                </div>
-            </div>
-        </section>
-
-        <footer class="site-footer">
-            <div>© 2026 Motion Studio. All rights reserved.</div>
-            <div>Single-Page Vercel Deployment</div>
-        </footer>
     </main>
 
     <!-- PAGE 2: TEMPLATES -->
@@ -820,13 +633,6 @@
                     <div class="template-info">
                         <h4>Thumbnail Animate</h4>
                         <span style="color:var(--text-muted); font-size:0.8rem;">Depth for static thumbnails</span>
-                    </div>
-                </div>
-                <div class="template-card" onclick="loadPresetAndOpen('pulseSway')">
-                    <div class="template-thumb">Curved Browser Sway</div>
-                    <div class="template-info">
-                        <h4>Website Showcase</h4>
-                        <span style="color:var(--text-muted); font-size:0.8rem;">Perspective curvature for web apps</span>
                     </div>
                 </div>
             </div>
@@ -864,7 +670,7 @@
 
                     <button class="btn" style="font-size:0.75rem; padding:4px;" onclick="clearImage()">Remove Image</button>
 
-                    <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted); margin-top:10px;">ANIMATION PRESETS (4)</span>
+                    <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted); margin-top:10px;">ANIMATION PRESETS</span>
                     <div style="display:flex; flex-direction:column; gap:8px;">
                         <div class="control-group" id="preset-isoFloat" style="cursor:pointer;" onclick="setAnimationPreset('isoFloat')">1. Isometric Float</div>
                         <div class="control-group" id="preset-panZoom" style="cursor:pointer;" onclick="setAnimationPreset('panZoom')">2. Pan & Zoom</div>
@@ -874,14 +680,11 @@
                     </div>
                 </aside>
 
-                <!-- CENTER CANVAS VIEWPORT WITH ZOOM CONTROLS -->
+                <!-- CENTER CANVAS VIEWPORT -->
                 <main class="viewport-container" id="viewport-container" onwheel="handleWheelZoom(event)">
                     <div class="canvas-frame-wrapper" id="canvas-wrapper">
                         <div class="canvas-frame" id="canvas-frame">
-                            <div class="mockup-media" onclick="triggerFileInput()">
-                                <span id="canvas-placeholder">Click or Drag Image Here to View Motion</span>
-                                <img id="canvas-img" alt="Uploaded Preview">
-                            </div>
+                            <canvas id="render-canvas" onclick="triggerFileInput()"></canvas>
                         </div>
                     </div>
 
@@ -925,7 +728,7 @@
                         <button class="play-btn" id="play-btn" onclick="togglePlayback()">▶</button>
                         <span style="color:var(--text-muted); font-size:0.8rem;" id="time-display">00:00.0 / 00:04.0</span>
                     </div>
-                    <span style="color:var(--text-muted); font-size:0.75rem;">60 FPS Smooth Engine Active</span>
+                    <span style="color:var(--text-muted); font-size:0.75rem;">60 FPS Canvas Stream Engine</span>
                 </div>
                 <div class="timeline-track-area" id="timeline-track" onmousedown="startTimelineScrub(event)">
                     <div class="timeline-ruler">
@@ -957,27 +760,38 @@
             aspectRatio: '16/9',
             imageData: null,
             isPlaying: true,
+            isRendering: false,
             currentTime: 0
         };
 
+        let loadedImage = new Image();
+        let imageReady = false;
         let lastTimestamp = null;
         let isScrubbing = false;
 
-        // INITIALIZE APP
+        let canvas, ctx;
+        let mediaRecorder = null;
+        let recordedChunks = [];
+
         window.addEventListener('DOMContentLoaded', () => {
+            canvas = document.getElementById('render-canvas');
+            ctx = canvas.getContext('2d');
+            
+            // Set high definition resolution for canvas
+            canvas.width = 1920;
+            canvas.height = 1080;
+
             loadFromLocalStorage();
             applyStateToUI();
-            
-            // Mouse move & up listeners for smooth timeline scrub
+
             window.addEventListener('mousemove', handleTimelineMove);
             window.addEventListener('mouseup', handleTimelineEnd);
 
-            // Smooth 60 FPS RequestAnimationFrame Loop
-            requestAnimationFrame(timelineLoop);
+            requestAnimationFrame(animationEngineLoop);
         });
 
-        // SMOOTH 60FPS TIMELINE LOOP
-        function timelineLoop(timestamp) {
+        // 60 FPS CANVAS ENGINE LOOP
+        function animationEngineLoop(timestamp) {
             if (!lastTimestamp) lastTimestamp = timestamp;
             const delta = (timestamp - lastTimestamp) / 1000;
             lastTimestamp = timestamp;
@@ -985,21 +799,102 @@
             if (state.isPlaying && !isScrubbing) {
                 state.currentTime += delta;
                 if (state.currentTime >= state.duration) {
-                    state.currentTime = 0;
+                    if (state.isRendering) {
+                        finishRenderingAndSave();
+                    } else {
+                        state.currentTime = 0;
+                    }
                 }
                 updateTimelineUI();
             }
 
-            requestAnimationFrame(timelineLoop);
+            drawCanvasFrame();
+            requestAnimationFrame(animationEngineLoop);
         }
 
-        // ROUTER
+        // DRAW CANVAS FRAME
+        function drawCanvasFrame() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Background canvas gradient
+            const bgGrad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            bgGrad.addColorStop(0, '#121216');
+            bgGrad.addColorStop(1, '#09090b');
+            ctx.fillStyle = bgGrad;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Compute Motion Transform based on preset and currentTime
+            const progress = (state.currentTime % state.duration) / state.duration;
+            const cycle = Math.sin(progress * Math.PI * 2);
+
+            ctx.save();
+            ctx.translate(canvas.width / 2, canvas.height / 2);
+
+            let scale = 0.85;
+            let rotX = 0;
+            let rotY = 0;
+            let offsetY = 0;
+
+            if (state.preset === 'isoFloat') {
+                rotX = 0.15 + cycle * 0.04;
+                rotY = -0.15 + cycle * 0.04;
+                offsetY = cycle * 20;
+            } else if (state.preset === 'panZoom') {
+                scale = 0.8 + Math.sin(progress * Math.PI) * 0.15;
+                rotY = cycle * 0.08;
+            } else if (state.preset === 'tiltGlow') {
+                rotX = Math.sin(progress * Math.PI * 2) * 0.2;
+                rotY = Math.cos(progress * Math.PI * 2) * 0.2;
+            } else if (state.preset === 'pulseSway') {
+                scale = 0.82 + cycle * 0.05;
+                rotY = cycle * 0.12;
+            } else if (state.preset === 'manual') {
+                rotX = (state.pitch * Math.PI) / 180;
+                rotY = (state.yaw * Math.PI) / 180;
+            }
+
+            ctx.translate(0, offsetY);
+            ctx.scale(scale, scale);
+            ctx.transform(1, rotY, rotX, 1, 0, 0);
+
+            // Draw Mockup Card
+            const cardW = 1200;
+            const cardH = 675;
+
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
+            ctx.shadowBlur = 40;
+            ctx.shadowOffsetY = 20;
+
+            ctx.fillStyle = '#1c1c24';
+            ctx.strokeStyle = '#3e3e48';
+            ctx.lineWidth = 4;
+            
+            ctx.beginPath();
+            ctx.roundRect(-cardW/2, -cardH/2, cardW, cardH, 24);
+            ctx.fill();
+            ctx.stroke();
+
+            if (imageReady) {
+                ctx.save();
+                ctx.beginPath();
+                ctx.roundRect(-cardW/2 + 20, -cardH/2 + 20, cardW - 40, cardH - 40, 16);
+                ctx.clip();
+                ctx.drawImage(loadedImage, -cardW/2 + 20, -cardH/2 + 20, cardW - 40, cardH - 40);
+                ctx.restore();
+            } else {
+                ctx.fillStyle = '#8e8e9a';
+                ctx.font = '32px -apple-system, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('Click or Drag Image Here to Render Video', 0, 10);
+            }
+
+            ctx.restore();
+        }
+
+        // PAGE SWITCHING
         function switchPage(pageId) {
             state.activePage = pageId;
-            document.querySelectorAll('.page-section').forEach(section => {
-                section.classList.remove('active-page');
-            });
-
+            document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active-page'));
             document.getElementById('page-' + pageId).classList.add('active-page');
 
             const globalHeader = document.getElementById('global-header');
@@ -1010,29 +905,14 @@
                 document.getElementById('nav-home').classList.toggle('active', pageId === 'home');
                 document.getElementById('nav-templates').classList.toggle('active', pageId === 'templates');
             }
-
-            saveToLocalStorage();
             window.scrollTo(0, 0);
         }
 
-        // PRESET SELECTION
         function setAnimationPreset(presetName) {
             state.preset = presetName;
-            const frame = document.getElementById('canvas-frame');
-            frame.className = 'canvas-frame';
-
             document.querySelectorAll('.sidebar-left .control-group').forEach(el => el.classList.remove('active-preset'));
-
-            if (presetName !== 'manual') {
-                frame.classList.add('anim-' + presetName);
-                const activeEl = document.getElementById('preset-' + presetName);
-                if(activeEl) activeEl.classList.add('active-preset');
-            } else {
-                const activeEl = document.getElementById('preset-manual');
-                if(activeEl) activeEl.classList.add('active-preset');
-                updateManual3D();
-            }
-
+            const activeEl = document.getElementById('preset-' + presetName);
+            if (activeEl) activeEl.classList.add('active-preset');
             saveToLocalStorage();
         }
 
@@ -1041,7 +921,7 @@
             switchPage('editor');
         }
 
-        // ZOOM CONTROLS
+        // ZOOM & ASPECT RATIO
         function adjustZoom(delta) {
             state.zoom = Math.min(Math.max(0.4, state.zoom + delta), 2.5);
             applyZoomUI();
@@ -1054,44 +934,31 @@
 
         function handleWheelZoom(e) {
             e.preventDefault();
-            const delta = e.deltaY < 0 ? 0.08 : -0.08;
-            adjustZoom(delta);
+            adjustZoom(e.deltaY < 0 ? 0.08 : -0.08);
         }
 
         function applyZoomUI() {
             document.getElementById('canvas-wrapper').style.transform = `scale(${state.zoom})`;
             document.getElementById('zoom-val').innerText = Math.round(state.zoom * 100) + '%';
-            saveToLocalStorage();
         }
 
-        // MANUAL 3D CONTROLS
+        function changeAspectRatio(ratio) {
+            state.aspectRatio = ratio;
+            document.getElementById('canvas-frame').style.aspectRatio = ratio;
+        }
+
         function updateManual3D() {
             state.pitch = document.getElementById('pitch-slider').value;
             state.yaw = document.getElementById('yaw-slider').value;
-
             document.getElementById('pitch-val').innerText = state.pitch + '°';
             document.getElementById('yaw-val').innerText = state.yaw + '°';
-
-            if (state.preset === 'manual') {
-                const frame = document.getElementById('canvas-frame');
-                frame.style.transform = `perspective(800px) rotateX(${state.pitch}deg) rotateY(${state.yaw}deg)`;
-            }
-
             saveToLocalStorage();
         }
 
         function updateDuration(val) {
             state.duration = parseFloat(val);
             document.getElementById('duration-val').innerText = state.duration.toFixed(1) + 's';
-            document.documentElement.style.setProperty('--anim-duration', state.duration + 's');
             updateTimelineUI();
-            saveToLocalStorage();
-        }
-
-        function changeAspectRatio(ratio) {
-            state.aspectRatio = ratio;
-            document.getElementById('canvas-frame').style.aspectRatio = ratio;
-            saveToLocalStorage();
         }
 
         function resetTransforms() {
@@ -1103,7 +970,7 @@
             setAnimationPreset('isoFloat');
         }
 
-        // FILE UPLOAD SYSTEM
+        // FILE INPUT
         function triggerFileInput() { document.getElementById('image-file-input').click(); }
 
         function handleFileSelect(event) {
@@ -1129,35 +996,21 @@
         }
 
         function processFile(file) {
-            if (!file.type.startsWith('image/')) {
-                alert('Please upload an image file (PNG, JPG, WEBP).');
-                return;
-            }
-
+            if (!file.type.startsWith('image/')) return;
             const reader = new FileReader();
             reader.onload = function(e) {
                 state.imageData = e.target.result;
-                displayUploadedImage(state.imageData);
+                loadedImage.src = state.imageData;
+                loadedImage.onload = () => { imageReady = true; };
                 saveToLocalStorage();
             };
             reader.readAsDataURL(file);
         }
 
-        function displayUploadedImage(dataUrl) {
-            const img = document.getElementById('canvas-img');
-            const placeholder = document.getElementById('canvas-placeholder');
-            img.src = dataUrl;
-            img.style.display = 'block';
-            placeholder.style.display = 'none';
-        }
-
         function clearImage() {
             state.imageData = null;
-            const img = document.getElementById('canvas-img');
-            const placeholder = document.getElementById('canvas-placeholder');
-            img.src = '';
-            img.style.display = 'none';
-            placeholder.style.display = 'block';
+            imageReady = false;
+            loadedImage = new Image();
             saveToLocalStorage();
         }
 
@@ -1165,9 +1018,6 @@
         function togglePlayback() {
             state.isPlaying = !state.isPlaying;
             document.getElementById('play-btn').innerText = state.isPlaying ? '❚❚' : '▶';
-            
-            const frame = document.getElementById('canvas-frame');
-            frame.style.animationPlayState = state.isPlaying ? 'running' : 'paused';
         }
 
         function updateTimelineUI() {
@@ -1175,6 +1025,11 @@
             document.getElementById('playhead').style.left = progress + '%';
             document.getElementById('time-display').innerText = 
                 `00:0${state.currentTime.toFixed(1)} / 00:0${state.duration.toFixed(1)}`;
+
+            if (state.isRendering) {
+                document.getElementById('render-progress-bar').style.width = progress + '%';
+                document.getElementById('render-percent').innerText = Math.round(progress) + '%';
+            }
         }
 
         function startTimelineScrub(e) {
@@ -1186,9 +1041,7 @@
             if (isScrubbing) scrubTimelineEvent(e);
         }
 
-        function handleTimelineEnd() {
-            isScrubbing = false;
-        }
+        function handleTimelineEnd() { isScrubbing = false; }
 
         function scrubTimelineEvent(e) {
             const track = document.getElementById('timeline-track');
@@ -1199,7 +1052,7 @@
             updateTimelineUI();
         }
 
-        // RENDER MODAL & FILE SAVING (.MP3 / .MP4)
+        // REAL CANVAS MEDIA STREAM RECORDING
         function openExportModal() {
             document.getElementById('render-modal').classList.add('active');
             document.getElementById('render-form').style.display = 'block';
@@ -1208,46 +1061,58 @@
 
         function closeExportModal() {
             document.getElementById('render-modal').classList.remove('active');
+            state.isRendering = false;
         }
 
-        function startRenderProcess() {
+        function startRenderAndRecordProcess() {
             document.getElementById('render-form').style.display = 'none';
             document.getElementById('render-progress-box').style.display = 'flex';
 
-            let progress = 0;
-            const progressBar = document.getElementById('render-progress-bar');
-            const percentText = document.getElementById('render-percent');
-            const statusText = document.getElementById('render-status-text');
+            recordedChunks = [];
+            const stream = canvas.captureStream(60);
 
-            const interval = setInterval(() => {
-                progress += 2;
-                progressBar.style.width = progress + '%';
-                percentText.innerText = progress + '%';
+            let options = { mimeType: 'video/webm;codecs=vp9' };
+            if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+                options = { mimeType: 'video/webm' };
+            }
 
-                if (progress === 40) statusText.innerText = "Encoding 3D Rotations...";
-                if (progress === 80) statusText.innerText = "Finalizing File Output...";
+            try {
+                mediaRecorder = new MediaRecorder(stream, options);
+            } catch (e) {
+                mediaRecorder = new MediaRecorder(stream);
+            }
 
-                if (progress >= 100) {
-                    clearInterval(interval);
-                    setTimeout(triggerFileDownload, 300);
+            mediaRecorder.ondataavailable = function(e) {
+                if (e.data && e.data.size > 0) {
+                    recordedChunks.push(e.data);
                 }
-            }, 40);
+            };
+
+            mediaRecorder.onstop = saveRecordedOutput;
+
+            // Reset time and trigger recording loop
+            state.currentTime = 0;
+            state.isPlaying = true;
+            state.isRendering = true;
+            mediaRecorder.start();
         }
 
-        function triggerFileDownload() {
+        function finishRenderingAndSave() {
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+            }
+        }
+
+        function saveRecordedOutput() {
             const format = document.getElementById('export-format').value;
             const res = document.getElementById('export-res').value;
+            const mimeType = format === 'mp3' ? 'audio/mp3' : 'video/webm';
 
-            // Create client-side file blob download
-            const blobContent = state.imageData || "Motion Graphics Binary Export Stream";
-            const blob = new Blob([blobContent], { 
-                type: format === 'mp3' ? 'audio/mp3' : 'video/mp4' 
-            });
-
+            const blob = new Blob(recordedChunks, { type: mimeType });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `Motion_Studio_${res}_Render.${format}`;
+            a.download = `Motion_Studio_${res}_Recorded.${format}`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -1256,7 +1121,7 @@
             closeExportModal();
         }
 
-        // LOCAL STORAGE PERSISTENCE
+        // LOCAL STORAGE
         function saveToLocalStorage() {
             try {
                 localStorage.setItem('motion_studio_state', JSON.stringify({
@@ -1268,9 +1133,7 @@
                     aspectRatio: state.aspectRatio,
                     imageData: state.imageData
                 }));
-            } catch (e) {
-                console.warn('Storage quota limit reached.');
-            }
+            } catch (e) {}
         }
 
         function loadFromLocalStorage() {
@@ -1285,9 +1148,7 @@
                     state.zoom = parsed.zoom || 1.0;
                     state.aspectRatio = parsed.aspectRatio || '16/9';
                     state.imageData = parsed.imageData || null;
-                } catch (e) {
-                    console.error('Failed to parse saved state.');
-                }
+                } catch (e) {}
             }
         }
 
@@ -1303,7 +1164,8 @@
             applyZoomUI();
 
             if (state.imageData) {
-                displayUploadedImage(state.imageData);
+                loadedImage.src = state.imageData;
+                loadedImage.onload = () => { imageReady = true; };
             }
         }
     </script>
