@@ -359,7 +359,7 @@
         .control-row input[type="range"] { flex: 1; accent-color: var(--text-primary); }
 
         .value-display {
-            width: 44px;
+            width: 48px;
             background: var(--bg-panel);
             border: 1px solid var(--border-grey);
             border-radius: var(--radius-sm);
@@ -684,7 +684,7 @@
                     <div class="template-thumb">Showcase Motion</div>
                     <div class="template-info">
                         <h4>5 Card Showcase</h4>
-                        <span style="color:var(--text-muted); font-size:0.8rem;">Horizontal sequence pan</span>
+                        <span style="color:var(--text-muted); font-size:0.8rem;">Smooth 5-Image Slot Sequence Pan</span>
                     </div>
                 </div>
             </div>
@@ -721,7 +721,7 @@
                     <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted); margin-top:10px;">ANIMATION PRESETS</span>
                     <div style="display:flex; flex-direction:column; gap:8px;">
                         <div class="control-group active-preset" id="preset-popup" style="cursor:pointer;" onclick="setAnimationPreset('popup')">1. Pop-up</div>
-                        <div class="control-group" id="preset-showcase" style="cursor:pointer;" onclick="setAnimationPreset('showcase')">2. Showcase (5 Cards)</div>
+                        <div class="control-group" id="preset-showcase" style="cursor:pointer;" onclick="setAnimationPreset('showcase')">2. Showcase (Slots 1 to 5)</div>
                         <div class="control-group" id="preset-manual" style="cursor:pointer;" onclick="setAnimationPreset('manual')">3. Manual Slider Control</div>
                     </div>
                 </aside>
@@ -773,7 +773,14 @@
                         </select>
                     </div>
 
-                    <!-- MEDIA SLOTS (10 SLOTS DIRECTLY UNDER RENDER BACKGROUND) -->
+                    <!-- SPEED CONTROL DIRECTLY UNDER RENDER BACKGROUND -->
+                    <div class="control-row" style="margin-top: 6px;">
+                        <label>Speed</label>
+                        <input type="range" id="speed-slider" min="0.25" max="3.0" value="1.0" step="0.25" oninput="updateSpeed(this.value)">
+                        <span class="value-display" id="speed-val">1.0x</span>
+                    </div>
+
+                    <!-- MEDIA SLOTS (10 SLOTS) -->
                     <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted); margin-top:10px;">MEDIA (10 SLOTS)</span>
                     <div class="media-grid" id="media-slots-grid">
                         <!-- Generates 10 slots dynamically via JavaScript -->
@@ -818,6 +825,7 @@
             pitch: 10,
             yaw: -12,
             duration: 4.0,
+            speed: 1.0,
             zoom: 1.0,
             bgType: 'dark',
             imageData: null,
@@ -926,14 +934,14 @@
             saveToLocalStorage();
         }
 
-        // SMOOTH 60 FPS RENDER LOOP
+        // SMOOTH 60 FPS RENDER LOOP WITH SPEED MULTIPLIER
         function animationEngineLoop(timestamp) {
             if (!lastTimestamp) lastTimestamp = timestamp;
             const delta = (timestamp - lastTimestamp) / 1000;
             lastTimestamp = timestamp;
 
             if (state.isPlaying && !isScrubbing) {
-                state.currentTime += delta;
+                state.currentTime += delta * state.speed;
                 if (state.currentTime >= state.duration) {
                     if (state.isRendering) {
                         finishRenderingAndSave();
@@ -948,7 +956,7 @@
             requestAnimationFrame(animationEngineLoop);
         }
 
-        // DRAW CANVAS FRAME (PURE BRIGHTNESS PRESERVATION & LOW MOTION)
+        // DRAW CANVAS FRAME (PURE BRIGHTNESS PRESERVATION & SMOOTH MULTI-IMAGE MOTION)
         function drawCanvasFrame() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.filter = 'none';
@@ -966,8 +974,8 @@
 
             const progress = (state.currentTime % state.duration) / state.duration;
 
-            // DRAW CARD HELPER (Preserves original image brightness and sharp rendering)
-            function drawCard(x, y, scale = 1, skewX = 0, skewY = 0, opacity = 1, imgSource = null) {
+            // DRAW CARD HELPER (Preserves image brightness and color purity)
+            function drawCard(x, y, scale = 1, skewX = 0, skewY = 0, opacity = 1, imgSource = null, slotNum = 1) {
                 ctx.save();
                 ctx.globalAlpha = Math.max(0, Math.min(1, opacity));
                 ctx.translate(canvas.width / 2 + x, canvas.height / 2 + y);
@@ -977,11 +985,11 @@
 
                 if (activeImg) {
                     const aspect = activeImg.width / activeImg.height;
-                    let drawW = 950;
+                    let drawW = 920;
                     let drawH = drawW / aspect;
 
-                    if (drawH > 580) {
-                        drawH = 580;
+                    if (drawH > 560) {
+                        drawH = 560;
                         drawW = drawH * aspect;
                     }
 
@@ -994,7 +1002,7 @@
                     ctx.fillStyle = '#1e1e24';
                     ctx.strokeStyle = '#3e3e48';
                     ctx.lineWidth = 4;
-                    const cardW = 800, cardH = 450;
+                    const cardW = 760, cardH = 430;
                     
                     ctx.shadowColor = 'rgba(0,0,0,0.4)';
                     ctx.shadowBlur = 25;
@@ -1007,44 +1015,53 @@
 
                     ctx.shadowColor = 'transparent';
                     ctx.fillStyle = '#8e8e9a';
-                    ctx.font = '600 28px -apple-system, sans-serif';
+                    ctx.font = '600 26px -apple-system, sans-serif';
                     ctx.textAlign = 'center';
-                    ctx.fillText('Click or Drag Media to Preview', 0, -10);
+                    ctx.fillText(`Slot ${slotNum} Image Placeholder`, 0, -10);
+                    ctx.font = '400 16px -apple-system, sans-serif';
+                    ctx.fillText('Upload image to right side media slot', 0, 25);
                 }
                 ctx.restore();
             }
 
-            // PRESET 1: POP-UP (Low, Smooth Motion without Overexposure)
+            // PRESET 1: POP-UP
             if (state.preset === 'popup') {
                 const easeOutCubic = p => 1 - Math.pow(1 - p, 3);
-                // Lower travel distance for smoother, low motion
                 const currentY = (1 - easeOutCubic(progress)) * 420;
 
-                // Subtle motion blur trail with solid base to keep colors sharp
                 if (state.isPlaying && progress < 0.8) {
-                    const blurTrail = (1 - easeOutCubic(progress)) * 25;
+                    const blurTrail = (1 - easeOutCubic(progress)) * 22;
                     drawCard(0, currentY + blurTrail, 0.9, 0, 0, 0.25);
                 }
                 drawCard(0, currentY, 0.9, 0, 0, 1.0);
             } 
-            // PRESET 2: SHOWCASE (Uses Slots 1-5 smooth left-to-right sequence)
+            // PRESET 2: SHOWCASE (5 IMAGES FROM SLOTS 1 TO 5 WITH MOTION BLUR & VISIBILITY)
             else if (state.preset === 'showcase') {
                 const easeInOutQuad = p => p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
                 const smoothProgress = easeInOutQuad(progress);
 
-                const cardSpacing = 1000;
-                const totalDistance = cardSpacing * 4;
-                const currentX = (cardSpacing * 2) - (smoothProgress * totalDistance);
+                // Pan distance to cycle continuously from Slot 1 through Slot 5
+                const cardSpacing = 720;
+                const startX = cardSpacing * 2;
+                const endX = -cardSpacing * 2;
+                const currentOffset = startX - (smoothProgress * (startX - endX));
 
                 for (let idx = 0; idx < 5; idx++) {
-                    const cardX = currentX - (idx * cardSpacing);
+                    const cardX = currentOffset + (idx - 2) * cardSpacing;
                     const slotImg = slotImages[idx] || (imageReady ? loadedImage : null);
 
-                    // Soft distance fade for natural smooth sequence
+                    // Smooth card scaling and visibility
                     const distFromCenter = Math.abs(cardX);
-                    const alpha = Math.max(0.15, 1 - (distFromCenter / 1800));
+                    const scale = Math.max(0.65, 0.82 - (distFromCenter / 2500));
+                    const alpha = Math.max(0.4, 1.0 - (distFromCenter / 1600));
 
-                    drawCard(cardX, 0, 0.72, 0, 0, alpha, slotImg);
+                    // Subtle motion blur trailing effect during pan
+                    if (state.isPlaying && progress > 0.05 && progress < 0.95) {
+                        const blurDirection = (smoothProgress - 0.5) * -30;
+                        drawCard(cardX + blurDirection, 0, scale, 0, 0, alpha * 0.3, slotImg, idx + 1);
+                    }
+
+                    drawCard(cardX, 0, scale, 0, 0, alpha, slotImg, idx + 1);
                 }
             } 
             // PRESET 3: MANUAL CONTROL
@@ -1100,6 +1117,12 @@
             saveToLocalStorage();
         }
 
+        function updateSpeed(val) {
+            state.speed = parseFloat(val);
+            document.getElementById('speed-val').innerText = `${state.speed.toFixed(2)}x`;
+            saveToLocalStorage();
+        }
+
         function updateBackground(val) {
             state.bgType = val;
             const frame = document.getElementById('canvas-frame');
@@ -1115,12 +1138,15 @@
             state.pitch = 10;
             state.yaw = -12;
             state.duration = 4.0;
+            state.speed = 1.0;
             document.getElementById('pitch-slider').value = 10;
             document.getElementById('yaw-slider').value = -12;
             document.getElementById('duration-slider').value = 4.0;
+            document.getElementById('speed-slider').value = 1.0;
             document.getElementById('pitch-val').innerText = '10°';
             document.getElementById('yaw-val').innerText = '-12°';
             document.getElementById('duration-val').innerText = '4.0s';
+            document.getElementById('speed-val').innerText = '1.0x';
             setAnimationPreset('popup');
             updateBackground('dark');
             document.getElementById('bg-select').value = 'dark';
@@ -1310,6 +1336,7 @@
                 pitch: state.pitch,
                 yaw: state.yaw,
                 duration: state.duration,
+                speed: state.speed,
                 bgType: state.bgType,
                 imageData: state.imageData,
                 mediaSlots: state.mediaSlots
@@ -1325,6 +1352,7 @@
                 state.pitch = parsed.pitch ?? 10;
                 state.yaw = parsed.yaw ?? -12;
                 state.duration = parsed.duration ?? 4.0;
+                state.speed = parsed.speed ?? 1.0;
                 state.bgType = parsed.bgType || 'dark';
                 state.imageData = parsed.imageData || null;
                 state.mediaSlots = parsed.mediaSlots || Array(10).fill(null);
@@ -1352,9 +1380,11 @@
             document.getElementById('pitch-slider').value = state.pitch;
             document.getElementById('yaw-slider').value = state.yaw;
             document.getElementById('duration-slider').value = state.duration;
+            document.getElementById('speed-slider').value = state.speed;
             document.getElementById('pitch-val').innerText = `${state.pitch}°`;
             document.getElementById('yaw-val').innerText = `${state.yaw}°`;
             document.getElementById('duration-val').innerText = `${state.duration.toFixed(1)}s`;
+            document.getElementById('speed-val').innerText = `${state.speed.toFixed(2)}x`;
             document.getElementById('bg-select').value = state.bgType;
             setAnimationPreset(state.preset);
             updateBackground(state.bgType);
