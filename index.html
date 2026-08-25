@@ -291,7 +291,7 @@
         }
 
         .canvas-frame {
-            width: 540px;
+            width: 640px;
             aspect-ratio: 16 / 9;
             background: #111115;
             border-radius: 12px;
@@ -304,11 +304,17 @@
             position: relative;
         }
 
+        /* Transparency grid indicator when background is transparent */
+        .canvas-frame.bg-transparent-grid {
+            background-image: linear-gradient(45deg, #1c1c24 25%, transparent 25%), linear-gradient(-45deg, #1c1c24 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #1c1c24 75%), linear-gradient(-45deg, transparent 75%, #1c1c24 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+        }
+
         #render-canvas {
             width: 100%;
             height: 100%;
             object-fit: contain;
-            background: #16161c;
             cursor: pointer;
         }
 
@@ -459,7 +465,7 @@
             pointer-events: none;
         }
 
-        /* --- BLURRED RENDERING MODAL --- */
+        /* --- RENDERING MODAL --- */
         .render-modal-overlay {
             position: fixed;
             top: 0;
@@ -532,42 +538,40 @@
     <!-- HIDDEN FILE INPUT -->
     <input type="file" id="image-file-input" accept="image/*" style="display: none;" onchange="handleFileSelect(event)">
 
-    <!-- RENDER & RECORDING MODAL WITH BACKGROUND BLUR -->
+    <!-- RENDER & RECORDING MODAL -->
     <div class="render-modal-overlay" id="render-modal">
         <div class="render-card">
             <div class="render-header">
-                <h3>Render & Stream Record Screen</h3>
-                <p>Captures live 60 FPS viewport stream directly from the preview canvas.</p>
+                <h3>Record 60 FPS Viewport Stream</h3>
+                <p>Hardware-accelerated live preview capture at locked 16:9 ratio.</p>
             </div>
 
             <div id="render-form">
                 <div class="form-group" style="margin-bottom: 14px;">
-                    <label>Render Quality Resolution</label>
-                    <select id="export-res">
-                        <option value="4K">4K Ultra HD (3840x2160)</option>
-                        <option value="1080p" selected>1080p Full HD (1920x1080)</option>
-                        <option value="720p">720p HD (1280x720)</option>
+                    <label>Resolution Ratio</label>
+                    <select id="export-res" disabled>
+                        <option value="16/9" selected>16:9 Widescreen (1920x1080 HD)</option>
                     </select>
                 </div>
 
                 <div class="form-group" style="margin-bottom: 20px;">
                     <label>Save File Format</label>
                     <select id="export-format">
-                        <option value="mp3" selected>Audio File (.mp3)</option>
-                        <option value="webm">Web Video Stream (.webm)</option>
+                        <option value="webm" selected>Web Video (.webm / 60 FPS)</option>
+                        <option value="mp3">Audio File (.mp3)</option>
                         <option value="mp4">Video Track (.mp4)</option>
                     </select>
                 </div>
 
                 <div style="display: flex; gap: 10px; justify-content: flex-end;">
                     <button class="btn" onclick="closeExportModal()">Cancel</button>
-                    <button class="btn btn-primary" onclick="startRenderAndRecordProcess()">Record & Export</button>
+                    <button class="btn btn-primary" onclick="startRenderAndRecordProcess()">Record & Save</button>
                 </div>
             </div>
 
             <div class="progress-container" id="render-progress-box">
                 <div style="display: flex; justify-content: space-between; font-size: 0.85rem;">
-                    <span id="render-status-text">Recording Live Canvas Stream...</span>
+                    <span id="render-status-text">Recording 60 FPS Stream...</span>
                     <span id="render-percent">0%</span>
                 </div>
                 <div class="progress-bar-bg">
@@ -595,10 +599,10 @@
     <main id="page-home" class="page-section active-page">
         <section class="hero">
             <div class="badge">
-                <span class="badge-dot"></span> Built for YouTube Creators & Editors
+                <span class="badge-dot"></span> 60 FPS Smooth Canvas Recording
             </div>
-            <h1>Cinematic Motion Graphics.<br>Real-Time Canvas Recorder.</h1>
-            <p>Turn raw screen recordings, thumbnails, and interface mockups into slick video graphics recorded live from the canvas.</p>
+            <h1>Cinematic Motion Graphics.<br>Real-Time Viewport Recorder.</h1>
+            <p>Turn raw thumbnails, screenshots, and artwork into slick 16:9 videos recorded directly live from your screen engine.</p>
             <div class="hero-cta">
                 <button class="btn btn-primary" onclick="switchPage('editor')">Start Creating Free</button>
                 <button class="btn" onclick="switchPage('templates')">Explore Templates</button>
@@ -622,10 +626,10 @@
                     </div>
                 </div>
                 <div class="template-card" onclick="loadPresetAndOpen('panZoom')">
-                    <div class="template-thumb">9:16 Vertical Zoom</div>
+                    <div class="template-thumb">16:9 Pan & Zoom</div>
                     <div class="template-info">
-                        <h4>YouTube Shorts Motion</h4>
-                        <span style="color:var(--text-muted); font-size:0.8rem;">Fast camera slide for short-form</span>
+                        <h4>Camera Movement Motion</h4>
+                        <span style="color:var(--text-muted); font-size:0.8rem;">Smooth focal slide</span>
                     </div>
                 </div>
                 <div class="template-card" onclick="loadPresetAndOpen('tiltGlow')">
@@ -645,17 +649,13 @@
             <header class="app-header">
                 <div style="display:flex; align-items:center; gap:12px;">
                     <button class="btn" style="padding:4px 10px; font-size:0.8rem;" onclick="switchPage('home')">← Exit Editor</button>
-                    <span style="font-weight:600; font-size:0.85rem;">YouTube_Intro_v1.motion</span>
+                    <span style="font-weight:600; font-size:0.85rem;">Studio_Render_16x9.motion</span>
                 </div>
                 <div>
-                    <select id="aspect-select" onchange="changeAspectRatio(this.value)" style="background:var(--bg-panel); border:1px solid var(--border-grey); color:var(--text-primary); padding:4px 8px; border-radius:4px; font-size:0.8rem; cursor:pointer;">
-                        <option value="16/9">16:9 YouTube Widescreen</option>
-                        <option value="9/16">9:16 Shorts / Reels</option>
-                        <option value="1/1">1:1 Square Post</option>
-                    </select>
+                    <span style="font-size:0.8rem; color:var(--text-muted); font-weight:600;">Fixed Render Aspect Ratio: 16:9 (1920x1080)</span>
                 </div>
                 <div>
-                    <button class="btn btn-primary" style="padding:5px 12px; font-size:0.8rem;" onclick="openExportModal()">Export Video</button>
+                    <button class="btn btn-primary" style="padding:5px 12px; font-size:0.8rem;" onclick="openExportModal()">Record & Export</button>
                 </div>
             </header>
 
@@ -717,6 +717,17 @@
                         <span class="value-display" id="duration-val">4.0s</span>
                     </div>
 
+                    <!-- BACKGROUND SELECTION UNDER TIMING & EASING -->
+                    <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted); margin-top:10px;">RENDER BACKGROUND</span>
+                    <div class="control-row">
+                        <label>Canvas Bg</label>
+                        <select id="bg-select" onchange="updateBackground(this.value)" style="background:var(--bg-panel); border:1px solid var(--border-grey); color:var(--text-primary); padding:6px 8px; border-radius:4px; font-size:0.8rem; cursor:pointer;">
+                            <option value="dark" selected>Dark Studio</option>
+                            <option value="white">Solid White</option>
+                            <option value="transparent">Transparent (No Bg)</option>
+                        </select>
+                    </div>
+
                     <button class="btn" style="margin-top:20px; font-size:0.8rem;" onclick="resetTransforms()">Reset All Controls</button>
                 </aside>
             </div>
@@ -725,10 +736,10 @@
             <footer class="timeline-bar">
                 <div class="timeline-controls">
                     <div style="display:flex; align-items:center; gap:12px;">
-                        <button class="play-btn" id="play-btn" onclick="togglePlayback()">▶</button>
+                        <button class="play-btn" id="play-btn" onclick="togglePlayback()">❚❚</button>
                         <span style="color:var(--text-muted); font-size:0.8rem;" id="time-display">00:00.0 / 00:04.0</span>
                     </div>
-                    <span style="color:var(--text-muted); font-size:0.75rem;">60 FPS Canvas Stream Engine</span>
+                    <span style="color:var(--text-muted); font-size:0.75rem;">16:9 • High-Performance 60 FPS Engine</span>
                 </div>
                 <div class="timeline-track-area" id="timeline-track" onmousedown="startTimelineScrub(event)">
                     <div class="timeline-ruler">
@@ -757,7 +768,7 @@
             yaw: -12,
             duration: 4.0,
             zoom: 1.0,
-            aspectRatio: '16/9',
+            bgType: 'dark', // 'dark', 'white', or 'transparent'
             imageData: null,
             isPlaying: true,
             isRendering: false,
@@ -775,11 +786,14 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             canvas = document.getElementById('render-canvas');
-            ctx = canvas.getContext('2d');
             
-            // Set high definition resolution for canvas
+            // Utilize client GPU power: High precision 16:9 canvas dimensions (1920x1080)
             canvas.width = 1920;
             canvas.height = 1080;
+
+            ctx = canvas.getContext('2d', { alpha: true, desynchronized: true });
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
 
             loadFromLocalStorage();
             applyStateToUI();
@@ -790,7 +804,7 @@
             requestAnimationFrame(animationEngineLoop);
         });
 
-        // 60 FPS CANVAS ENGINE LOOP
+        // SMOOTH 60 FPS RENDER LOOP
         function animationEngineLoop(timestamp) {
             if (!lastTimestamp) lastTimestamp = timestamp;
             const delta = (timestamp - lastTimestamp) / 1000;
@@ -812,16 +826,24 @@
             requestAnimationFrame(animationEngineLoop);
         }
 
-        // DRAW CANVAS FRAME
+        // DRAW CANVAS FRAME AT LOCKED 16:9 RATIO
         function drawCanvasFrame() {
+            // Clear canvas completely
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Background canvas gradient
-            const bgGrad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-            bgGrad.addColorStop(0, '#121216');
-            bgGrad.addColorStop(1, '#09090b');
-            ctx.fillStyle = bgGrad;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            // Handle Render Background according to Inspector setting
+            if (state.bgType === 'dark') {
+                const bgGrad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+                bgGrad.addColorStop(0, '#121216');
+                bgGrad.addColorStop(1, '#09090b');
+                ctx.fillStyle = bgGrad;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            } else if (state.bgType === 'white') {
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            } else if (state.bgType === 'transparent') {
+                // ClearRect leaves full transparency for transparent recording outputs
+            }
 
             // Compute Motion Transform based on preset and currentTime
             const progress = (state.currentTime % state.duration) / state.duration;
@@ -857,7 +879,7 @@
             ctx.scale(scale, scale);
             ctx.transform(1, rotY, rotX, 1, 0, 0);
 
-            // Draw Mockup Card
+            // Draw Mockup Card Frame (16:9 aspect ratio native)
             const cardW = 1200;
             const cardH = 675;
 
@@ -866,7 +888,7 @@
             ctx.shadowOffsetY = 20;
 
             ctx.fillStyle = '#1c1c24';
-            ctx.strokeStyle = '#3e3e48';
+            ctx.strokeStyle = state.bgType === 'white' ? '#d4d4d8' : '#3e3e48';
             ctx.lineWidth = 4;
             
             ctx.beginPath();
@@ -882,13 +904,25 @@
                 ctx.drawImage(loadedImage, -cardW/2 + 20, -cardH/2 + 20, cardW - 40, cardH - 40);
                 ctx.restore();
             } else {
-                ctx.fillStyle = '#8e8e9a';
+                ctx.fillStyle = state.bgType === 'white' ? '#52525b' : '#8e8e9a';
                 ctx.font = '32px -apple-system, sans-serif';
                 ctx.textAlign = 'center';
                 ctx.fillText('Click or Drag Image Here to Render Video', 0, 10);
             }
 
             ctx.restore();
+        }
+
+        // BACKGROUND SELECTION UPDATE
+        function updateBackground(val) {
+            state.bgType = val;
+            const frame = document.getElementById('canvas-frame');
+            if (val === 'transparent') {
+                frame.classList.add('bg-transparent-grid');
+            } else {
+                frame.classList.remove('bg-transparent-grid');
+            }
+            saveToLocalStorage();
         }
 
         // PAGE SWITCHING
@@ -921,7 +955,7 @@
             switchPage('editor');
         }
 
-        // ZOOM & ASPECT RATIO
+        // ZOOM & CONTROLS
         function adjustZoom(delta) {
             state.zoom = Math.min(Math.max(0.4, state.zoom + delta), 2.5);
             applyZoomUI();
@@ -942,11 +976,6 @@
             document.getElementById('zoom-val').innerText = Math.round(state.zoom * 100) + '%';
         }
 
-        function changeAspectRatio(ratio) {
-            state.aspectRatio = ratio;
-            document.getElementById('canvas-frame').style.aspectRatio = ratio;
-        }
-
         function updateManual3D() {
             state.pitch = document.getElementById('pitch-slider').value;
             state.yaw = document.getElementById('yaw-slider').value;
@@ -965,12 +994,14 @@
             document.getElementById('pitch-slider').value = 10;
             document.getElementById('yaw-slider').value = -12;
             document.getElementById('duration-slider').value = 4.0;
+            document.getElementById('bg-select').value = 'dark';
+            updateBackground('dark');
             resetZoom();
             updateDuration(4.0);
             setAnimationPreset('isoFloat');
         }
 
-        // FILE INPUT
+        // FILE HANDLING
         function triggerFileInput() { document.getElementById('image-file-input').click(); }
 
         function handleFileSelect(event) {
@@ -1014,7 +1045,7 @@
             saveToLocalStorage();
         }
 
-        // SMOOTH TIMELINE INTERACTION
+        // TIMELINE & PLAYBACK
         function togglePlayback() {
             state.isPlaying = !state.isPlaying;
             document.getElementById('play-btn').innerText = state.isPlaying ? '❚❚' : '▶';
@@ -1052,7 +1083,7 @@
             updateTimelineUI();
         }
 
-        // REAL CANVAS MEDIA STREAM RECORDING
+        // REAL 60 FPS CANVAS STREAM RECORDING
         function openExportModal() {
             document.getElementById('render-modal').classList.add('active');
             document.getElementById('render-form').style.display = 'block';
@@ -1069,9 +1100,11 @@
             document.getElementById('render-progress-box').style.display = 'flex';
 
             recordedChunks = [];
+            
+            // Capture hardware stream at exact 60 FPS
             const stream = canvas.captureStream(60);
 
-            let options = { mimeType: 'video/webm;codecs=vp9' };
+            let options = { mimeType: 'video/webm;codecs=vp9', videoBitsPerSecond: 8000000 };
             if (!MediaRecorder.isTypeSupported(options.mimeType)) {
                 options = { mimeType: 'video/webm' };
             }
@@ -1090,7 +1123,7 @@
 
             mediaRecorder.onstop = saveRecordedOutput;
 
-            // Reset time and trigger recording loop
+            // Reset time sequence and trigger recording loop
             state.currentTime = 0;
             state.isPlaying = true;
             state.isRendering = true;
@@ -1105,14 +1138,13 @@
 
         function saveRecordedOutput() {
             const format = document.getElementById('export-format').value;
-            const res = document.getElementById('export-res').value;
             const mimeType = format === 'mp3' ? 'audio/mp3' : 'video/webm';
 
             const blob = new Blob(recordedChunks, { type: mimeType });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `Motion_Studio_${res}_Recorded.${format}`;
+            a.download = `Motion_Studio_16x9_60FPS.${format}`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -1130,7 +1162,7 @@
                     yaw: state.yaw,
                     duration: state.duration,
                     zoom: state.zoom,
-                    aspectRatio: state.aspectRatio,
+                    bgType: state.bgType,
                     imageData: state.imageData
                 }));
             } catch (e) {}
@@ -1146,7 +1178,7 @@
                     state.yaw = parsed.yaw || -12;
                     state.duration = parsed.duration || 4.0;
                     state.zoom = parsed.zoom || 1.0;
-                    state.aspectRatio = parsed.aspectRatio || '16/9';
+                    state.bgType = parsed.bgType || 'dark';
                     state.imageData = parsed.imageData || null;
                 } catch (e) {}
             }
@@ -1156,10 +1188,10 @@
             document.getElementById('pitch-slider').value = state.pitch;
             document.getElementById('yaw-slider').value = state.yaw;
             document.getElementById('duration-slider').value = state.duration;
-            document.getElementById('aspect-select').value = state.aspectRatio;
+            document.getElementById('bg-select').value = state.bgType;
 
             updateDuration(state.duration);
-            changeAspectRatio(state.aspectRatio);
+            updateBackground(state.bgType);
             setAnimationPreset(state.preset);
             applyZoomUI();
 
