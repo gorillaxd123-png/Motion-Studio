@@ -716,6 +716,7 @@
                         <span class="value-display" id="duration-val">4.0s</span>
                     </div>
 
+                    <!-- BACKGROUND SELECTION UNDER TIMING & EASING -->
                     <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted); margin-top:10px;">RENDER BACKGROUND</span>
                     <div class="control-row">
                         <label>Canvas Bg</label>
@@ -766,7 +767,7 @@
             yaw: -12,
             duration: 4.0,
             zoom: 1.0,
-            bgType: 'dark',
+            bgType: 'dark', // 'dark', 'white', or 'transparent'
             imageData: null,
             isPlaying: true,
             isRendering: false,
@@ -784,6 +785,8 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             canvas = document.getElementById('render-canvas');
+            
+            // Utilize client GPU power: High precision 16:9 canvas dimensions (1920x1080)
             canvas.width = 1920;
             canvas.height = 1080;
 
@@ -824,8 +827,10 @@
 
         // DRAW CANVAS FRAME AT LOCKED 16:9 RATIO
         function drawCanvasFrame() {
+            // Clear canvas completely
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+            // Handle Render Background according to Inspector setting
             if (state.bgType === 'dark') {
                 const bgGrad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
                 bgGrad.addColorStop(0, '#121216');
@@ -835,85 +840,109 @@
             } else if (state.bgType === 'white') {
                 ctx.fillStyle = '#ffffff';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
+            } else if (state.bgType === 'transparent') {
+                // ClearRect leaves full transparency for transparent recording outputs
             }
 
+            // Compute Motion Transform based on preset and currentTime
             const progress = (state.currentTime % state.duration) / state.duration;
-            const angleVal = progress * Math.PI * 2;
+            const cycle = Math.sin(progress * Math.PI * 2);
 
             ctx.save();
             ctx.translate(canvas.width / 2, canvas.height / 2);
 
-            let pitch = state.pitch;
-            let yaw = state.yaw;
-            let scale = 1.0;
+            let skewX = 0, skewY = 0, scale = 1.0, offsetX = 0, offsetY = 0;
 
             if (state.preset === 'isoFloat') {
-                pitch = 12 + Math.sin(angleVal) * 8;
-                yaw = -15 + Math.cos(angleVal) * 12;
-                scale = 0.85 + Math.sin(angleVal) * 0.03;
+                skewX = (state.yaw * Math.PI / 180) + (cycle * 0.05);
+                skewY = (state.pitch * Math.PI / 180) + (Math.cos(progress * Math.PI * 2) * 0.03);
+                offsetY = cycle * 20;
+                scale = 0.85 + (cycle * 0.02);
             } else if (state.preset === 'panZoom') {
-                pitch = Math.sin(angleVal * 0.5) * 5;
-                yaw = Math.cos(angleVal * 0.5) * 5;
-                scale = 1.0 + progress * 0.25;
+                scale = 0.8 + (progress * 0.3);
+                offsetX = (progress - 0.5) * 80;
+                offsetY = Math.sin(progress * Math.PI) * -30;
             } else if (state.preset === 'tiltGlow') {
-                pitch = Math.sin(angleVal) * 20;
-                yaw = Math.cos(angleVal) * 20;
+                skewX = Math.sin(progress * Math.PI * 2) * 0.15;
+                skewY = Math.cos(progress * Math.PI * 2) * 0.1;
                 scale = 0.9;
             } else if (state.preset === 'pulseSway') {
-                pitch = Math.sin(angleVal * 2) * 10;
-                yaw = Math.sin(angleVal) * 15;
-                scale = 0.85 + Math.sin(angleVal * 2) * 0.08;
+                scale = 0.85 + Math.sin(progress * Math.PI * 4) * 0.04;
+                skewX = Math.sin(progress * Math.PI * 2) * 0.05;
+            } else if (state.preset === 'manual') {
+                skewX = state.yaw * Math.PI / 180;
+                skewY = state.pitch * Math.PI / 180;
+                scale = 0.85;
             }
 
-            ctx.scale(scale, scale);
+            ctx.transform(scale, skewY, skewX, scale, offsetX, offsetY);
 
-            // Draw image or default placeholder art if no image uploaded
-            if (imageReady && loadedImage.complete) {
+            if (imageReady) {
+                const aspect = loadedImage.width / loadedImage.height;
+                let drawW = 1200;
+                let drawH = drawW / aspect;
+
+                if (drawH > 700) {
+                    drawH = 700;
+                    drawW = drawH * aspect;
+                }
+
                 ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
                 ctx.shadowBlur = 40;
-                ctx.shadowOffsetY = 20;
-
-                const targetWidth = 1100;
-                const targetHeight = (1100 / loadedImage.width) * loadedImage.height;
-                ctx.drawImage(loadedImage, -targetWidth / 2, -targetHeight / 2, targetWidth, targetHeight);
-            } else {
-                // Placeholder UI Mockup Card
-                ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
-                ctx.shadowBlur = 50;
                 ctx.shadowOffsetY = 25;
 
-                ctx.fillStyle = '#1e1e26';
-                ctx.beginPath();
-                ctx.roundRect(-450, -250, 900, 500, 16);
-                ctx.fill();
+                ctx.drawImage(loadedImage, -drawW / 2, -drawH / 2, drawW, drawH);
+            } else {
+                // Default Canvas Placeholder Card
+                ctx.fillStyle = '#1e1e24';
+                ctx.strokeStyle = '#3e3e48';
+                ctx.lineWidth = 4;
+                const cardW = 900, cardH = 500;
+                
+                ctx.shadowColor = 'rgba(0,0,0,0.5)';
+                ctx.shadowBlur = 30;
+                ctx.shadowOffsetY = 15;
 
-                ctx.strokeStyle = '#3e3e4a';
-                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.roundRect(-cardW / 2, -cardH / 2, cardW, cardH, 20);
+                ctx.fill();
                 ctx.stroke();
 
+                ctx.shadowColor = 'transparent';
                 ctx.fillStyle = '#8e8e9a';
-                ctx.font = 'bold 24px -apple-system, sans-serif';
+                ctx.font = '600 28px -apple-system, sans-serif';
                 ctx.textAlign = 'center';
-                ctx.fillText('Drop Image / Click to Upload', 0, -10);
-
-                ctx.font = '16px -apple-system, sans-serif';
-                ctx.fillStyle = '#555562';
-                ctx.fillText('Motion Studio 16:9 Real-Time Renderer', 0, 30);
+                ctx.fillText('Click or Drag & Drop Media to Motion Preview', 0, -10);
+                ctx.font = '400 18px -apple-system, sans-serif';
+                ctx.fillText('Supports PNG, JPG, WEBP, and SVG', 0, 30);
             }
 
             ctx.restore();
         }
 
-        // PAGE ROUTING & STATE MANAGEMENT
-        function switchPage(pageName) {
-            state.activePage = pageName;
-            document.querySelectorAll('.page-section').forEach(sec => sec.classList.remove('active-page'));
-            document.getElementById('page-' + pageName).classList.add('active-page');
+        // NAVIGATION & STATE HANDLING
+        function switchPage(pageId) {
+            state.activePage = pageId;
+            document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active-page'));
+            document.getElementById(`page-${pageId}`).classList.add('active-page');
 
             document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
-            if (pageName === 'home') document.getElementById('nav-home').classList.add('active');
-            if (pageName === 'templates') document.getElementById('nav-templates').classList.add('active');
-            window.scrollTo(0, 0);
+            if (pageId === 'home') document.getElementById('nav-home').classList.add('active');
+            if (pageId === 'templates') document.getElementById('nav-templates').classList.add('active');
+
+            const header = document.getElementById('global-header');
+            header.style.display = (pageId === 'editor') ? 'none' : 'block';
+
+            saveToLocalStorage();
+        }
+
+        function setAnimationPreset(presetName) {
+            state.preset = presetName;
+            document.querySelectorAll('.control-group').forEach(el => el.classList.remove('active-preset'));
+            const activeEl = document.getElementById(`preset-${presetName}`);
+            if (activeEl) activeEl.classList.add('active-preset');
+
+            saveToLocalStorage();
         }
 
         function loadPresetAndOpen(presetName) {
@@ -921,32 +950,25 @@
             switchPage('editor');
         }
 
-        function setAnimationPreset(presetName) {
-            state.preset = presetName;
-            document.querySelectorAll('.sidebar-left .control-group').forEach(el => el.classList.remove('active-preset'));
-            const activeEl = document.getElementById('preset-' + presetName);
-            if (activeEl) activeEl.classList.add('active-preset');
-            saveToLocalStorage();
-        }
-
         function updateManual3D() {
             state.pitch = parseFloat(document.getElementById('pitch-slider').value);
             state.yaw = parseFloat(document.getElementById('yaw-slider').value);
-            document.getElementById('pitch-val').innerText = state.pitch + '°';
-            document.getElementById('yaw-val').innerText = state.yaw + '°';
+            document.getElementById('pitch-val').innerText = `${state.pitch}°`;
+            document.getElementById('yaw-val').innerText = `${state.yaw}°`;
             setAnimationPreset('manual');
         }
 
         function updateDuration(val) {
             state.duration = parseFloat(val);
-            document.getElementById('duration-val').innerText = state.duration.toFixed(1) + 's';
+            document.getElementById('duration-val').innerText = `${state.duration.toFixed(1)}s`;
+            updateTimelineUI();
             saveToLocalStorage();
         }
 
-        function updateBackground(bgVal) {
-            state.bgType = bgVal;
+        function updateBackground(val) {
+            state.bgType = val;
             const frame = document.getElementById('canvas-frame');
-            if (bgVal === 'transparent') {
+            if (val === 'transparent') {
                 frame.classList.add('bg-transparent-grid');
             } else {
                 frame.classList.remove('bg-transparent-grid');
@@ -965,78 +987,18 @@
             document.getElementById('yaw-val').innerText = '-12°';
             document.getElementById('duration-val').innerText = '4.0s';
             setAnimationPreset('isoFloat');
+            updateBackground('dark');
+            document.getElementById('bg-select').value = 'dark';
         }
 
-        // ZOOM & VIEWPORT CONTROLS
-        function adjustZoom(amount) {
-            state.zoom = Math.max(0.5, Math.min(2.5, state.zoom + amount));
-            updateZoomUI();
-        }
-
-        function resetZoom() {
-            state.zoom = 1.0;
-            updateZoomUI();
-        }
-
-        function updateZoomUI() {
-            document.getElementById('zoom-val').innerText = Math.round(state.zoom * 100) + '%';
-            document.getElementById('canvas-wrapper').style.transform = `scale(${state.zoom})`;
-        }
-
-        function handleWheelZoom(event) {
-            event.preventDefault();
-            const delta = event.deltaY < 0 ? 0.1 : -0.1;
-            adjustZoom(delta);
-        }
-
-        // TIMELINE & PLAYBACK CONTROLS
-        function togglePlayback() {
-            state.isPlaying = !state.isPlaying;
-            document.getElementById('play-btn').innerText = state.isPlaying ? '❚❚' : '▶';
-        }
-
-        function updateTimelineUI() {
-            const progress = (state.currentTime % state.duration) / state.duration;
-            document.getElementById('playhead').style.left = (progress * 100) + '%';
-
-            const curMin = String(Math.floor(state.currentTime / 60)).padStart(2, '0');
-            const curSec = (state.currentTime % 60).toFixed(1).padStart(4, '0');
-            const durMin = String(Math.floor(state.duration / 60)).padStart(2, '0');
-            const durSec = (state.duration % 60).toFixed(1).padStart(4, '0');
-            document.getElementById('time-display').innerText = `${curMin}:${curSec} / ${durMin}:${durSec}`;
-        }
-
-        function startTimelineScrub(e) {
-            isScrubbing = true;
-            scrubTimeline(e);
-        }
-
-        function handleTimelineMove(e) {
-            if (!isScrubbing) return;
-            scrubTimeline(e);
-        }
-
-        function handleTimelineEnd() {
-            isScrubbing = false;
-        }
-
-        function scrubTimeline(e) {
-            const track = document.getElementById('timeline-track');
-            const rect = track.getBoundingClientRect();
-            let pos = (e.clientX - rect.left) / rect.width;
-            pos = Math.max(0, Math.min(1, pos));
-            state.currentTime = pos * state.duration;
-            updateTimelineUI();
-        }
-
-        // IMAGE UPLOAD & DRAG DROP
+        // IMAGE FILE HANDLING
         function triggerFileInput() {
             document.getElementById('image-file-input').click();
         }
 
         function handleFileSelect(e) {
             const file = e.target.files[0];
-            if (file) processImageFile(file);
+            if (file) loadFile(file);
         }
 
         function handleDragOver(e) {
@@ -1045,6 +1007,7 @@
         }
 
         function handleDragLeave(e) {
+            e.preventDefault();
             document.getElementById('dropzone').classList.remove('dragover');
         }
 
@@ -1052,17 +1015,19 @@
             e.preventDefault();
             document.getElementById('dropzone').classList.remove('dragover');
             if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-                processImageFile(e.dataTransfer.files[0]);
+                loadFile(e.dataTransfer.files[0]);
             }
         }
 
-        function processImageFile(file) {
+        function loadFile(file) {
             const reader = new FileReader();
             reader.onload = (event) => {
                 state.imageData = event.target.result;
                 loadedImage.src = state.imageData;
-                loadedImage.onload = () => { imageReady = true; };
-                saveToLocalStorage();
+                loadedImage.onload = () => {
+                    imageReady = true;
+                    saveToLocalStorage();
+                };
             };
             reader.readAsDataURL(file);
         }
@@ -1071,10 +1036,80 @@
             state.imageData = null;
             imageReady = false;
             loadedImage = new Image();
-            localStorage.removeItem('motion_studio_img');
+            saveToLocalStorage();
         }
 
-        // EXPORT & RECORDING MODAL
+        // VIEWPORT ZOOM CONTROLS
+        function adjustZoom(delta) {
+            state.zoom = Math.min(Math.max(0.4, state.zoom + delta), 2.0);
+            applyZoom();
+        }
+
+        function resetZoom() {
+            state.zoom = 1.0;
+            applyZoom();
+        }
+
+        function handleWheelZoom(e) {
+            if (e.ctrlKey || e.metaKey) {
+                e.preventDefault();
+                adjustZoom(e.deltaY < 0 ? 0.05 : -0.05);
+            }
+        }
+
+        function applyZoom() {
+            document.getElementById('canvas-wrapper').style.transform = `scale(${state.zoom})`;
+            document.getElementById('zoom-val').innerText = `${Math.round(state.zoom * 100)}%`;
+        }
+
+        // TIMELINE CONTROLS & SCRUBBING
+        function togglePlayback() {
+            state.isPlaying = !state.isPlaying;
+            document.getElementById('play-btn').innerText = state.isPlaying ? '❚❚' : '▶';
+        }
+
+        function updateTimelineUI() {
+            const pct = (state.currentTime / state.duration) * 100;
+            document.getElementById('playhead').style.left = `${Math.min(100, pct)}%`;
+
+            const cur = formatTime(state.currentTime);
+            const dur = formatTime(state.duration);
+            document.getElementById('time-display').innerText = `${cur} / ${dur}`;
+
+            if (state.isRendering) {
+                document.getElementById('render-progress-bar').style.width = `${pct}%`;
+                document.getElementById('render-percent').innerText = `${Math.round(pct)}%`;
+            }
+        }
+
+        function formatTime(sec) {
+            const m = Math.floor(sec / 60).toString().padStart(2, '0');
+            const s = (sec % 60).toFixed(1).padStart(4, '0');
+            return `${m}:${s}`;
+        }
+
+        function startTimelineScrub(e) {
+            isScrubbing = true;
+            scrub(e);
+        }
+
+        function handleTimelineMove(e) {
+            if (isScrubbing) scrub(e);
+        }
+
+        function handleTimelineEnd() {
+            isScrubbing = false;
+        }
+
+        function scrub(e) {
+            const track = document.getElementById('timeline-track');
+            const rect = track.getBoundingClientRect();
+            const x = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
+            state.currentTime = (x / rect.width) * state.duration;
+            updateTimelineUI();
+        }
+
+        // EXPORT & REAL-TIME STREAM RECORDING
         function openExportModal() {
             document.getElementById('render-modal').classList.add('active');
             document.getElementById('render-form').style.display = 'block';
@@ -1082,92 +1117,100 @@
         }
 
         function closeExportModal() {
+            if (state.isRendering) return;
             document.getElementById('render-modal').classList.remove('active');
-            state.isRendering = false;
         }
 
         function startRenderAndRecordProcess() {
+            state.isRendering = true;
+            state.isPlaying = true;
+            state.currentTime = 0;
+
             document.getElementById('render-form').style.display = 'none';
             document.getElementById('render-progress-box').style.display = 'flex';
-            
-            state.currentTime = 0;
-            state.isPlaying = true;
-            state.isRendering = true;
 
             recordedChunks = [];
             const stream = canvas.captureStream(60);
-            try {
-                mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm;codecs=vp9' });
-            } catch (err) {
-                mediaRecorder = new MediaRecorder(stream);
-            }
 
+            const format = document.getElementById('export-format').value;
+            let mimeType = 'video/webm;codecs=vp9';
+            if (!MediaRecorder.isTypeSupported(mimeType)) mimeType = 'video/webm';
+
+            mediaRecorder = new MediaRecorder(stream, { mimeType });
             mediaRecorder.ondataavailable = (e) => {
                 if (e.data.size > 0) recordedChunks.push(e.data);
             };
 
-            mediaRecorder.onstop = () => {
-                const blob = new Blob(recordedChunks, { type: 'video/webm' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'MotionStudio_Render_1920x1080.webm';
-                a.click();
-                closeExportModal();
-            };
-
+            mediaRecorder.onstop = saveRecordedFile;
             mediaRecorder.start();
         }
 
         function finishRenderingAndSave() {
             state.isRendering = false;
+            state.isPlaying = false;
             if (mediaRecorder && mediaRecorder.state !== 'inactive') {
                 mediaRecorder.stop();
             }
+            closeExportModal();
         }
 
-        // STORAGE PERSISTENCE
+        function saveRecordedFile() {
+            const blob = new Blob(recordedChunks, { type: 'video/webm' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = `Motion_Studio_Render_${Date.now()}.webm`;
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(() => {
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            }, 100);
+        }
+
+        // LOCAL STORAGE PERSISTENCE
         function saveToLocalStorage() {
-            const dataToSave = {
+            localStorage.setItem('motion_studio_state', JSON.stringify({
                 preset: state.preset,
                 pitch: state.pitch,
                 yaw: state.yaw,
                 duration: state.duration,
                 bgType: state.bgType,
                 imageData: state.imageData
-            };
-            localStorage.setItem('motion_studio_state', JSON.stringify(dataToSave));
+            }));
         }
 
         function loadFromLocalStorage() {
             const saved = localStorage.getItem('motion_studio_state');
-            if (saved) {
-                try {
-                    const parsed = JSON.parse(saved);
-                    state.preset = parsed.preset || 'isoFloat';
-                    state.pitch = parsed.pitch ?? 10;
-                    state.yaw = parsed.yaw ?? -12;
-                    state.duration = parsed.duration || 4.0;
-                    state.bgType = parsed.bgType || 'dark';
-                    state.imageData = parsed.imageData || null;
+            if (!saved) return;
+            try {
+                const parsed = JSON.parse(saved);
+                state.preset = parsed.preset || 'isoFloat';
+                state.pitch = parsed.pitch ?? 10;
+                state.yaw = parsed.yaw ?? -12;
+                state.duration = parsed.duration ?? 4.0;
+                state.bgType = parsed.bgType || 'dark';
+                state.imageData = parsed.imageData || null;
 
-                    if (state.imageData) {
-                        loadedImage.src = state.imageData;
-                        loadedImage.onload = () => { imageReady = true; };
-                    }
-                } catch (e) { console.error(e); }
+                if (state.imageData) {
+                    loadedImage.src = state.imageData;
+                    loadedImage.onload = () => { imageReady = true; };
+                }
+            } catch (err) {
+                console.error('Failed to parse saved state:', err);
             }
         }
 
         function applyStateToUI() {
-            setAnimationPreset(state.preset);
             document.getElementById('pitch-slider').value = state.pitch;
             document.getElementById('yaw-slider').value = state.yaw;
             document.getElementById('duration-slider').value = state.duration;
-            document.getElementById('pitch-val').innerText = state.pitch + '°';
-            document.getElementById('yaw-val').innerText = state.yaw + '°';
-            document.getElementById('duration-val').innerText = state.duration.toFixed(1) + 's';
+            document.getElementById('pitch-val').innerText = `${state.pitch}°`;
+            document.getElementById('yaw-val').innerText = `${state.yaw}°`;
+            document.getElementById('duration-val').innerText = `${state.duration.toFixed(1)}s`;
             document.getElementById('bg-select').value = state.bgType;
+            setAnimationPreset(state.preset);
             updateBackground(state.bgType);
         }
     </script>
