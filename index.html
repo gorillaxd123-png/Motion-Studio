@@ -655,7 +655,7 @@
                 <span class="badge-dot"></span> 60 FPS Smooth Canvas Recording
             </div>
             <h1>Cinematic Motion Graphics.<br>Real-Time Viewport Recorder.</h1>
-            <p>Turn raw thumbnails, screenshots, and artwork into slick 16:9 videos recorded directly live from your screen engine.</p>
+            <p>Turn raw screenshots and artwork into slick 16:9 videos recorded directly live from your screen engine.</p>
             <div class="hero-cta">
                 <button class="btn btn-primary" onclick="switchPage('editor')">Start Creating Free</button>
                 <button class="btn" onclick="switchPage('templates')">Explore Templates</button>
@@ -695,8 +695,8 @@
                 <div class="template-card" onclick="loadPresetAndOpen('shine')">
                     <div class="template-thumb">Shine Effect</div>
                     <div class="template-info">
-                        <h4>Bright Line Sweep</h4>
-                        <span style="color:var(--text-muted); font-size:0.8rem;">Bright pure-white horizontal line shine</span>
+                        <h4>Tilted Button Shine</h4>
+                        <span style="color:var(--text-muted); font-size:0.8rem;">Realistic angled glass sheen & flash</span>
                     </div>
                 </div>
             </div>
@@ -735,7 +735,7 @@
                         <div class="control-group active-preset" id="preset-popup" style="cursor:pointer;" onclick="setAnimationPreset('popup')">1. Pop-up</div>
                         <div class="control-group" id="preset-showcase" style="cursor:pointer;" onclick="setAnimationPreset('showcase')">2. Showcase (Slots 1 to 5)</div>
                         <div class="control-group" id="preset-liquid" style="cursor:pointer;" onclick="setAnimationPreset('liquid')">3. Apple "Liquid Glass"</div>
-                        <div class="control-group" id="preset-shine" style="cursor:pointer;" onclick="setAnimationPreset('shine')">4. Bright Line Shine Effect</div>
+                        <div class="control-group" id="preset-shine" style="cursor:pointer;" onclick="setAnimationPreset('shine')">4. Tilted Button Shine</div>
                         <div class="control-group" id="preset-manual" style="cursor:pointer;" onclick="setAnimationPreset('manual')">5. Manual Slider Control</div>
                     </div>
                 </aside>
@@ -787,7 +787,6 @@
                         </select>
                     </div>
 
-                    <!-- SPEED CONTROL DIRECTLY UNDER RENDER BACKGROUND -->
                     <div class="control-row" style="margin-top: 6px;">
                         <label>Speed</label>
                         <input type="range" id="speed-slider" min="0.25" max="3.0" value="1.0" step="0.25" oninput="updateSpeed(this.value)">
@@ -1065,20 +1064,32 @@
                     ctx.lineWidth = 2;
                     ctx.stroke();
                 } else if (overlayEffect === 'shine') {
-                    // BRIGHT PURE-WHITE HORIZONTAL LINE SHINE EFFECT (LEFT TO RIGHT)
+                    // TILTED BUTTON-STYLE GLASS SHINE & FLASH SWEEP
                     ctx.save();
                     ctx.beginPath();
                     ctx.roundRect(-drawW / 2, -drawH / 2, drawW, drawH, 16);
                     ctx.clip();
 
-                    const lineX = -drawW / 2 + (progress * drawW);
-                    const lineWidth = 30; // Crisp line width
+                    // Travel across the width with extra padding for tilt angle
+                    const totalTravel = drawW * 1.6;
+                    const currentPos = -drawW * 0.8 + (progress * totalTravel);
 
-                    // Solid bright white sharp vertical line sweeping horizontally left to right
-                    ctx.fillStyle = '#ffffff';
-                    ctx.shadowColor = '#ffffff';
-                    ctx.shadowBlur = 12;
-                    ctx.fillRect(lineX - (lineWidth / 2), -drawH / 2, lineWidth, drawH);
+                    // Apply 25-degree tilt transform focused at current shine position
+                    ctx.translate(currentPos, 0);
+                    ctx.rotate(-25 * Math.PI / 180);
+
+                    // Smooth multi-stop gradient giving authentic glass reflection flare
+                    const shineGrad = ctx.createLinearGradient(-120, 0, 120, 0);
+                    shineGrad.addColorStop(0.0, 'rgba(255, 255, 255, 0.0)');
+                    shineGrad.addColorStop(0.2, 'rgba(255, 255, 255, 0.15)');
+                    shineGrad.addColorStop(0.45, 'rgba(255, 255, 255, 0.65)');
+                    shineGrad.addColorStop(0.5, 'rgba(255, 255, 255, 0.95)'); // Core highlight flash
+                    shineGrad.addColorStop(0.55, 'rgba(255, 255, 255, 0.65)');
+                    shineGrad.addColorStop(0.8, 'rgba(255, 255, 255, 0.15)');
+                    shineGrad.addColorStop(1.0, 'rgba(255, 255, 255, 0.0)');
+
+                    ctx.fillStyle = shineGrad;
+                    ctx.fillRect(-150, -drawH, 300, drawH * 2);
 
                     ctx.restore();
                 }
@@ -1128,7 +1139,7 @@
                 const floatY = Math.sin(progress * Math.PI * 2) * 12;
                 drawCard(0, floatY, 0.88, 0, 0, 1.0, null, 1, 'liquid');
             }
-            // PRESET 4: SHINE EFFECT (BRIGHT WHITE HORIZONTAL LINE SWEEP LEFT TO RIGHT)
+            // PRESET 4: SHINE EFFECT (TILTED GLASS BUTTON SHINE & FLASH SWEEP)
             else if (state.preset === 'shine') {
                 drawCard(0, 0, 0.88, 0, 0, 1.0, null, 1, 'shine');
             }
