@@ -330,6 +330,25 @@
             background: var(--bg-element);
         }
 
+        /* --- CATEGORIES STYLING --- */
+        .category-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 4px;
+        }
+
+        .category-header {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            padding: 4px 0 2px 2px;
+            border-bottom: 1px solid var(--border-grey);
+            margin-bottom: 2px;
+        }
+
         .control-group {
             background: var(--bg-panel);
             border: 1px solid var(--border-grey);
@@ -344,6 +363,11 @@
             border-color: var(--text-primary);
             color: var(--text-primary);
             background: var(--bg-element);
+        }
+
+        .control-group.disabled-preset {
+            opacity: 0.5;
+            cursor: not-allowed !important;
         }
 
         .control-row {
@@ -685,18 +709,11 @@
                         <span style="color:var(--text-muted); font-size:0.8rem;">Smooth 5-Image Slot Sequence Pan</span>
                     </div>
                 </div>
-                <div class="template-card" onclick="loadPresetAndOpen('liquid')">
-                    <div class="template-thumb">Liquid Glass</div>
-                    <div class="template-info">
-                        <h4>Apple Liquid Glass</h4>
-                        <span style="color:var(--text-muted); font-size:0.8rem;">Smooth glass refractions & liquid glare</span>
-                    </div>
-                </div>
                 <div class="template-card" onclick="loadPresetAndOpen('shine')">
                     <div class="template-thumb">Shine Effect</div>
                     <div class="template-info">
                         <h4>Tilted Button Shine</h4>
-                        <span style="color:var(--text-muted); font-size:0.8rem;">Realistic angled glass sheen & flash</span>
+                        <span style="color:var(--text-muted); font-size:0.8rem;">Wider tilted glass sheen & flash</span>
                     </div>
                 </div>
             </div>
@@ -730,13 +747,33 @@
 
                     <button class="btn" style="font-size:0.75rem; padding:4px;" onclick="clearImage()">Remove Main Image</button>
 
-                    <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted); margin-top:10px;">ANIMATION PRESETS</span>
-                    <div style="display:flex; flex-direction:column; gap:8px;">
-                        <div class="control-group active-preset" id="preset-popup" style="cursor:pointer;" onclick="setAnimationPreset('popup')">1. Pop-up</div>
-                        <div class="control-group" id="preset-showcase" style="cursor:pointer;" onclick="setAnimationPreset('showcase')">2. Showcase (Slots 1 to 5)</div>
-                        <div class="control-group" id="preset-liquid" style="cursor:pointer;" onclick="setAnimationPreset('liquid')">3. Apple "Liquid Glass"</div>
-                        <div class="control-group" id="preset-shine" style="cursor:pointer;" onclick="setAnimationPreset('shine')">4. Tilted Button Shine</div>
-                        <div class="control-group" id="preset-manual" style="cursor:pointer;" onclick="setAnimationPreset('manual')">5. Manual Slider Control</div>
+                    <!-- ANIMATION PRESET CATEGORIES -->
+                    <div style="display:flex; flex-direction:column; gap:12px; margin-top:10px;">
+                        <!-- CATEGORY: IMAGE -->
+                        <div class="category-group">
+                            <div class="category-header">Image</div>
+                            <div class="control-group active-preset" id="preset-popup" style="cursor:pointer;" onclick="setAnimationPreset('popup')">1. Pop-up</div>
+                            <div class="control-group" id="preset-showcase" style="cursor:pointer;" onclick="setAnimationPreset('showcase')">2. Showcase (Slots 1 to 5)</div>
+                            <div class="control-group" id="preset-shine" style="cursor:pointer;" onclick="setAnimationPreset('shine')">3. Tilted Button Shine</div>
+                        </div>
+
+                        <!-- CATEGORY: TEXT -->
+                        <div class="category-group">
+                            <div class="category-header">Text</div>
+                            <div class="control-group disabled-preset">Coming Soon</div>
+                        </div>
+
+                        <!-- CATEGORY: OVERLAY -->
+                        <div class="category-group">
+                            <div class="category-header">Overlay</div>
+                            <div class="control-group disabled-preset">Coming Soon</div>
+                        </div>
+
+                        <!-- CATEGORY: GFX -->
+                        <div class="category-group">
+                            <div class="category-header">Gfx</div>
+                            <div class="control-group disabled-preset">Coming Soon</div>
+                        </div>
                     </div>
                 </aside>
 
@@ -1044,52 +1081,34 @@
                 }
 
                 // OVERLAY EFFECTS FOR SINGLE IMAGE ENHANCEMENT
-                if (overlayEffect === 'liquid') {
-                    // APPLE "LIQUID GLASS" EFFECT
-                    const liquidWave = Math.sin(progress * Math.PI * 2) * 40;
-                    const lGrad = ctx.createLinearGradient(-drawW/2 + liquidWave, -drawH/2, drawW/2 + liquidWave, drawH/2);
-                    lGrad.addColorStop(0, 'rgba(255, 255, 255, 0.0)');
-                    lGrad.addColorStop(0.35, 'rgba(255, 255, 255, 0.05)');
-                    lGrad.addColorStop(0.5, 'rgba(255, 255, 255, 0.35)');
-                    lGrad.addColorStop(0.65, 'rgba(255, 255, 255, 0.05)');
-                    lGrad.addColorStop(1, 'rgba(255, 255, 255, 0.0)');
-
-                    ctx.fillStyle = lGrad;
-                    ctx.beginPath();
-                    ctx.roundRect(-drawW / 2, -drawH / 2, drawW, drawH, 16);
-                    ctx.fill();
-
-                    // Soft inner glass rim accent
-                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
-                    ctx.lineWidth = 2;
-                    ctx.stroke();
-                } else if (overlayEffect === 'shine') {
-                    // TILTED BUTTON-STYLE GLASS SHINE & FLASH SWEEP
+                if (overlayEffect === 'shine') {
+                    // EXPANDED & WIDER TILTED BUTTON-STYLE GLASS SHINE & FLASH SWEEP
                     ctx.save();
                     ctx.beginPath();
                     ctx.roundRect(-drawW / 2, -drawH / 2, drawW, drawH, 16);
                     ctx.clip();
 
                     // Travel across the width with extra padding for tilt angle
-                    const totalTravel = drawW * 1.6;
-                    const currentPos = -drawW * 0.8 + (progress * totalTravel);
+                    const totalTravel = drawW * 2.2;
+                    const currentPos = -drawW * 1.1 + (progress * totalTravel);
 
                     // Apply 25-degree tilt transform focused at current shine position
                     ctx.translate(currentPos, 0);
                     ctx.rotate(-25 * Math.PI / 180);
 
-                    // Smooth multi-stop gradient giving authentic glass reflection flare
-                    const shineGrad = ctx.createLinearGradient(-120, 0, 120, 0);
+                    // WIDER GRADIENT PRESET (600px width total, double size for bigger flash cover)
+                    const shineGrad = ctx.createLinearGradient(-300, 0, 300, 0);
                     shineGrad.addColorStop(0.0, 'rgba(255, 255, 255, 0.0)');
-                    shineGrad.addColorStop(0.2, 'rgba(255, 255, 255, 0.15)');
-                    shineGrad.addColorStop(0.45, 'rgba(255, 255, 255, 0.65)');
-                    shineGrad.addColorStop(0.5, 'rgba(255, 255, 255, 0.95)'); // Core highlight flash
-                    shineGrad.addColorStop(0.55, 'rgba(255, 255, 255, 0.65)');
-                    shineGrad.addColorStop(0.8, 'rgba(255, 255, 255, 0.15)');
+                    shineGrad.addColorStop(0.2, 'rgba(255, 255, 255, 0.12)');
+                    shineGrad.addColorStop(0.42, 'rgba(255, 255, 255, 0.65)');
+                    shineGrad.addColorStop(0.5, 'rgba(255, 255, 255, 0.98)'); // Bright central flash line
+                    shineGrad.addColorStop(0.58, 'rgba(255, 255, 255, 0.65)');
+                    shineGrad.addColorStop(0.8, 'rgba(255, 255, 255, 0.12)');
                     shineGrad.addColorStop(1.0, 'rgba(255, 255, 255, 0.0)');
 
                     ctx.fillStyle = shineGrad;
-                    ctx.fillRect(-150, -drawH, 300, drawH * 2);
+                    // Taller & Wider coverage bounds
+                    ctx.fillRect(-350, -drawH * 1.5, 700, drawH * 3);
 
                     ctx.restore();
                 }
@@ -1134,20 +1153,11 @@
                     drawCard(cardX, 0, scale, 0, 0, alpha, slotImg, idx + 1);
                 }
             }
-            // PRESET 3: APPLE "LIQUID GLASS" (SINGLE IMAGE SMOOTH CLEAN EFFECT)
-            else if (state.preset === 'liquid') {
-                const floatY = Math.sin(progress * Math.PI * 2) * 12;
-                drawCard(0, floatY, 0.88, 0, 0, 1.0, null, 1, 'liquid');
-            }
-            // PRESET 4: SHINE EFFECT (TILTED GLASS BUTTON SHINE & FLASH SWEEP)
+            // PRESET 3: SHINE EFFECT (WIDER TILTED GLASS BUTTON SHINE & FLASH SWEEP)
             else if (state.preset === 'shine') {
-                drawCard(0, 0, 0.88, 0, 0, 1.0, null, 1, 'shine');
-            }
-            // PRESET 5: MANUAL CONTROL
-            else if (state.preset === 'manual') {
                 const skewX = state.yaw * Math.PI / 180;
                 const skewY = state.pitch * Math.PI / 180;
-                drawCard(0, 0, 0.85, skewX, skewY, 1.0);
+                drawCard(0, 0, 0.88, skewX, skewY, 1.0, null, 1, 'shine');
             }
         }
 
@@ -1186,7 +1196,6 @@
             state.yaw = parseFloat(document.getElementById('yaw-slider').value);
             document.getElementById('pitch-val').innerText = `${state.pitch}°`;
             document.getElementById('yaw-val').innerText = `${state.yaw}°`;
-            setAnimationPreset('manual');
         }
 
         function updateDuration(val) {
